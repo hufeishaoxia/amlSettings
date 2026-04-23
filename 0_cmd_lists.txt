@@ -1,0 +1,13 @@
+
+
+Setup:
+
+
+AAD token ttl 1hour:
+az account get-access-token --resource 2ff814a6-3304-4ab8-85cb-cd0e6f879c1d --query accessToken -o tsv 
+export DATABRICKS_TOKEN="$(cat aad_token)"
+
+
+
+pip install --user --force-reinstall requests urllib3 charset-normalizer idna certifi PyJWT cryptography
+pip install --user -U "transformers==4.46.3" "tokenizers>=0.20" "accelerate>=0.34"
