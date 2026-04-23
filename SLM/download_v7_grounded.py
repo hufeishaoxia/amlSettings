@@ -1,4 +1,4 @@
-"""Download v7_grounded for a range of bizdates from Databricks SQL Warehouse to local parquet."""
+"""Download v8_grounded for a range of bizdates from Databricks SQL Warehouse to local parquet."""
 import os
 import sys
 import time
@@ -12,15 +12,15 @@ HTTP_PATH = "/sql/1.0/warehouses/3d5effb8e09bd9e7"
 _TOKEN_FILE = os.path.join(os.path.dirname(__file__), "aad_token")
 TOKEN = os.environ.get("DATABRICKS_TOKEN") or open(_TOKEN_FILE).read().strip()
 
-OUT_DIR = "/scratch/azureml/cr/j/cb7f3b2f13af4de88e98a157ca0e3eaa/exe/wd/amlSettings/data"
+OUT_DIR = "/scratch/azureml/cr/j/cb7f3b2f13af4de88e98a157ca0e3eaa/exe/wd/amlSettings/data_v8"
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# Date range: 2026-04-07 .. 2026-04-20 (inclusive). Override with CLI args: START END (YYYYMMDD).
+# Date range: 2026-03-30 .. 2026-04-20 (inclusive). Override with CLI args: START END (YYYYMMDD).
 if len(sys.argv) >= 3:
     start = date(int(sys.argv[1][:4]), int(sys.argv[1][4:6]), int(sys.argv[1][6:8]))
     end = date(int(sys.argv[2][:4]), int(sys.argv[2][4:6]), int(sys.argv[2][6:8]))
 else:
-    start = date(2026, 4, 7)
+    start = date(2026, 3, 30)
     end = date(2026, 4, 20)
 
 bizdates = []
@@ -39,13 +39,13 @@ with sql.connect(
 ) as conn:
     with conn.cursor() as cur:
         for bd in bizdates:
-            out = os.path.join(OUT_DIR, f"v7_grounded_{bd}.parquet")
+            out = os.path.join(OUT_DIR, f"v8_grounded_{bd}.parquet")
             if os.path.exists(out) and os.path.getsize(out) > 0:
                 print(f"[skip] {out} exists ({os.path.getsize(out)/1e6:.2f} MB)")
                 continue
             q = (
                 "SELECT * FROM mai_ws_discover.analytics."
-                f"ods_doca_feed_grounded_v7_partitioned WHERE bizdate='{bd}'"
+                f"ods_doca_feed_grounded_v8_partitioned WHERE bizdate='{bd}'"
             )
             t0 = time.time()
             print(f"[info] {bd}: running query...")

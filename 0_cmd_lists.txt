@@ -10,4 +10,9 @@ export DATABRICKS_TOKEN="$(cat aad_token)"
 
 
 pip install --user --force-reinstall requests urllib3 charset-normalizer idna certifi PyJWT cryptography
-pip install --user -U "transformers==4.46.3" "tokenizers>=0.20" "accelerate>=0.34"
+pip install --user "transformers==4.51.3" "tokenizers>=0.21,<0.22" "numpy>=1.26,<2.2"
+
+
+
+copy data: 
+cp -r amlSettings/SLM/output/pointwise_Qwen3-1.7B_bs256_ep3_hist30/ /mnt/msndni//shares/UDC/RnR/HLLM/Copilot/SLM/

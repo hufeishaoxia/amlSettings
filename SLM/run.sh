@@ -4,6 +4,7 @@ set -euo pipefail
 
 export NCCL_IB_DISABLE=1
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+export WANDB_MODE=${WANDB_MODE:-offline}
 
 if [[ -n "${CUDA_VISIBLE_DEVICES:-}" ]]; then
     NPROC=$(awk -F',' '{print NF}' <<< "${CUDA_VISIBLE_DEVICES}")
@@ -18,7 +19,7 @@ DATA_PATH=${DATA_PATH:-"data"}
 TRAIN_UNTIL=${TRAIN_UNTIL:-"20260416"}
 EVAL_FROM=${EVAL_FROM:-"20260417"}
 URA_FLIGHT=${URA_FLIGHT:-"discover-rk-ura"}
-TRAIN_URA_ONLY=${TRAIN_URA_ONLY:-"true"}   # "true" -> train only on URA traffic
+TRAIN_URA_ONLY=${TRAIN_URA_ONLY:-1}   # 1 = train only on URA traffic; 0 = all traffic
 
 BATCH_SIZE=${BATCH_SIZE:-128}
 MICRO_BATCH_SIZE=${MICRO_BATCH_SIZE:-2}
@@ -28,6 +29,7 @@ CUTOFF_LEN=${CUTOFF_LEN:-2048}
 MAX_HISTORY=${MAX_HISTORY:-30}
 SAMPLE=${SAMPLE:--1}
 EVAL_SAMPLE=${EVAL_SAMPLE:--1}
+OPTIM=${OPTIM:-"adamw_bnb_8bit"}
 
 MODEL_BASENAME=$(basename "${MODEL_PATH}")
 OUTPUT_DIR=${OUTPUT_DIR:-"output/pointwise_${MODEL_BASENAME}_bs${BATCH_SIZE}_ep${NUM_EPOCHS}_hist${MAX_HISTORY}"}
@@ -54,5 +56,6 @@ torchrun --nproc_per_node ${NPROC} train.py \
     --max_history ${MAX_HISTORY} \
     --sample ${SAMPLE} \
     --eval_sample ${EVAL_SAMPLE} \
+    --optim ${OPTIM} \
     --wandb_project ${WANDB_PROJECT} \
     --wandb_run_name ${WANDB_RUN_NAME}

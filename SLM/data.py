@@ -40,31 +40,106 @@ def _safe_json(s, default):
         return default
 
 
-def _topk_interests(interests, k: int) -> List[str]:
-    """Top-k interests by strength, formatted as 'name (kw1, kw2, ...)'."""
+def _format_interest_full(it: dict) -> str:
+    """Format ONE interest with all available structured fields on a single block."""
+    name = (it.get("name") or "").strip()
+    parts = [name] if name else []
+    meta = []
+    for key in ("domain", "classification", "status", "intent"):
+        v = it.get(key)
+        if v not in (None, "", []):
+            meta.append(f"{key}={v}")
+    s = it.get("strength")
+    if s is not None:
+        try:
+            meta.append(f"strength={float(s):.2f}")
+        except Exception:
+            pass
+    srcs = it.get("sources") or []
+    if isinstance(srcs, list) and srcs:
+        meta.append("sources=" + ",".join(str(x) for x in srcs))
+    head = name + ("  [" + "; ".join(meta) + "]" if meta else "")
+    lines = [head]
+    kws = it.get("keywords") or []
+    if isinstance(kws, list) and kws:
+        lines.append("    keywords: " + ", ".join(str(x) for x in kws))
+    rat = (it.get("rationale") or "").strip()
+    if rat:
+        rat = rat.replace("\n", " ")
+        if len(rat) > 400:
+            rat = rat[:399] + "…"
+        lines.append("    why: " + rat)
+    return "\n".join(lines)
+
+
+def _all_interests(interests) -> List[str]:
+    """All interests, sorted by strength desc, fully formatted."""
     if not interests:
         return []
     items = []
     for it in interests:
         if not isinstance(it, dict):
             continue
-        name = (it.get("name") or "").strip()
-        if not name:
+        if not (it.get("name") or "").strip():
             continue
-        items.append((float(it.get("strength") or 0.0), it, name))
+        items.append((float(it.get("strength") or 0.0), it))
     items.sort(key=lambda x: -x[0])
+    return [_format_interest_full(it) for _, it in items]
+
+
+def _group_conversations(conversation, max_groups: int, max_msgs_per_group: int,
+                         max_chars: int = 220) -> List[dict]:
+    """Group messages by conversation_id, sorted by group recency.
+
+    Returns list of {id, started_at, messages: [{author, text}]}.
+    """
+    if not conversation:
+        return []
+    groups: dict = {}
+    for m in conversation:
+        if not isinstance(m, dict):
+            continue
+        cid = m.get("conversation_id") or m.get("message_id") or ""
+        g = groups.setdefault(cid, {"id": cid, "messages": []})
+        g["messages"].append(m)
+
     out = []
-    for _, it, name in items[:k]:
-        kws = it.get("keywords") or []
-        if isinstance(kws, list) and kws:
-            kw_str = ", ".join(str(x) for x in kws[:5])
-            out.append(f"{name} ({kw_str})")
-        else:
-            out.append(name)
+    for g in groups.values():
+        msgs = g["messages"]
+        try:
+            msgs.sort(key=lambda x: x.get("createdAt") or "")
+        except Exception:
+            pass
+        ts = msgs[0].get("createdAt") if msgs else ""
+        clean = []
+        for m in msgs:
+            text = (m.get("text") or "").strip().replace("\n", " ")
+            if not text:
+                continue
+            if len(text) > max_chars:
+                text = text[: max_chars - 1] + "…"
+            author = m.get("author") or "?"
+            clean.append({"author": author, "text": text})
+        if not clean:
+            continue
+        out.append({
+            "id": g["id"],
+            "started_at": ts or "",
+            "messages": clean,
+        })
+
+    out.sort(key=lambda g: g["started_at"], reverse=True)
+    if max_groups > 0:
+        out = out[:max_groups]
+    if max_msgs_per_group > 0:
+        for g in out:
+            # keep last N messages within each group (most recent turns)
+            g["messages"] = g["messages"][-max_msgs_per_group:]
     return out
 
 
 def _shown_titles(shown_10d, k: int) -> List[str]:
+    """All shown card titles (any clickScenario), deduped, newest first."""
     if not shown_10d:
         return []
     try:
@@ -87,7 +162,32 @@ def _shown_titles(shown_10d, k: int) -> List[str]:
     return titles
 
 
+def _clicked_titles(shown_10d) -> List[str]:
+    """Card titles the user clicked (clickScenario == 'navigate'), from shown_10d."""
+    if not shown_10d:
+        return []
+    try:
+        rows = sorted(
+            (r for r in shown_10d if isinstance(r, dict)),
+            key=lambda r: r.get("event_time") or "",
+            reverse=True,
+        )
+    except Exception:
+        rows = [r for r in shown_10d if isinstance(r, dict)]
+    titles, seen = [], set()
+    for r in rows:
+        if r.get("clickScenario") != "navigate":
+            continue
+        t = (r.get("cardTitle") or "").strip()
+        if not t or t in seen:
+            continue
+        seen.add(t)
+        titles.append(t)
+    return titles
+
+
 def _recent_user_turns(conversation, k: int, max_chars: int = 200) -> List[str]:
+    """Legacy helper kept for backward-compat callers; not used in the new prompt."""
     if not conversation:
         return []
     msgs = [m for m in conversation if isinstance(m, dict) and m.get("author") == "human"]
@@ -126,7 +226,7 @@ def _resolve_parquet_paths(path_or_glob: str) -> List[str]:
 _NEEDED_COLS = [
     "feedId", "user_id", "bizdate", "user_flight_ids", "candidate_cards",
     "interests", "negative_interests",
-    "shown_10d", "conversation",
+    "shown_10d", "conversation", "interactions_90d",
 ]
 
 
@@ -142,8 +242,9 @@ URA_FLIGHT = "discover-rk-ura"
 def load_samples(
     path: str,
     max_history: int = 30,
-    max_interests: int = 8,
-    max_conv_turns: int = 4,
+    max_interests: int = 0,           # 0 = keep ALL interests
+    max_conv_groups: int = 0,         # 0 = keep ALL conversation groups (upstream already capped)
+    max_msgs_per_group: int = 0,      # 0 = keep ALL messages within each group
     include_conv: bool = True,
     max_rows: int = -1,
     flight_filter: str = "",          # e.g. "discover-rk-ura"; empty = no flight filter
@@ -215,23 +316,51 @@ def load_samples(
 
                 pos_int = row.get("interests") or []
                 neg_int = row.get("negative_interests") or []
-                interest_lines = _topk_interests(pos_int, max_interests)
-                neg_lines = _topk_interests(neg_int, max(2, max_interests // 2))
+                pos_lines = _all_interests(pos_int)
+                neg_lines = _all_interests(neg_int)
+                if max_interests and max_interests > 0:
+                    pos_lines = pos_lines[:max_interests]
+                    neg_lines = neg_lines[:max(2, max_interests // 2)]
 
-                shown_titles = _shown_titles(_safe_json(row.get("shown_10d"), []), max_history)
+                shown_raw = _safe_json(row.get("shown_10d"), [])
+                shown_titles = _shown_titles(shown_raw, max_history)
                 history = [{"title": t, "summary": ""} for t in shown_titles]
 
-                conv_turns: List[str] = []
+                # Click titles from shown_10d (clickScenario == navigate)
+                click_titles = _clicked_titles(shown_raw)
+
+                # ThumbsUp / ThumbsDown from interactions_90d only
+                raw_inter = _safe_json(row.get("interactions_90d"), [])
+                thumbsup_titles, thumbsdown_titles = [], []
+                for it in raw_inter:
+                    if not isinstance(it, dict):
+                        continue
+                    sc = it.get("clickScenario", "")
+                    ct = (it.get("cardTitle") or "").strip()
+                    if not ct:
+                        continue
+                    if sc == "thumbsUp":
+                        thumbsup_titles.append(ct)
+                    elif sc == "thumbsDown":
+                        thumbsdown_titles.append(ct)
+
+                conv_groups: List[dict] = []
                 if include_conv:
-                    conv_turns = _recent_user_turns(
+                    conv_groups = _group_conversations(
                         _safe_json(row.get("conversation"), []),
-                        k=max_conv_turns,
+                        max_groups=max_conv_groups,
+                        max_msgs_per_group=max_msgs_per_group,
                     )
 
                 interests_blob = {
-                    "positive": interest_lines,
+                    "positive": pos_lines,
                     "negative": neg_lines,
-                    "recent_user_messages": conv_turns,
+                    "conversations": conv_groups,
+                    "interactions": {
+                        "clicks": click_titles,
+                        "thumbsUp": thumbsup_titles,
+                        "thumbsDown": thumbsdown_titles,
+                    },
                 }
 
                 feed_id = row.get("feedId") or ""
@@ -250,7 +379,6 @@ def load_samples(
                             "itemid":          cand.get("itemid", ""),
                             "title":           cand.get("title", ""),
                             "summary":         cand.get("summary", ""),
-                            "matchedInterest": cand.get("matchedInterest", ""),
                             "sectionIndex":    cand.get("sectionIndex"),
                             "cardIndex":       cand.get("cardIndex"),
                         },
@@ -270,60 +398,152 @@ def load_samples(
 # Prompt builder
 # ---------------------------------------------------------------------------
 
-def _format_interests(interests) -> List[str]:
-    """Accept the rich dict (positive/negative/recent_user_messages) or a string."""
+def _fmt_ts(ts: str) -> str:
+    """Trim ISO-8601 to 'YYYY-MM-DD HH:MM' if possible."""
+    if not ts:
+        return ""
+    s = str(ts).replace("T", " ")
+    return s[:16]
+
+
+def _format_interests_section(interests) -> List[str]:
+    """Render USER_INTERESTS block (positive + negative, all fields)."""
     if not interests:
-        return ["User interests: (none)"]
+        return ["USER_INTERESTS: (none)"]
     if isinstance(interests, str):
-        return [f"User interests: {interests}"]
+        return [f"USER_INTERESTS: {interests}"]
 
     out: List[str] = []
     pos = interests.get("positive") or []
     neg = interests.get("negative") or []
-    msgs = interests.get("recent_user_messages") or []
 
+    out.append("USER_INTERESTS (positive, ranked by strength):")
     if pos:
-        out.append("User interests:")
         for i, line in enumerate(pos, 1):
-            out.append(f"  {i}. {line}")
+            # `line` may be multi-line (header + keywords + why); indent continuation lines.
+            sub = line.split("\n")
+            out.append(f"  {i}. {sub[0]}")
+            for cont in sub[1:]:
+                out.append(f"    {cont.lstrip()}")
     else:
-        out.append("User interests: (none)")
+        out.append("  (none)")
 
     if neg:
-        out.append("User negative interests (avoid):")
+        out.append("USER_INTERESTS (negative, avoid):")
         for i, line in enumerate(neg, 1):
-            out.append(f"  {i}. {line}")
-
-    if msgs:
-        out.append("Recent user messages:")
-        for i, m in enumerate(msgs, 1):
-            out.append(f"  {i}. {m}")
+            sub = line.split("\n")
+            out.append(f"  {i}. {sub[0]}")
+            for cont in sub[1:]:
+                out.append(f"    {cont.lstrip()}")
     return out
 
 
+def _format_conversations_section(interests) -> List[str]:
+    """Render CONVERSATIONS block grouped by conversation_id."""
+    convs = []
+    if isinstance(interests, dict):
+        convs = interests.get("conversations") or []
+    if not convs:
+        return ["CONVERSATIONS: (none)"]
+
+    out: List[str] = ["CONVERSATIONS (recent groups, newest first):"]
+    for gi, g in enumerate(convs, 1):
+        ts = _fmt_ts(g.get("started_at", ""))
+        head = f"  Conversation {gi}"
+        if ts:
+            head += f" ({ts})"
+        head += ":"
+        out.append(head)
+        for m in g.get("messages") or []:
+            author = m.get("author") or "?"
+            role = "user" if author in ("human", "user") else "assistant"
+            out.append(f"    [{role}] {m.get('text','')}")
+    return out
+
+
+def _format_interactions_section(interests) -> List[str]:
+    """Render USER_INTERACTIONS block (thumbsUp / thumbsDown / click titles)."""
+    inter = {}
+    if isinstance(interests, dict):
+        inter = interests.get("interactions") or {}
+    thumbsup = inter.get("thumbsUp") or []
+    thumbsdown = inter.get("thumbsDown") or []
+    clicks = inter.get("clicks") or []
+    if not thumbsup and not thumbsdown and not clicks:
+        return ["USER_INTERACTIONS: (none)"]
+
+    out: List[str] = []
+    if thumbsup:
+        out.append("USER_INTERACTIONS (positive signals, thumbs-up card titles):")
+        for t in thumbsup:
+            out.append(f"  - {t}")
+    if thumbsdown:
+        out.append("USER_INTERACTIONS (negative signals, thumbs-down card titles):")
+        for t in thumbsdown:
+            out.append(f"  - {t}")
+    if clicks:
+        out.append("USER_INTERACTIONS (click signals, clicked card titles):")
+        for t in clicks:
+            out.append(f"  - {t}")
+    return out
+
+
+PROMPT_INTRO = (
+    "I am a click-prediction ranker for the Discover feed. I read one user's interest\n"
+    "profile, recent chat conversations, interaction history (clicks, thumbs-up,\n"
+    "thumbs-down), and the cards shown to them on previous days, then I predict\n"
+    "whether they will click the candidate item if I show it to them today.\n"
+    "\n"
+    "Signals the user may consider:\n"
+    "1. Source signal priority: interests sourced from inline curation (explicitly\n"
+    "   added by the user) carry more weight than user interactions (clicks, likes),\n"
+    "   which carry more weight than chat history (inferred from messages).\n"
+    "2. Interest strength: high (0.9-1.0) > medium (0.8-0.9) > exploratory (below 0.8).\n"
+    "3. Long-term interest relevance: alignment with stable USER_INTERESTS, including\n"
+    "   keyword overlap.\n"
+    "4. Short-term interest relevance: alignment with the most recent CONVERSATIONS.\n"
+    "5. USER_INTERACTION affinity: topical overlap with thumbs-up, clicked, or\n"
+    "   thumbs-down card titles in USER_INTERACTIONS.\n"
+    "6. Negative-interest match: whether the candidate matches a topic the user has\n"
+    "   shown disinterest in (USER_INTERESTS negative list).\n"
+    "7. Freshness: how recent or newly created the content is.\n"
+    "8. Importance: how significant or consequential the content is.\n"
+    "9. Novelty against SHOWN_CARDS: whether the candidate duplicates cards the user\n"
+    "   was already shown on previous days.\n"
+    "\n"
+    "I answer with a single token: Yes if the user will click, No otherwise.\n"
+    "\n"
+    "Inputs:\n"
+)
+
+
 def build_prompt(history, interests, candidate) -> str:
-    parts: List[str] = []
-    parts.extend(_format_interests(interests))
+    parts: List[str] = [PROMPT_INTRO]
+    parts.extend(_format_interests_section(interests))
+    parts.append("")
+    parts.extend(_format_conversations_section(interests))
+    parts.append("")
+    parts.extend(_format_interactions_section(interests))
+    parts.append("")
 
     if history:
-        parts.append("Recently shown cards (history):")
+        parts.append(f"SHOWN_CARDS (last {len(history)} cards shown to the user on previous days):")
         for i, h in enumerate(history, 1):
             t = h.get("title", "")
             s = h.get("summary", "")
-            parts.append(f"  {i}. {t}" + (f" - {s}" if s else ""))
+            parts.append(f"  {i}. {t}" + (f" — {s}" if s else ""))
     else:
-        parts.append("Recently shown cards (history): (none)")
-
+        parts.append("SHOWN_CARDS: (none)")
     parts.append("")
-    parts.append("Candidate item:")
+
+    parts.append("CANDIDATE_ITEM:")
     title = candidate.get("title", "")
     summary = candidate.get("summary", "")
-    matched = candidate.get("matchedInterest", "")
-    if matched:
-        parts.append(f"Matched interest: {matched}")
-    parts.append(title + (f" - {summary}" if summary else ""))
+    parts.append(f"  title: {title}")
+    if summary:
+        parts.append(f"  summary: {summary}")
     parts.append("")
-    parts.append("Will the user click this candidate item? Answer:")
+    parts.append("Will the user click this candidate item? I answer Yes or No:")
     return "\n".join(parts)
 
 
@@ -338,8 +558,9 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
         tokenizer,
         max_len: int = 2048,
         max_history: int = 30,
-        max_interests: int = 8,
-        max_conv_turns: int = 4,
+        max_interests: int = 0,
+        max_conv_groups: int = 0,
+        max_msgs_per_group: int = 0,
         include_conv: bool = True,
         use_chat_template: bool = True,
         sample: int = -1,
@@ -358,7 +579,8 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
             path,
             max_history=max_history,
             max_interests=max_interests,
-            max_conv_turns=max_conv_turns,
+            max_conv_groups=max_conv_groups,
+            max_msgs_per_group=max_msgs_per_group,
             include_conv=include_conv,
             max_rows=max_rows,
             flight_filter=flight_filter,
@@ -394,9 +616,9 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
         if self.use_chat_template:
             messages = [
                 {"role": "system", "content":
-                    "You are a recommendation assistant. Given the user's interests, recently "
-                    "shown cards, and recent messages, predict whether the user will click the "
-                    "candidate item. Answer Yes or No."},
+                    "I am a recommendation assistant. I read the user's interests, recent "
+                    "conversations, and shown cards, then predict whether they will click "
+                    "the candidate item. I answer Yes or No."},
                 {"role": "user", "content": prompt},
             ]
             formatted = self.tokenizer.apply_chat_template(

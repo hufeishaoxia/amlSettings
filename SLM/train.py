@@ -71,7 +71,7 @@ def train(
     train_until: str = "20260416",   # bizdate <= train_until -> train
     eval_from:   str = "20260417",   # bizdate >= eval_from   -> eval
     ura_flight: str = "discover-rk-ura",
-    train_ura_only: bool = False,    # if True, only URA traffic is used for training
+    train_ura_only: int = 0,          # 1 = only URA traffic for training; 0 = all traffic
     max_history: int = 30,
     cutoff_len: int = 2048,
     batch_size: int = 128,
@@ -95,6 +95,7 @@ def train(
     resume_from_checkpoint: str = None,
 ):
     set_seed(seed)
+    train_ura_only = int(train_ura_only) > 0
     if wandb_project:
         os.environ["WANDB_PROJECT"] = wandb_project
 
@@ -147,6 +148,17 @@ def train(
     eval_dataset = {"ura": val_ura, "all": val_all}
     metric_for_best = "eval_ura_loss"
 
+    # With dict eval_dataset, Trainer reports metrics as eval_{key}_loss.
+    # EarlyStoppingCallback checks after ALL eval splits have run; but
+    # load_best_model_at_end requires the metric to exist in state.
+    # Use eval_all_loss if there's no URA data (shouldn't happen, but be safe).
+    if len(val_ura) == 0:
+        metric_for_best = "eval_all_loss"
+
+    # Steps per epoch (for logging only)
+    train_len = len(train_data)
+    steps_per_epoch = max(1, train_len // (micro_batch_size * world_size * grad_accum))
+
     args = TrainingArguments(
         output_dir=output_dir,
         per_device_train_batch_size=micro_batch_size,
@@ -160,11 +172,9 @@ def train(
         bf16=True,
         optim=optim,
         logging_steps=10,
-        eval_strategy="steps",
-        eval_steps=eval_steps,
-        save_strategy="steps",
-        save_steps=save_steps,
-        save_total_limit=3,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        save_total_limit=int(num_epochs) + 1,  # keep ALL epoch checkpoints
         load_best_model_at_end=True,
         metric_for_best_model=metric_for_best,
         greater_is_better=False,
