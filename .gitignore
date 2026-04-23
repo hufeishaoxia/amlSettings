@@ -1,0 +1,62 @@
+# ===== 敏感凭据 =====
+aad_token
+*.token
+*.key
+*.pem
+.env
+.env.*
+secrets/
+config.local.*
+
+# ===== 数据 =====
+data/
+**/data/
+*.csv
+*.tsv
+*.parquet
+*.jsonl
+*.npy
+*.npz
+*.pkl
+*.bin
+*.h5
+*.arrow
+
+# ===== 模型输出 / checkpoints =====
+output/
+outputs/
+**/output/
+**/outputs/
+checkpoints/
+**/checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.tar
+*.tgz
+*.tar.gz
+*.zip
+
+# ===== 日志 / wandb =====
+wandb/
+**/wandb/
+logs/
+*.log
+tea_debug.log
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ===== IDE / OS =====
+.vscode/
+.idea/
+.DS_Store
+
+# ===== 本脚本(含 token) =====
+setup_and_push.sh
