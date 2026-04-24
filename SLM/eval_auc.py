@@ -24,7 +24,7 @@ import torch.distributed as dist
 from sklearn.metrics import roc_auc_score
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from data import build_prompt, load_samples
+from data import build_prompt, load_samples, load_samples_jsonl
 
 
 def _is_distributed():
@@ -152,6 +152,9 @@ def main(
     include_conv: int = 1,
     eval_max_rows: int = -1,
     out_json: str = "",
+    eval_ura_jsonl: str = "",
+    eval_all_jsonl: str = "",
+    ura_only: int = 0,
 ):
     # Init distributed if launched via torchrun
     if "RANK" in os.environ:
@@ -175,28 +178,42 @@ def main(
 
     _include_conv = int(include_conv) > 0
 
-    if rank == 0:
-        print("loading URA eval split")
-    ura_samples = load_samples(
-        data_path, max_history=max_history, include_conv=_include_conv,
-        bizdate_min=eval_from,
-        flight_filter=ura_flight, require_features=True, max_rows=eval_max_rows,
-    )
-    if rank == 0:
-        print("loading ALL eval split")
-    all_samples = load_samples(
-        data_path, max_history=max_history, include_conv=_include_conv,
-        bizdate_min=eval_from,
-        require_features=True, max_rows=eval_max_rows,
-    )
+    if eval_ura_jsonl:
+        if rank == 0:
+            print(f"loading URA eval from JSONL: {eval_ura_jsonl}")
+        ura_samples = load_samples_jsonl(eval_ura_jsonl)
+    else:
+        if rank == 0:
+            print("loading URA eval split (parquet)")
+        ura_samples = load_samples(
+            data_path, max_history=max_history, include_conv=_include_conv,
+            bizdate_min=eval_from,
+            flight_filter=ura_flight, require_features=True, max_rows=eval_max_rows,
+        )
+
+    all_samples = []
+    if not int(ura_only):
+        if eval_all_jsonl:
+            if rank == 0:
+                print(f"loading ALL eval from JSONL: {eval_all_jsonl}")
+            all_samples = load_samples_jsonl(eval_all_jsonl)
+        else:
+            if rank == 0:
+                print("loading ALL eval split (parquet)")
+            all_samples = load_samples(
+                data_path, max_history=max_history, include_conv=_include_conv,
+                bizdate_min=eval_from,
+                require_features=True, max_rows=eval_max_rows,
+            )
 
     results = []
     r = _eval_split(model, tokenizer, ura_samples, batch_size, max_len, device,
                     use_chat_template, "URA")
     if r: results.append(r)
-    r = _eval_split(model, tokenizer, all_samples, batch_size, max_len, device,
-                    use_chat_template, "ALL")
-    if r: results.append(r)
+    if not int(ura_only):
+        r = _eval_split(model, tokenizer, all_samples, batch_size, max_len, device,
+                        use_chat_template, "ALL")
+        if r: results.append(r)
 
     if rank == 0:
         print("\n=== Summary ===")

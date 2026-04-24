@@ -83,3 +83,28 @@ torchrun --nproc_per_node ${NPROC} train.py \
     --wandb_project ${WANDB_PROJECT} \
     --wandb_run_name ${WANDB_RUN_NAME} \
     2>&1 | tee "${LOG_FILE}"
+
+# ── Auto-eval on all checkpoints after training ──
+EVAL_BATCH_SIZE=${EVAL_BATCH_SIZE:-16}
+EVAL_DIR="eval_results"
+mkdir -p "${EVAL_DIR}"
+
+echo ""
+echo "========== AUTO-EVAL =========="
+for CKPT_DIR in $(ls -d "${OUTPUT_DIR}"/checkpoint-* 2>/dev/null | sort -t- -k2 -n); do
+    CKPT_NAME=$(basename "${CKPT_DIR}")
+    EVAL_OUT="${EVAL_DIR}/eval_${WANDB_RUN_NAME}_ura_${CKPT_NAME}.json"
+    echo "[eval] $(date) ${CKPT_NAME} URA-only"
+    torchrun --nproc_per_node ${NPROC} --master_port $((20000 + RANDOM % 20000)) \
+        eval_auc.py \
+        --ckpt "${CKPT_DIR}" \
+        --eval_ura_jsonl "${EVAL_URA_JSONL}" \
+        --eval_all_jsonl "${EVAL_ALL_JSONL}" \
+        --ura_only 1 \
+        --max_len ${CUTOFF_LEN} \
+        --batch_size ${EVAL_BATCH_SIZE} \
+        --out_json "${EVAL_OUT}" \
+        2>&1 | tee -a "${LOG_FILE}"
+    echo "[done] $(date) ${CKPT_NAME}"
+done
+echo "========== ALL EVAL DONE =========="

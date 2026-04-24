@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Preprocess raw parquet data into compact JSONL files for training/eval.
 
-Reads grounded v7 parquet, flattens each impression into one sample, strips
-conversation and shown_10d (SHOWN_CARDS) per user request, marks URA flight,
-and saves to JSONL with one JSON object per line.
+Reads grounded v7 parquet, flattens each impression into one sample, marks
+URA flight, and saves to JSONL with one JSON object per line.
+
+Filtering: samples where positive interests list is empty are dropped.
 
 Output files (in --output_dir):
     train_ura.jsonl     - URA traffic,  bizdate in [train_min, train_until]
@@ -13,7 +14,8 @@ Output files (in --output_dir):
 
 Each line is a JSON object with fields:
     feed_id, user_id, bizdate, is_ura, label,
-    interests (dict with positive, negative, interactions - NO conversations),
+    interests (dict with positive, negative, conversations, interactions),
+    history (list of {title, summary} from shown_10d),
     candidate (dict with itemid, title, summary),
     features (dict or null)
 
@@ -39,12 +41,15 @@ from data import (
 )
 
 URA_FLIGHT = "discover-rk-ura"
+MAX_HISTORY = 30       # max shown_cards to keep
+MAX_CONV_GROUPS = 0    # 0 = no limit on conversation groups
+MAX_MSGS_PER_GROUP = 0 # 0 = no limit on messages per group
 
 _NEEDED_COLS = [
     "feedId", "user_id", "bizdate", "user_flight_ids", "candidate_cards",
     "interests", "negative_interests",
     "interactions_90d",
-    # NOT loading: shown_10d, conversation (user requested removal)
+    "shown_10d", "conversation",
 ]
 
 
@@ -124,9 +129,21 @@ def extract_samples(path, bizdate_min="", bizdate_max="",
                 pos_lines = _all_interests(pos_int)
                 neg_lines = _all_interests(neg_int)
 
-                # Interactions (thumbsUp, thumbsDown, clicks) from interactions_90d
+                # Filter: skip feeds with empty positive interests
+                if not pos_lines:
+                    continue
+
+                # Shown cards (history)
+                shown_raw = _safe_json(row.get("shown_10d"), [])
+                shown_titles = _shown_titles(shown_raw, MAX_HISTORY)
+                history = [{"title": t, "summary": ""} for t in shown_titles]
+
+                # Click titles from shown_10d
+                click_titles = _clicked_titles(shown_raw)
+
+                # ThumbsUp / ThumbsDown from interactions_90d
                 raw_inter = _safe_json(row.get("interactions_90d"), [])
-                thumbsup_titles, thumbsdown_titles, click_titles = [], [], []
+                thumbsup_titles, thumbsdown_titles = [], []
                 for it in raw_inter:
                     if not isinstance(it, dict):
                         continue
@@ -138,13 +155,18 @@ def extract_samples(path, bizdate_min="", bizdate_max="",
                         thumbsup_titles.append(ct)
                     elif sc == "thumbsDown":
                         thumbsdown_titles.append(ct)
-                    elif sc == "navigate":
-                        click_titles.append(ct)
+
+                # Conversations
+                conv_groups = _group_conversations(
+                    _safe_json(row.get("conversation"), []),
+                    max_groups=MAX_CONV_GROUPS,
+                    max_msgs_per_group=MAX_MSGS_PER_GROUP,
+                )
 
                 interests_blob = {
                     "positive": pos_lines,
                     "negative": neg_lines,
-                    # NO conversations (user requested removal)
+                    "conversations": conv_groups,
                     "interactions": {
                         "clicks": click_titles,
                         "thumbsUp": thumbsup_titles,
@@ -167,6 +189,7 @@ def extract_samples(path, bizdate_min="", bizdate_max="",
                         "is_ura": is_ura,
                         "label": label,
                         "interests": interests_blob,
+                        "history": history,
                         "candidate": {
                             "itemid": cand.get("itemid", ""),
                             "title": cand.get("title", ""),
