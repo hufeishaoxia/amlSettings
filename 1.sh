@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 # 一次性: 写 .gitignore -> 取消跟踪敏感/数据文件 -> commit -> push
-# 用完请到 https://github.com/settings/tokens 撤销该 PAT
-
+#
+# 用法:
+#   export GITHUB_TOKEN=ghp_xxx        # 从 https://github.com/settings/tokens 申请
+#   export GITHUB_USER=hufeishaoxia    # 可选, 默认 hufeishaoxia
+#   bash 1.sh
+#
+# 注意: 不要把真实 PAT 写进任何被 git 跟踪的文件 (本仓库 .gitignore 已忽略 .env)
 set -euo pipefail
 
-REPO_URL_WITH_TOKEN="https://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@github.com/hufeishaoxia/amlSettings.git"
+: "${GITHUB_TOKEN:?需要先 export GITHUB_TOKEN=ghp_xxx (或 source .env)}"
+GITHUB_USER="${GITHUB_USER:-hufeishaoxia}"
+REPO_URL_WITH_TOKEN="https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/hufeishaoxia/amlSettings.git"
 REPO_URL_CLEAN="https://github.com/hufeishaoxia/amlSettings.git"
 
 cd "$(dirname "$0")"

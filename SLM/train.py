@@ -41,22 +41,36 @@ class WeightedTrainer(Trainer):
     """Trainer that scales per-sample LM loss by `batch["weight"]`."""
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         weights = inputs.pop("weight", None)
-        labels  = inputs["labels"]
+        labels  = inputs.pop("labels")
+        # Don't pass labels to the model — avoids a redundant full-vocab
+        # cross_entropy inside the model that allocates ~18 GB.
         outputs = model(**inputs)
         logits  = outputs.logits
 
-        # Shift for next-token prediction
-        shift_logits = logits[..., :-1, :].contiguous()
-        shift_labels = labels[..., 1:].contiguous()
+        # Shift for next-token prediction (labels are shifted by 1)
+        shift_labels = labels[..., 1:].contiguous()  # (B, T-1)
+
+        # Memory-efficient: only compute CE at positions where label != -100.
+        # For Yes/No classification this is typically just 1-2 tokens per sample,
+        # reducing the CE from (B*(T-1), V) to (N_active, V) where N_active << B*T.
+        B, T_minus1 = shift_labels.shape
+        active_mask = shift_labels != -100  # (B, T-1)
+
+        # Gather only active logit rows — avoids materializing full (B, T-1, V) copy
+        # logits[:, :-1, :] at active positions
+        batch_idx, seq_idx = active_mask.nonzero(as_tuple=True)
+        active_logits = logits[batch_idx, seq_idx]        # (N_active, V), no big copy
+        active_labels = shift_labels[batch_idx, seq_idx]  # (N_active,)
 
         loss_fct = torch.nn.CrossEntropyLoss(reduction="none")
-        per_tok = loss_fct(
-            shift_logits.view(-1, shift_logits.size(-1)),
-            shift_labels.view(-1),
-        ).view(shift_labels.size())
+        active_loss = loss_fct(active_logits, active_labels)  # (N_active,)
 
-        mask = (shift_labels != -100).float()
-        per_sample = (per_tok * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)
+        # Scatter back to per-sample loss
+        per_sample = torch.zeros(B, device=logits.device, dtype=active_loss.dtype)
+        counts     = torch.zeros(B, device=logits.device, dtype=active_loss.dtype)
+        per_sample.scatter_add_(0, batch_idx, active_loss)
+        counts.scatter_add_(0, batch_idx, torch.ones_like(active_loss))
+        per_sample = per_sample / counts.clamp(min=1)
 
         if weights is not None:
             per_sample = per_sample * weights.to(per_sample.device)
