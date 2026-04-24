@@ -63,12 +63,19 @@ class BinaryHeadModel(nn.Module):
         self.yes_token_id = int(yes_token_id)
 
         hidden = base_model.config.hidden_size
-        self.head = nn.Linear(hidden, 2, bias=False)
-        # Warm-start head rows from the original LM head (row i -> class i).
+        head_mid = 256
+        self.head = nn.Sequential(
+            nn.Linear(hidden, head_mid),
+            nn.GELU(),
+            nn.Linear(head_mid, 2, bias=False),
+        )
+        # Warm-start the final layer from the original LM head Yes/No rows.
         with torch.no_grad():
             w = base_model.get_output_embeddings().weight  # (V, H)
-            init = torch.stack([w[self.no_token_id], w[self.yes_token_id]], dim=0)
-            self.head.weight.copy_(init.to(self.head.weight.dtype))
+            yes_no = torch.stack([w[self.no_token_id], w[self.yes_token_id]], dim=0)  # (2, H)
+            # Project to mid-dim: (2, H) @ first_layer.weight^T → (2, mid)
+            proj = yes_no.float() @ self.head[0].weight.data.T  # (2, mid)
+            self.head[2].weight.copy_(proj.to(self.head[2].weight.dtype))
 
         # Free the original lm_head (now unreferenced through `base_model`).
         del base_model
@@ -178,7 +185,7 @@ class BinaryHeadTrainer(Trainer):
             self.tokenizer.save_pretrained(output_dir)
         torch.save(
             {
-                "weight": m.head.weight.detach().cpu(),
+                "head_state_dict": m.head.state_dict(),
                 "no_token_id": m.no_token_id,
                 "yes_token_id": m.yes_token_id,
             },
@@ -196,11 +203,15 @@ def train(
     data_path: str,
     output_dir: str,
     train_until: str = "20260416",
+    train_from: str = "",
     eval_from: str = "20260417",
     ura_flight: str = "discover-rk-ura",
     train_ura_only: int = 0,
+    eval_ura_only: int = 0,           # 1 = skip val_all (URA-only eval, much faster)
     max_history: int = 30,
-    cutoff_len: int = 2048,
+    max_conv_groups: int = 0,        # 0 = keep ALL conversation groups
+    max_msgs_per_group: int = 0,     # 0 = keep ALL messages per group
+    cutoff_len: int = 4096,
     batch_size: int = 128,
     micro_batch_size: int = 2,
     num_epochs: int = 3,
@@ -217,6 +228,9 @@ def train(
     optim: str = "adamw_torch",
     seed: int = 42,
     use_chat_template: bool = True,
+    attn_impl: str = "sdpa",          # "sdpa" | "flash_attention_2" | "eager"
+    use_grad_ckpt: int = 0,           # 0 = off (faster); 1 = on (more memory)
+    neg_ratio: float = 0.0,           # 0 = no downsampling; e.g. 3 = keep 3 negs per positive (train only)
     wandb_project: str = "",
     wandb_run_name: str = "",
     resume_from_checkpoint: str = None,
@@ -247,23 +261,38 @@ def train(
     print(f"[v2] binary head: no_id={no_token_id} ({tokenizer.decode([no_token_id])!r}) "
           f"yes_id={yes_token_id} ({tokenizer.decode([yes_token_id])!r})")
 
-    base = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=torch.bfloat16)
+    # attn_implementation:
+    #   "sdpa" -> PyTorch SDPA. On A100 + bf16 + PT 2.5 it picks the Flash
+    #     kernel automatically; same speed as FA2, no extra deps.
+    #   "flash_attention_2" -> requires `flash-attn` pip pkg (GLIBC 2.32+).
+    #   None -> HF default (often "eager", much slower).
+    base = AutoModelForCausalLM.from_pretrained(
+        base_model,
+        torch_dtype=torch.bfloat16,
+        attn_implementation=attn_impl,
+    )
     base.config.use_cache = False
     model = BinaryHeadModel(base, no_token_id=no_token_id, yes_token_id=yes_token_id)
-    model.gradient_checkpointing_enable()
+    use_grad_ckpt = int(use_grad_ckpt) > 0
+    if use_grad_ckpt:
+        model.gradient_checkpointing_enable()
 
     train_data = PointwiseSFTDataset(
         data_path, tokenizer,
         max_len=cutoff_len, max_history=max_history,
+        max_conv_groups=max_conv_groups, max_msgs_per_group=max_msgs_per_group,
         use_chat_template=use_chat_template,
         sample=sample, seed=seed,
         max_rows=max_rows,
         bizdate_max=train_until,
+        bizdate_min=train_from,
         flight_filter=ura_flight if train_ura_only else "",
+        neg_ratio=neg_ratio,
     )
     val_ura = PointwiseSFTDataset(
         data_path, tokenizer,
         max_len=cutoff_len, max_history=max_history,
+        max_conv_groups=max_conv_groups, max_msgs_per_group=max_msgs_per_group,
         use_chat_template=use_chat_template,
         sample=eval_sample, seed=seed,
         max_rows=eval_max_rows,
@@ -274,13 +303,14 @@ def train(
     val_all = PointwiseSFTDataset(
         data_path, tokenizer,
         max_len=cutoff_len, max_history=max_history,
+        max_conv_groups=max_conv_groups, max_msgs_per_group=max_msgs_per_group,
         use_chat_template=use_chat_template,
         sample=eval_sample, seed=seed,
         max_rows=eval_max_rows,
         bizdate_min=eval_from,
         require_features=True,
-    )
-    eval_dataset = {"ura": val_ura, "all": val_all}
+    ) if not int(eval_ura_only) else None
+    eval_dataset = {"ura": val_ura} if val_all is None else {"ura": val_ura, "all": val_all}
 
     args = TrainingArguments(
         output_dir=output_dir,
@@ -303,7 +333,7 @@ def train(
         # backbone + binary_head.pt. Pick the best ckpt manually after training.
         load_best_model_at_end=False,
         ddp_find_unused_parameters=False if world_size > 1 else None,
-        gradient_checkpointing=True,
+        gradient_checkpointing=use_grad_ckpt,
         report_to="wandb" if wandb_project else "none",
         run_name=wandb_run_name or None,
         remove_unused_columns=False,

@@ -517,34 +517,111 @@ PROMPT_INTRO = (
 )
 
 
+def _candidate_lines(candidate) -> List[str]:
+    out = ["CANDIDATE_ITEM:"]
+    title = candidate.get("title", "")
+    summary = candidate.get("summary", "")
+    out.append(f"  title: {title}")
+    if summary:
+        out.append(f"  summary: {summary}")
+    return out
+
+
+def _shown_cards_lines(history) -> List[str]:
+    if not history:
+        return ["SHOWN_CARDS: (none)"]
+    out = [f"SHOWN_CARDS (last {len(history)} cards shown to the user on previous days):"]
+    for i, h in enumerate(history, 1):
+        t = h.get("title", "")
+        s = h.get("summary", "")
+        out.append(f"  {i}. {t}" + (f" — {s}" if s else ""))
+    return out
+
+
+def _interests_with_convs(interests, convs):
+    """Return shallow copy of interests blob with conversations replaced."""
+    if isinstance(interests, dict):
+        new_int = dict(interests)
+        new_int["conversations"] = convs
+        return new_int
+    return interests
+
+
+# Section priority for budgeted truncation (high -> low):
+#   1. CANDIDATE_ITEM       (never truncated)
+#   2. USER_INTERESTS       (never truncated)
+#   3. USER_INTERACTIONS    (never truncated)
+#   4. USER_CONVERSATIONS   (drop oldest groups if needed)
+#   5. SHOWN_CARDS          (drop first; halve until empty)
+
 def build_prompt(history, interests, candidate) -> str:
+    """Full prompt with new section ordering. No truncation.
+
+    Order (CANDIDATE placed adjacent to the question for short-distance grounding):
+      INTRO -> INTERESTS -> INTERACTIONS -> CONVERSATIONS -> SHOWN_CARDS
+            -> CANDIDATE_ITEM -> question -> [answer]
+    """
     parts: List[str] = [PROMPT_INTRO]
     parts.extend(_format_interests_section(interests))
     parts.append("")
-    parts.extend(_format_conversations_section(interests))
-    parts.append("")
     parts.extend(_format_interactions_section(interests))
     parts.append("")
-
-    if history:
-        parts.append(f"SHOWN_CARDS (last {len(history)} cards shown to the user on previous days):")
-        for i, h in enumerate(history, 1):
-            t = h.get("title", "")
-            s = h.get("summary", "")
-            parts.append(f"  {i}. {t}" + (f" — {s}" if s else ""))
-    else:
-        parts.append("SHOWN_CARDS: (none)")
+    parts.extend(_format_conversations_section(interests))
     parts.append("")
-
-    parts.append("CANDIDATE_ITEM:")
-    title = candidate.get("title", "")
-    summary = candidate.get("summary", "")
-    parts.append(f"  title: {title}")
-    if summary:
-        parts.append(f"  summary: {summary}")
+    parts.extend(_shown_cards_lines(history))
+    parts.append("")
+    parts.extend(_candidate_lines(candidate))
     parts.append("")
     parts.append("Will the user click this candidate item? I answer Yes or No:")
     return "\n".join(parts)
+
+
+def build_prompt_budgeted(history, interests, candidate, tokenizer,
+                          max_body_tokens: int):
+    """Build prompt that fits within `max_body_tokens` tokens.
+
+    Truncation strategy (in order):
+      a. Try the full prompt — if it fits, return.
+      b. Halve `history` (SHOWN_CARDS) until it fits or becomes empty.
+      c. Drop oldest CONVERSATIONS groups one by one until it fits.
+
+    CANDIDATE_ITEM, USER_INTERESTS, USER_INTERACTIONS are never trimmed.
+
+    Returns: (text, truncated_bool, n_dropped_history, n_dropped_convs)
+    """
+    def tlen(s: str) -> int:
+        return len(tokenizer.encode(s, add_special_tokens=False))
+
+    convs_full = []
+    if isinstance(interests, dict):
+        convs_full = list(interests.get("conversations") or [])
+    hist_full = list(history or [])
+
+    # (a) try full
+    text = build_prompt(hist_full, interests, candidate)
+    if tlen(text) <= max_body_tokens:
+        return text, False, 0, 0
+
+    # (b) halve history
+    hist = hist_full
+    while hist:
+        new_n = len(hist) // 2
+        hist = hist[:new_n]
+        text = build_prompt(hist, interests, candidate)
+        if tlen(text) <= max_body_tokens:
+            return text, True, len(hist_full) - len(hist), 0
+
+    # history fully gone, still over budget — drop oldest conv groups
+    # (convs are sorted newest-first, so pop from the tail)
+    convs = list(convs_full)
+    while convs:
+        convs.pop()
+        text = build_prompt([], _interests_with_convs(interests, convs), candidate)
+        if tlen(text) <= max_body_tokens:
+            return text, True, len(hist_full), len(convs_full) - len(convs)
+
+    # last resort: empty convs + empty hist; tokenizer will truncate the rest
+    return text, True, len(hist_full), len(convs_full)
 
 
 # ---------------------------------------------------------------------------
@@ -570,6 +647,7 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
         require_features: bool = False,
         bizdate_min: str = "",
         bizdate_max: str = "",
+        neg_ratio: float = 0.0,           # 0 = keep all negatives; >0 = keep this many negs per positive
     ):
         self.tokenizer = tokenizer
         self.max_len = max_len
@@ -592,6 +670,19 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
             random.Random(seed).shuffle(self.samples)
             self.samples = self.samples[:sample]
 
+        # Negative downsampling: keep all positives + neg_ratio × #pos negatives.
+        if neg_ratio and neg_ratio > 0:
+            pos_samples = [s for s in self.samples if s["label"] == 1]
+            neg_samples = [s for s in self.samples if s["label"] == 0]
+            keep_neg = min(len(neg_samples), int(round(neg_ratio * len(pos_samples))))
+            rng = random.Random(seed + 1)
+            rng.shuffle(neg_samples)
+            neg_samples = neg_samples[:keep_neg]
+            self.samples = pos_samples + neg_samples
+            rng.shuffle(self.samples)
+            print(f"[{path}] neg_ratio={neg_ratio}: kept {len(pos_samples)} pos + "
+                  f"{len(neg_samples)} neg (total {len(self.samples)})")
+
         pos = sum(s["label"] for s in self.samples)
         neg = len(self.samples) - pos
         n_feeds = len({s["feed_id"] for s in self.samples})
@@ -605,12 +696,54 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
         else:
             self.weights = {1: 1.0, 0: 1.0}
 
+        # ------------------------------------------------------------------
+        # Pre-compute budgeted prompts + truncation stats.
+        # body_budget reserves ~120 tokens for the chat-template wrapper
+        # (system msg, role tags, generation prompt) + answer (" Yes"/" No").
+        #
+        # Optimization: tokenizer.encode is ~50us/sample. With 100k samples
+        # × 8 ranks that's >40s of duplicated work. Use a fast char-length
+        # heuristic (~3.5 chars/token for English) to skip the budget check
+        # for clearly short samples — only encode those near the limit.
+        # ------------------------------------------------------------------
+        self._body_budget = max(256, self.max_len - 120)
+        # Conservative threshold: if char_len <= 2.5 * budget, certainly fits.
+        self._fast_char_limit = int(2.5 * self._body_budget)
+        self._trunc_count = 0
+        self._dropped_hist_total = 0
+        self._dropped_convs_total = 0
+        n_checked = 0
+        n = len(self.samples)
+        for s in self.samples:
+            full_text = build_prompt(s["history"], s["interests"], s["candidate"])
+            if len(full_text) <= self._fast_char_limit:
+                # Almost certainly fits; skip the slow tokenizer check.
+                s["_prompt"] = full_text
+                continue
+            n_checked += 1
+            _text, truncated, dh, dc = build_prompt_budgeted(
+                s["history"], s["interests"], s["candidate"],
+                self.tokenizer, self._body_budget,
+            )
+            s["_prompt"] = _text
+            if truncated:
+                self._trunc_count += 1
+                self._dropped_hist_total += dh
+                self._dropped_convs_total += dc
+        rate = self._trunc_count / max(1, n)
+        avg_dh = self._dropped_hist_total / max(1, self._trunc_count)
+        avg_dc = self._dropped_convs_total / max(1, self._trunc_count)
+        print(f"[{path}] truncation: {self._trunc_count}/{n} = {rate:.4%}  "
+              f"(body_budget={self._body_budget} tok, max_len={self.max_len}, "
+              f"checked={n_checked}/{n})  "
+              f"avg_dropped_per_trunc: history={avg_dh:.1f} convs={avg_dc:.2f}")
+
     def __len__(self):
         return len(self.samples)
 
     def __getitem__(self, idx):
         s = self.samples[idx]
-        prompt = build_prompt(s["history"], s["interests"], s["candidate"])
+        prompt = s.get("_prompt") or build_prompt(s["history"], s["interests"], s["candidate"])
         target = " Yes" if s["label"] == 1 else " No"
 
         if self.use_chat_template:

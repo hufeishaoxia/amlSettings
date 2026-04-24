@@ -136,6 +136,7 @@ def main(
     use_chat_template: bool = True,
     eval_max_rows: int = -1,
     out_json: str = "",
+    tokenizer_path: str = "",
 ):
     if "RANK" in os.environ:
         dist.init_process_group(backend="nccl")
@@ -149,7 +150,22 @@ def main(
     if rank == 0:
         print(f"loading v2 ckpt {ckpt} on {_world()} GPU(s)")
 
-    tokenizer = AutoTokenizer.from_pretrained(ckpt, trust_remote_code=True)
+    tok_src = tokenizer_path or ckpt
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(tok_src, trust_remote_code=True)
+    except (OSError, EnvironmentError):
+        # checkpoint may not have tokenizer files; fall back to config's base model name
+        cfg_path = os.path.join(ckpt, "config.json")
+        base_name = None
+        if os.path.isfile(cfg_path):
+            with open(cfg_path) as f:
+                cfg = json.load(f)
+            base_name = cfg.get("_name_or_path")
+        if not base_name:
+            raise
+        if rank == 0:
+            print(f"  tokenizer not in ckpt; loading from base: {base_name}")
+        tokenizer = AutoTokenizer.from_pretrained(base_name, trust_remote_code=True)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
@@ -160,9 +176,23 @@ def main(
     head_path = os.path.join(ckpt, "binary_head.pt")
     if not os.path.isfile(head_path):
         raise FileNotFoundError(f"binary_head.pt not found at {head_path}")
-    blob = torch.load(head_path, map_location=device)
-    head = nn.Linear(blob["weight"].shape[1], 2, bias=False).to(device).to(torch.bfloat16)
-    head.weight.data.copy_(blob["weight"].to(device).to(torch.bfloat16))
+    blob = torch.load(head_path, map_location=device, weights_only=False)
+
+    if "head_state_dict" in blob:
+        # MLP head (H → 256 → GELU → 2)
+        sd = blob["head_state_dict"]
+        mid = sd["0.weight"].shape[0]
+        hidden = sd["0.weight"].shape[1]
+        head = nn.Sequential(
+            nn.Linear(hidden, mid),
+            nn.GELU(),
+            nn.Linear(mid, 2, bias=False),
+        ).to(device).to(torch.bfloat16)
+        head.load_state_dict({k: v.to(device).to(torch.bfloat16) for k, v in sd.items()})
+    else:
+        # Legacy linear head
+        head = nn.Linear(blob["weight"].shape[1], 2, bias=False).to(device).to(torch.bfloat16)
+        head.weight.data.copy_(blob["weight"].to(device).to(torch.bfloat16))
     head.eval()
     if rank == 0:
         print(f"  no_token_id={blob['no_token_id']} yes_token_id={blob['yes_token_id']}")

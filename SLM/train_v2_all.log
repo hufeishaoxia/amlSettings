@@ -1,74 +1,0 @@
-[v2] GPUs: 8 | model: Qwen/Qwen3-1.7B | out: output/v2_Qwen3-1.7B_all_bs512_ep5_mbs64
-[v2] data: data_v8 | train<=20260416 | eval>=20260417 | ura=discover-rk-ura | train_ura_only=0
-[2026-04-24 02:58:17,561] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2026-04-24 02:58:18,087] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-[2026-04-24 02:58:18,774] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2026-04-24 02:58:18,785] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2026-04-24 02:58:18,797] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2026-04-24 02:58:18,869] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2026-04-24 02:58:18,885] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-[2026-04-24 02:58:18,891] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  import pkg_resources  # noqa: TID251
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 39.92it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 36.22it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 39.41it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 41.22it/s]
-Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 44.41it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 40.79it/s]
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 40.97it/s]
-[v2] binary head: no_id=2308 (' No') yes_id=7414 (' Yes')
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00, 43.46it/s]
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[load_samples] feeds_seen=201629 feeds_with_impressions=165843 candidates_total=1750199 impressions_seen=646369 impressions_kept=646369 samples=646369 flight='' require_features=False bizdate=[-inf, 20260416]
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[data_v8] feeds=165841  samples=646369  pos=45351  neg=601018  ctr=0.0702
-[load_samples] feeds_seen=201629 feeds_with_impressions=2709 candidates_total=52330 impressions_seen=15948 impressions_kept=10424 samples=10424 flight='discover-rk-ura' require_features=True bizdate=[20260417, +inf]
-[data_v8] feeds=2709  samples=10424  pos=750  neg=9674  ctr=0.0719
-[load_samples] feeds_seen=201629 feeds_with_impressions=2709 candidates_total=52330 impressions_seen=15948 impressions_kept=10424 samples=10424 flight='discover-rk-ura' require_features=True bizdate=[20260417, +inf]
-[data_v8] feeds=2709  samples=10424  pos=750  neg=9674  ctr=0.0719
-[load_samples] feeds_seen=201629 feeds_with_impressions=2709 candidates_total=52330 impressions_seen=15948 impressions_kept=10424 samples=10424 flight='discover-rk-ura' require_features=True bizdate=[20260417, +inf]
-[data_v8] feeds=2709  samples=10424  pos=750  neg=9674  ctr=0.0719
-[load_samples] feeds_seen=201629 feeds_with_impressions=2709 candidates_total=52330 impressions_seen=15948 impressions_kept=10424 samples=10424 flight='discover-rk-ura' require_features=True bizdate=[20260417, +inf]
-[data_v8] feeds=2709  samples=10424  pos=750  neg=9674  ctr=0.0719

@@ -45,6 +45,7 @@ checkpoints/
 wandb/
 **/wandb/
 logs/
+*.log
 tea_debug.log
 eval_results*.json
 
