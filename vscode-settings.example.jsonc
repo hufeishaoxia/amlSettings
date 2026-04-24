@@ -1,0 +1,31 @@
+// Drop-in template for VS Code remote (~/.vscode-server/data/Machine/settings.json)
+// or local user settings. Makes every integrated terminal land inside a tmux
+// session named "copilot", so closing the window / dropping SSH only detaches
+// long-running commands instead of killing them.
+//
+// Re-attach from any new shell / window:  tmux attach -t copilot
+{
+    // (optional) point Python at the AML conda env
+    "python.defaultInterpreterPath": "/opt/conda/envs/ptca/bin/python",
+
+    // ---- tmux-backed integrated terminal ----
+    "terminal.integrated.defaultProfile.linux": "tmux",
+    "terminal.integrated.profiles.linux": {
+        "tmux": {
+            "path": "tmux",
+            "args": ["new-session", "-A", "-s", "copilot"],
+            "icon": "terminal-tmux"
+        },
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+        }
+    },
+
+    // Ask before closing windows that still have running terminals
+    "terminal.integrated.confirmOnKill": "always",
+    // Try to revive terminal UI on reconnect (note: only revives the view,
+    // the actual processes survive because of tmux above)
+    "terminal.integrated.enablePersistentSessions": true,
+    "terminal.integrated.persistentSessionReviveProcess": "onExitAndWindowClose"
+}

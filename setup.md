@@ -36,6 +36,7 @@ amlSettings/
     ├── data/, data_v8/            ← parquet 数据 (gitignore)
     ├── output/                    ← 模型 checkpoint (gitignore)
     └── wandb/, *.log              ← 训练日志 (gitignore)
+vscode-settings.example.jsonc      ← VS Code 远端 settings 模板 (tmux 集成终端)
 ```
 
 ---
@@ -207,3 +208,73 @@ bash setup.sh --no-torch     # AML 镜像通常已带 torch；否则去掉 --no-
 cp .env.example .env && $EDITOR .env
 set -a && source .env && set +a
 cd SLM && bash run.sh
+
+
+---
+
+## 8. VS Code 远端终端 + tmux（防止关窗口杀进程）
+
+AML / Remote-SSH 上 VS Code 关窗口或断线时，集成终端的 shell 是 `vscode-server`
+的子进程，会被 SIGHUP 一起带走，长任务（训练、下载）也会被杀。
+解决办法：让所有集成终端**默认 attach 到一个 tmux session**，进程改由 tmux 托管。
+
+### 8.1 一次配好（remote 用户级 settings）
+
+把仓库里的 [vscode-settings.example.jsonc](vscode-settings.example.jsonc) 内容
+合并进 `~/.vscode-server/data/Machine/settings.json`（或本地用户 settings）：
+
+```bash
+# 在远端机器上
+mkdir -p ~/.vscode-server/data/Machine
+cp vscode-settings.example.jsonc ~/.vscode-server/data/Machine/settings.json
+# 然后在 VS Code 里: Cmd/Ctrl+Shift+P → "Developer: Reload Window"
+```
+
+关键三行：
+
+```jsonc
+"terminal.integrated.defaultProfile.linux": "tmux",
+"terminal.integrated.profiles.linux": {
+    "tmux": { "path": "tmux", "args": ["new-session", "-A", "-s", "copilot"] }
+}
+```
+
+`new-session -A -s copilot` = 已存在就 attach、不存在就创建。
+所以 VS Code 里每个新终端都会落进同一个名为 `copilot` 的 tmux session。
+
+### 8.2 日常用法
+
+| 操作 | 命令 |
+|------|------|
+| 关 VS Code 窗口 | 直接关，进程不死，只是 detach |
+| 重新查看现场 | 任意 shell 里 `tmux attach -t copilot` |
+| 列出所有 session | `tmux ls` |
+| 在 tmux 里脱离 | `Ctrl+b` 然后 `d` |
+| 在 tmux 里开新窗口 | `Ctrl+b` 然后 `c` |
+| 切窗口 | `Ctrl+b` 然后 `n` / `p` / 数字 |
+
+### 8.3 长任务建议另开独立 session
+
+`copilot` 这个 session 会被 VS Code / Copilot 频繁开新终端共享，跑训练会刷屏。
+长任务一律单独起 session：
+
+```bash
+# 启动训练，detached
+tmux new-session -d -s train 'bash SLM/run_full_experiment.sh 2>&1 | tee train.log'
+
+# 看进度
+tmux attach -t train         # Ctrl+b d 脱离
+# 或不进 tmux 直接看
+tail -f train.log
+```
+
+可以把这个写成 `~/.bashrc` 里的小函数：
+
+```bash
+trun() {                     # tmux-run: trun <name> <cmd...>
+    local name="${1:?usage: trun <name> <cmd...>}"; shift
+    tmux new-session -d -s "$name" "$* 2>&1 | tee ~/trun-$name.log"
+    echo "started in tmux: $name  (tmux attach -t $name)"
+}
+# 用法:  trun train  bash SLM/run_full_experiment.sh
+```
