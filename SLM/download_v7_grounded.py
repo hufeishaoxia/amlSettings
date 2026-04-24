@@ -12,7 +12,7 @@ HTTP_PATH = "/sql/1.0/warehouses/3d5effb8e09bd9e7"
 _TOKEN_FILE = os.path.join(os.path.dirname(__file__), "aad_token")
 TOKEN = os.environ.get("DATABRICKS_TOKEN") or open(_TOKEN_FILE).read().strip()
 
-OUT_DIR = "/scratch/azureml/cr/j/cb7f3b2f13af4de88e98a157ca0e3eaa/exe/wd/amlSettings/data_v8"
+OUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data_v8"))
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # Date range: 2026-03-30 .. 2026-04-20 (inclusive). Override with CLI args: START END (YYYYMMDD).

@@ -1,0 +1,6 @@
+MBS  status  peak_mem_GB  samples/s  steps/s  notes
+4    OK         ?            7.627      0.238     (grad_accum=1, BS=32, n=128)
+8    OK         ?            12.096     0.189     (grad_accum=1, BS=64, n=256)
+16   OK         ?            17.19      0.134     (grad_accum=1, BS=128, n=512)
+32   OK         ?            21.403     0.084     (grad_accum=1, BS=256, n=1024)
+64   OK         ?            25.135     0.049     (grad_accum=1, BS=512, n=2048)

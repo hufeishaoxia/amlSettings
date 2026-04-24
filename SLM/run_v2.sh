@@ -1,5 +1,6 @@
 #!/bin/bash
-# Point-wise SFT training (Yes/No click classification).
+# Point-wise SFT v2 — binary (Yes/No) head, no full-vocab LM head.
+# Same CLI as run.sh; entry point is train_v2.py.
 set -euo pipefail
 
 export NCCL_IB_DISABLE=1
@@ -13,13 +14,12 @@ else
     NPROC=${NPROC:-1}
 fi
 
-MODEL_PATH=${MODEL_PATH:-"Qwen/Qwen3-1.7B"}
-# Single parquet dir/glob; train.py splits by bizdate (<=TRAIN_UNTIL train, >=EVAL_FROM eval).
-DATA_PATH=${DATA_PATH:-"data"}
+MODEL_PATH=${MODEL_PATH:-"Qwen/Qwen3-8B"}
+DATA_PATH=${DATA_PATH:-"data_v8"}
 TRAIN_UNTIL=${TRAIN_UNTIL:-"20260416"}
 EVAL_FROM=${EVAL_FROM:-"20260417"}
 URA_FLIGHT=${URA_FLIGHT:-"discover-rk-ura"}
-TRAIN_URA_ONLY=${TRAIN_URA_ONLY:-1}   # 1 = train only on URA traffic; 0 = all traffic
+TRAIN_URA_ONLY=${TRAIN_URA_ONLY:-1}
 
 BATCH_SIZE=${BATCH_SIZE:-128}
 MICRO_BATCH_SIZE=${MICRO_BATCH_SIZE:-2}
@@ -32,15 +32,15 @@ EVAL_SAMPLE=${EVAL_SAMPLE:--1}
 OPTIM=${OPTIM:-"adamw_bnb_8bit"}
 
 MODEL_BASENAME=$(basename "${MODEL_PATH}")
-OUTPUT_DIR=${OUTPUT_DIR:-"output/pointwise_${MODEL_BASENAME}_bs${BATCH_SIZE}_ep${NUM_EPOCHS}_hist${MAX_HISTORY}"}
+OUTPUT_DIR=${OUTPUT_DIR:-"output/pointwise_v2_${MODEL_BASENAME}_bs${BATCH_SIZE}_ep${NUM_EPOCHS}_hist${MAX_HISTORY}"}
 
-WANDB_PROJECT=${WANDB_PROJECT:-"pointwise_sft"}
+WANDB_PROJECT=${WANDB_PROJECT:-"pointwise_sft_v2"}
 WANDB_RUN_NAME=${WANDB_RUN_NAME:-"$(basename ${OUTPUT_DIR})"}
 
-echo "GPUs: ${NPROC} | model: ${MODEL_PATH} | out: ${OUTPUT_DIR}"
-echo "data: ${DATA_PATH} | train<=${TRAIN_UNTIL} | eval>=${EVAL_FROM} | ura=${URA_FLIGHT} | train_ura_only=${TRAIN_URA_ONLY}"
+echo "[v2] GPUs: ${NPROC} | model: ${MODEL_PATH} | out: ${OUTPUT_DIR}"
+echo "[v2] data: ${DATA_PATH} | train<=${TRAIN_UNTIL} | eval>=${EVAL_FROM} | ura=${URA_FLIGHT} | train_ura_only=${TRAIN_URA_ONLY}"
 
-torchrun --nproc_per_node ${NPROC} train.py \
+torchrun --nproc_per_node ${NPROC} train_v2.py \
     --base_model ${MODEL_PATH} \
     --data_path ${DATA_PATH} \
     --train_until ${TRAIN_UNTIL} \
