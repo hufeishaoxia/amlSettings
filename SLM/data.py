@@ -19,7 +19,12 @@ import glob
 import json
 import os
 import random
+from datetime import datetime
 from typing import List
+
+
+def _ts() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 import pyarrow.parquet as pq
 import torch
@@ -140,7 +145,7 @@ def _group_conversations(conversation, max_groups: int, max_msgs_per_group: int,
 
 def _shown_titles(shown_10d, k: int) -> List[str]:
     """All shown card titles (any clickScenario), deduped, newest first."""
-    if not shown_10d:
+    if k == 0 or not shown_10d:
         return []
     try:
         rows = sorted(
@@ -276,7 +281,7 @@ def load_samples(
             for row in batch.to_pylist():
                 n_rows_seen += 1
                 if 0 < max_rows <= n_feeds_kept:
-                    print(f"[load_samples] kept {n_feeds_kept} feeds (max_rows={max_rows}); stopping early")
+                    print(f"[{_ts()}][load_samples] kept {n_feeds_kept} feeds (max_rows={max_rows}); stopping early")
                     stop = True
                     break
 
@@ -365,6 +370,7 @@ def load_samples(
 
                 feed_id = row.get("feedId") or ""
                 user_id = row.get("user_id") or ""
+                flight_ids = row.get("user_flight_ids") or ""
 
                 for cand in impressions:
                     label = 1 if bool(cand.get("is_clicked")) else 0
@@ -373,6 +379,7 @@ def load_samples(
                         "feed_id":   feed_id,
                         "user_id":   user_id,
                         "bizdate":   bd,
+                        "flight_ids": flight_ids,
                         "history":   history,
                         "interests": interests_blob,
                         "candidate": {
@@ -386,7 +393,7 @@ def load_samples(
                         "label": label,
                     })
 
-    print(f"[load_samples] feeds_seen={n_rows_seen} feeds_with_impressions={n_feeds_kept} "
+    print(f"[{_ts()}][load_samples] feeds_seen={n_rows_seen} feeds_with_impressions={n_feeds_kept} "
           f"candidates_total={n_cand_total} impressions_seen={n_imp_total} "
           f"impressions_kept={n_imp_kept} samples={len(samples)} "
           f"flight={flight_filter!r} require_features={require_features} "
@@ -625,6 +632,35 @@ def build_prompt_budgeted(history, interests, candidate, tokenizer,
 
 
 # ---------------------------------------------------------------------------
+# JSONL loader (for preprocessed data)
+# ---------------------------------------------------------------------------
+
+def load_samples_jsonl(path: str) -> List[dict]:
+    """Load preprocessed samples from a .jsonl file (one JSON per line).
+
+    Each line must have: feed_id, label, interests, candidate.
+    Optional: user_id, bizdate, is_ura, features.
+    """
+    samples = []
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            s = json.loads(line)
+            # Ensure required fields
+            s.setdefault("feed_id", "")
+            s.setdefault("user_id", "")
+            s.setdefault("bizdate", "")
+            s.setdefault("is_ura", 0)
+            s.setdefault("history", [])  # empty - no shown_cards in preprocessed
+            s.setdefault("flight_ids", "")
+            samples.append(s)
+    print(f"[{_ts()}] Loaded {len(samples)} samples from {path}")
+    return samples
+
+
+# ---------------------------------------------------------------------------
 # Torch dataset
 # ---------------------------------------------------------------------------
 
@@ -648,24 +684,29 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
         bizdate_min: str = "",
         bizdate_max: str = "",
         neg_ratio: float = 0.0,           # 0 = keep all negatives; >0 = keep this many negs per positive
+        neg_frac: float = 0.0,            # 0 = keep all negatives; (0,1] = keep this fraction of negatives
     ):
         self.tokenizer = tokenizer
         self.max_len = max_len
         self.use_chat_template = use_chat_template
 
-        self.samples = load_samples(
-            path,
-            max_history=max_history,
-            max_interests=max_interests,
-            max_conv_groups=max_conv_groups,
-            max_msgs_per_group=max_msgs_per_group,
-            include_conv=include_conv,
-            max_rows=max_rows,
-            flight_filter=flight_filter,
-            require_features=require_features,
-            bizdate_min=bizdate_min,
-            bizdate_max=bizdate_max,
-        )
+        # Detect JSONL (preprocessed) vs parquet (raw)
+        if path.endswith(".jsonl"):
+            self.samples = load_samples_jsonl(path)
+        else:
+            self.samples = load_samples(
+                path,
+                max_history=max_history,
+                max_interests=max_interests,
+                max_conv_groups=max_conv_groups,
+                max_msgs_per_group=max_msgs_per_group,
+                include_conv=include_conv,
+                max_rows=max_rows,
+                flight_filter=flight_filter,
+                require_features=require_features,
+                bizdate_min=bizdate_min,
+                bizdate_max=bizdate_max,
+            )
         if sample > 0 and sample < len(self.samples):
             random.Random(seed).shuffle(self.samples)
             self.samples = self.samples[:sample]
@@ -680,14 +721,27 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
             neg_samples = neg_samples[:keep_neg]
             self.samples = pos_samples + neg_samples
             rng.shuffle(self.samples)
-            print(f"[{path}] neg_ratio={neg_ratio}: kept {len(pos_samples)} pos + "
+            print(f"[{_ts()}][{path}] neg_ratio={neg_ratio}: kept {len(pos_samples)} pos + "
+                  f"{len(neg_samples)} neg (total {len(self.samples)})")
+
+        # Fractional negative downsampling: keep all positives + neg_frac × #neg negatives.
+        if neg_frac and 0 < neg_frac < 1:
+            pos_samples = [s for s in self.samples if s["label"] == 1]
+            neg_samples = [s for s in self.samples if s["label"] == 0]
+            keep_neg = int(round(neg_frac * len(neg_samples)))
+            rng = random.Random(seed + 2)
+            rng.shuffle(neg_samples)
+            neg_samples = neg_samples[:keep_neg]
+            self.samples = pos_samples + neg_samples
+            rng.shuffle(self.samples)
+            print(f"[{_ts()}][{path}] neg_frac={neg_frac}: kept {len(pos_samples)} pos + "
                   f"{len(neg_samples)} neg (total {len(self.samples)})")
 
         pos = sum(s["label"] for s in self.samples)
         neg = len(self.samples) - pos
         n_feeds = len({s["feed_id"] for s in self.samples})
         ctr = pos / max(1, len(self.samples))
-        print(f"[{path}] feeds={n_feeds}  samples={len(self.samples)}  "
+        print(f"[{_ts()}][{path}] feeds={n_feeds}  samples={len(self.samples)}  "
               f"pos={pos}  neg={neg}  ctr={ctr:.4f}")
 
         if pos > 0 and neg > 0:
@@ -733,7 +787,7 @@ class PointwiseSFTDataset(torch.utils.data.Dataset):
         rate = self._trunc_count / max(1, n)
         avg_dh = self._dropped_hist_total / max(1, self._trunc_count)
         avg_dc = self._dropped_convs_total / max(1, self._trunc_count)
-        print(f"[{path}] truncation: {self._trunc_count}/{n} = {rate:.4%}  "
+        print(f"[{_ts()}][{path}] truncation: {self._trunc_count}/{n} = {rate:.4%}  "
               f"(body_budget={self._body_budget} tok, max_len={self.max_len}, "
               f"checked={n_checked}/{n})  "
               f"avg_dropped_per_trunc: history={avg_dh:.1f} convs={avg_dc:.2f}")
@@ -802,7 +856,7 @@ if __name__ == "__main__":
     args = ap.parse_args()
 
     samples = load_samples(args.path, max_history=args.max_history, max_rows=args.max_rows)
-    print(f"loaded {len(samples)} samples from first {args.max_rows} feeds")
+    print(f"[{_ts()}] loaded {len(samples)} samples from first {args.max_rows} feeds")
     if samples:
         for s in samples[:1] + [x for x in samples if x["label"] == 1][:1]:
             print("-" * 80)

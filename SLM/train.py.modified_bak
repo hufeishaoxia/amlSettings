@@ -10,14 +10,9 @@ Usage:
 
 import os
 import random
-from datetime import datetime
 import numpy as np
 import torch
 import transformers
-
-
-def _ts() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 from transformers import (
     AutoModelForCausalLM, AutoTokenizer,
     DataCollatorForSeq2Seq, EarlyStoppingCallback, Trainer, TrainingArguments,
@@ -43,45 +38,39 @@ class WeightedCollator(DataCollatorForSeq2Seq):
 
 
 class WeightedTrainer(Trainer):
-    """Trainer that scales per-sample LM loss by `batch["weight"]`.
-
-    Memory-efficient CE: only gather logits at active (non -100) label positions
-    instead of materialising the full (B*T, V) tensor, which OOMs on large V
-    (Qwen3 V=151936, seq=4096, mbs=4 → ~9 GiB).
-    """
+    """Trainer that scales per-sample LM loss by `batch["weight"]`."""
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         weights = inputs.pop("weight", None)
-        labels  = inputs["labels"]
+        labels  = inputs.pop("labels")
+        # Don't pass labels to the model — avoids a redundant full-vocab
+        # cross_entropy inside the model that allocates ~18 GB.
         outputs = model(**inputs)
-        logits  = outputs.logits                       # (B, T, V)
+        logits  = outputs.logits
 
-        # Shift for next-token prediction
-        shift_logits = logits[..., :-1, :].contiguous()  # (B, T-1, V)
-        shift_labels = labels[..., 1:].contiguous()      # (B, T-1)
+        # Shift for next-token prediction (labels are shifted by 1)
+        shift_labels = labels[..., 1:].contiguous()  # (B, T-1)
 
-        B, T = shift_labels.shape
-        mask = (shift_labels != -100)                    # (B, T-1)
+        # Memory-efficient: only compute CE at positions where label != -100.
+        # For Yes/No classification this is typically just 1-2 tokens per sample,
+        # reducing the CE from (B*(T-1), V) to (N_active, V) where N_active << B*T.
+        B, T_minus1 = shift_labels.shape
+        active_mask = shift_labels != -100  # (B, T-1)
 
-        # Scatter active positions per sample for weighted averaging
-        active_counts = mask.sum(dim=1).clamp(min=1)     # (B,)
-
-        # Flatten and select only active positions → (N_active, V) where N_active << B*T
-        flat_logits = shift_logits.view(-1, shift_logits.size(-1))  # (B*T, V)
-        flat_labels = shift_labels.view(-1)                         # (B*T,)
-        flat_mask   = mask.view(-1)                                 # (B*T,)
-        active_idx  = flat_mask.nonzero(as_tuple=True)[0]
-
-        active_logits = flat_logits[active_idx]           # (N_active, V)
-        active_labels = flat_labels[active_idx]           # (N_active,)
+        # Gather only active logit rows — avoids materializing full (B, T-1, V) copy
+        # logits[:, :-1, :] at active positions
+        batch_idx, seq_idx = active_mask.nonzero(as_tuple=True)
+        active_logits = logits[batch_idx, seq_idx]        # (N_active, V), no big copy
+        active_labels = shift_labels[batch_idx, seq_idx]  # (N_active,)
 
         loss_fct = torch.nn.CrossEntropyLoss(reduction="none")
         active_loss = loss_fct(active_logits, active_labels)  # (N_active,)
 
-        # Map back to per-sample sums
-        sample_idx = active_idx // T                      # which sample each active tok belongs to
-        per_sample = torch.zeros(B, device=active_loss.device, dtype=active_loss.dtype)
-        per_sample.scatter_add_(0, sample_idx, active_loss)
-        per_sample = per_sample / active_counts.float()
+        # Scatter back to per-sample loss
+        per_sample = torch.zeros(B, device=logits.device, dtype=active_loss.dtype)
+        counts     = torch.zeros(B, device=logits.device, dtype=active_loss.dtype)
+        per_sample.scatter_add_(0, batch_idx, active_loss)
+        counts.scatter_add_(0, batch_idx, torch.ones_like(active_loss))
+        per_sample = per_sample / counts.clamp(min=1)
 
         if weights is not None:
             per_sample = per_sample * weights.to(per_sample.device)
@@ -120,9 +109,6 @@ def train(
     include_conv: int = 1,            # 0 = no conversations in prompt
     neg_ratio: float = 0.0,           # 0 = keep all neg; >0 = neg_ratio × #pos negatives
     neg_frac: float = 0.0,            # 0 = keep all neg; (0,1] = keep this fraction of negatives
-    train_jsonl: str = "",             # preprocessed JSONL for training (overrides data_path for train)
-    eval_ura_jsonl: str = "",          # preprocessed JSONL for eval URA split
-    eval_all_jsonl: str = "",          # preprocessed JSONL for eval ALL split
     wandb_project: str = "",
     wandb_run_name: str = "",
     resume_from_checkpoint: str = None,
@@ -142,12 +128,12 @@ def train(
 
     model = AutoModelForCausalLM.from_pretrained(base_model, torch_dtype=torch.bfloat16)
     model.config.use_cache = False
+    model.gradient_checkpointing_enable()
 
     # --- Train: bizdate <= train_until; optionally restrict to URA traffic -----
     _include_conv = int(include_conv) > 0
-    _train_path = train_jsonl if train_jsonl else data_path
     train_data = PointwiseSFTDataset(
-        _train_path, tokenizer,
+        data_path, tokenizer,
         max_len=cutoff_len, max_history=max_history,
         include_conv=_include_conv,
         use_chat_template=use_chat_template,
@@ -161,9 +147,8 @@ def train(
     )
 
     # --- Eval split #1: URA traffic, bizdate >= eval_from, candidates with features
-    _eval_ura_path = eval_ura_jsonl if eval_ura_jsonl else data_path
     val_ura = PointwiseSFTDataset(
-        _eval_ura_path, tokenizer,
+        data_path, tokenizer,
         max_len=cutoff_len, max_history=max_history,
         include_conv=_include_conv,
         use_chat_template=use_chat_template,
@@ -175,9 +160,8 @@ def train(
     )
 
     # --- Eval split #2: ALL valid impressions (any flight) with features ---------
-    _eval_all_path = eval_all_jsonl if eval_all_jsonl else data_path
     val_all = PointwiseSFTDataset(
-        _eval_all_path, tokenizer,
+        data_path, tokenizer,
         max_len=cutoff_len, max_history=max_history,
         include_conv=_include_conv,
         use_chat_template=use_chat_template,
@@ -215,16 +199,18 @@ def train(
         bf16=True,
         optim=optim,
         logging_steps=10,
-        eval_strategy="no",
+        eval_strategy="epoch",
         save_strategy="epoch",
         save_total_limit=int(num_epochs) + 1,  # keep ALL epoch checkpoints
-        load_best_model_at_end=False,
-        metric_for_best_model=None,
-        greater_is_better=None,
+        load_best_model_at_end=not no_es,
+        metric_for_best_model=None if no_es else metric_for_best,
+        greater_is_better=None if no_es else False,
         ddp_find_unused_parameters=False if world_size > 1 else None,
+        gradient_checkpointing=True,
         report_to="wandb" if wandb_project else "none",
         run_name=wandb_run_name or None,
         remove_unused_columns=False,
+        prediction_loss_only=True,
     )
 
     callbacks = []
@@ -244,7 +230,7 @@ def train(
     out = os.path.join(output_dir, "final_checkpoint")
     model.save_pretrained(out)
     tokenizer.save_pretrained(out)
-    print(f"[{_ts()}] Saved to {out}")
+    print(f"Saved to {out}")
 
 
 if __name__ == "__main__":

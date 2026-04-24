@@ -136,7 +136,11 @@ def main(
     use_chat_template: bool = True,
     eval_max_rows: int = -1,
     out_json: str = "",
+<<<<<<< Updated upstream
     tokenizer_path: str = "",
+=======
+    base_model: str = "",   # e.g. "Qwen/Qwen3-0.6B" — used for tokenizer if not in ckpt
+>>>>>>> Stashed changes
 ):
     if "RANK" in os.environ:
         dist.init_process_group(backend="nccl")
@@ -150,6 +154,7 @@ def main(
     if rank == 0:
         print(f"loading v2 ckpt {ckpt} on {_world()} GPU(s)")
 
+<<<<<<< Updated upstream
     tok_src = tokenizer_path or ckpt
     try:
         tokenizer = AutoTokenizer.from_pretrained(tok_src, trust_remote_code=True)
@@ -166,6 +171,22 @@ def main(
         if rank == 0:
             print(f"  tokenizer not in ckpt; loading from base: {base_name}")
         tokenizer = AutoTokenizer.from_pretrained(base_name, trust_remote_code=True)
+=======
+    # Try loading tokenizer from checkpoint; fall back to base_model or config
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(ckpt, trust_remote_code=True)
+    except OSError:
+        tok_source = base_model
+        if not tok_source:
+            import json as _json
+            cfg = _json.load(open(os.path.join(ckpt, "config.json")))
+            tok_source = cfg.get("_name_or_path") or ""
+        if not tok_source:
+            raise ValueError(f"Cannot find tokenizer for {ckpt}. Pass --base_model explicitly.")
+        if rank == 0:
+            print(f"  tokenizer not in ckpt, loading from {tok_source}")
+        tokenizer = AutoTokenizer.from_pretrained(tok_source, trust_remote_code=True)
+>>>>>>> Stashed changes
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
@@ -198,25 +219,91 @@ def main(
         print(f"  no_token_id={blob['no_token_id']} yes_token_id={blob['yes_token_id']}")
 
     if rank == 0:
-        print("loading URA eval split")
-    ura_samples = load_samples(
-        data_path, max_history=max_history, bizdate_min=eval_from,
-        flight_filter=ura_flight, require_features=True, max_rows=eval_max_rows,
-    )
-    if rank == 0:
-        print("loading ALL eval split")
+        print("loading ALL eval split (score once, slice later)")
     all_samples = load_samples(
         data_path, max_history=max_history, bizdate_min=eval_from,
         require_features=True, max_rows=eval_max_rows,
     )
 
+    # Score ALL samples once
+    r_all = _eval_split(backbone, head, tokenizer, all_samples, batch_size, max_len, device,
+                        use_chat_template, "ALL")
+
     results = []
-    r = _eval_split(backbone, head, tokenizer, ura_samples, batch_size, max_len, device,
-                    use_chat_template, "URA")
-    if r: results.append(r)
-    r = _eval_split(backbone, head, tokenizer, all_samples, batch_size, max_len, device,
-                    use_chat_template, "ALL")
-    if r: results.append(r)
+    if rank == 0 and r_all is not None:
+        # We need to re-score to get per-sample scores for slicing.
+        # _eval_split already gathered scores on rank 0. Re-run to capture scores.
+        pass
+
+    # Actually, let's refactor to return scores from _eval_split.
+    # For now, score all and compute slices on rank 0.
+    # Re-score using a modified approach:
+    rank_val, world_val = _rank(), _world()
+    my_indices = list(range(rank_val, len(all_samples), world_val))
+    my_samples = [all_samples[i] for i in my_indices]
+    prompts = _build_prompts(my_samples, tokenizer, use_chat_template)
+
+    my_scores = np.zeros(len(my_samples), dtype=np.float32)
+    t0 = time.time()
+    for i in range(0, len(my_samples), batch_size):
+        b = prompts[i:i + batch_size]
+        my_scores[i:i + len(b)] = _score_batch(backbone, head, tokenizer, b, max_len, device)
+        if rank_val == 0 and (i // batch_size) % 20 == 0:
+            done = i + len(b)
+            print(f"  [scoring] rank0: {done}/{len(my_samples)}  "
+                  f"{done / max(1e-6, time.time() - t0):.1f}/s  "
+                  f"(total {len(all_samples)}, {world_val} GPUs)")
+
+    if _is_distributed():
+        all_scores_list = [None] * world_val
+        all_indices_list = [None] * world_val
+        dist.all_gather_object(all_scores_list, my_scores.tolist())
+        dist.all_gather_object(all_indices_list, my_indices)
+        if rank_val == 0:
+            scores = np.zeros(len(all_samples), dtype=np.float32)
+            for idxs, sc in zip(all_indices_list, all_scores_list):
+                for j, s in zip(idxs, sc):
+                    scores[j] = s
+        else:
+            scores = None
+    else:
+        scores = my_scores
+
+    if rank_val == 0 and scores is not None:
+        labels = np.array([s["label"] for s in all_samples], dtype=np.int64)
+        flight_ids = np.array([s.get("flight_ids", "") for s in all_samples])
+        feed_ids = np.array([s["feed_id"] for s in all_samples])
+
+        # Identify URA mask
+        ura_mask = np.array([ura_flight in (f or "") for f in flight_ids])
+
+        # Identify click-session: feeds that have at least one click
+        click_feeds = set()
+        for s in all_samples:
+            if s["label"] == 1:
+                click_feeds.add(s["feed_id"])
+        click_session_mask = np.array([fid in click_feeds for fid in feed_ids])
+
+        def _report(name, mask):
+            n = int(mask.sum())
+            if n == 0:
+                return {"split": name, "n": 0, "pos": 0, "neg": 0, "ctr": 0.0, "auc": float("nan")}
+            y = labels[mask]; p = scores[mask]
+            pos = int(y.sum()); neg = n - pos
+            ctr = pos / max(1, n)
+            auc = roc_auc_score(y, p) if len(set(y)) > 1 else float("nan")
+            print(f"[{name}] n={n} pos={pos} neg={neg} ctr={ctr:.4f} AUC={auc:.4f}")
+            return {"split": name, "n": n, "pos": pos, "neg": neg, "ctr": ctr, "auc": auc}
+
+        elapsed = time.time() - t0
+        print(f"\nScoring done in {elapsed:.0f}s, {world_val} GPUs. Computing AUC slices:\n")
+
+        results = [
+            _report("ALL", np.ones(len(all_samples), dtype=bool)),
+            _report("URA", ura_mask),
+            _report("click_session", click_session_mask),
+            _report("URA_click_session", ura_mask & click_session_mask),
+        ]
 
     if rank == 0:
         print("\n=== v2 Summary ===")

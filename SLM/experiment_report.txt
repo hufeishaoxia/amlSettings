@@ -1,0 +1,3 @@
+[2026-04-23 19:20:11] === Training: split=ura  ura_only=1  epochs=5  output=output/v8_ura_ep5 ===
+[2026-04-23 23:41:51]   [OK] Training ura done. Checkpoints in output/v8_ura_ep5
+[2026-04-23 23:41:51] === Training: split=all  ura_only=0  epochs=5  output=output/v8_all_ep5 ===

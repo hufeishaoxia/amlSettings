@@ -149,6 +149,7 @@ def main(
     max_len: int = 2048,
     batch_size: int = 8,
     use_chat_template: bool = True,
+    include_conv: int = 1,
     eval_max_rows: int = -1,
     out_json: str = "",
 ):
@@ -172,16 +173,20 @@ def main(
     model = AutoModelForCausalLM.from_pretrained(ckpt, torch_dtype=torch.bfloat16).to(device)
     model.eval()
 
+    _include_conv = int(include_conv) > 0
+
     if rank == 0:
         print("loading URA eval split")
     ura_samples = load_samples(
-        data_path, max_history=max_history, bizdate_min=eval_from,
+        data_path, max_history=max_history, include_conv=_include_conv,
+        bizdate_min=eval_from,
         flight_filter=ura_flight, require_features=True, max_rows=eval_max_rows,
     )
     if rank == 0:
         print("loading ALL eval split")
     all_samples = load_samples(
-        data_path, max_history=max_history, bizdate_min=eval_from,
+        data_path, max_history=max_history, include_conv=_include_conv,
+        bizdate_min=eval_from,
         require_features=True, max_rows=eval_max_rows,
     )
 
