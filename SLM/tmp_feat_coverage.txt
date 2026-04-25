@@ -1,0 +1,172 @@
+
+============================================================
+FILE: eval_all.jsonl
+============================================================
+Total samples: 71140
+Top-level keys: ['feed_id', 'user_id', 'bizdate', 'is_ura', 'label', 'interests', 'history', 'candidate', 'features']
+
+--- Top-level field coverage ---
+Field                   Present  Non-empty  Coverage%
+bizdate                   71140      71140     100.0%
+candidate                 71140      71140     100.0%
+features                  71140      71140     100.0%
+feed_id                   71140      71140     100.0%
+history                   71140      36179      50.9%
+interests                 71140      71140     100.0%
+is_ura                    71140      71140     100.0%
+label                     71140      71140     100.0%
+user_id                   71140      71140     100.0%
+
+--- Features sub-keys coverage ---
+Feature                                     Present  Non-empty  Coverage%
+clickHistoryRelevance                         71140      52395      73.7%
+clickLikelihood                               71140      71140     100.0%
+interestRecency                               71140      70329      98.9%
+interestStrength                              71140      70329      98.9%
+longTermRelevance                             71140      71130     100.0%
+novelty                                       71140      71140     100.0%
+quality                                       71140      71140     100.0%
+shortTermRelevance                            71140      71128     100.0%
+worthiness                                    71140      71140     100.0%
+
+--- Interests sub-keys coverage ---
+Interest field                    Present  Coverage%
+conversations                       71140     100.0%
+interactions                        71140     100.0%
+negative                            71140     100.0%
+positive                            71140     100.0%
+
+--- Sample features (first record) ---
+  clickHistoryRelevance: 0.86
+  clickLikelihood: 0.83
+  interestRecency: 0.5667142899777454
+  interestStrength: 0.82
+  longTermRelevance: 0.92
+  novelty: 0.9
+  quality: 0.86
+  shortTermRelevance: 0.74
+  worthiness: 0.84
+
+--- Sample interests structure (first record) ---
+  conversations: list[20]
+    first: {'id': 'mb3iCS4cmgyW4namb32aH', 'started_at': '2026-04-17T05:24:00.984Z', 'messages': [{'author': 'human', 'text': 'My t
+  interactions: {'clicks': [], 'thumbsUp': [], 'thumbsDown': []}
+  negative: list[0]
+  positive: list[7]
+    first: [sensitive_race_or_ethnic_origin-WVAKEw]  [domain=African Diaspora Studies; classification=Topic; status=Stable; intent=
+
+--- History (first record) ---
+  length: 0
+
+============================================================
+FILE: eval_ura.jsonl
+============================================================
+Total samples: 8241
+Top-level keys: ['feed_id', 'user_id', 'bizdate', 'is_ura', 'label', 'interests', 'history', 'candidate', 'features']
+
+--- Top-level field coverage ---
+Field                   Present  Non-empty  Coverage%
+bizdate                    8241       8241     100.0%
+candidate                  8241       8241     100.0%
+features                   8241       8241     100.0%
+feed_id                    8241       8241     100.0%
+history                    8241       4287      52.0%
+interests                  8241       8241     100.0%
+is_ura                     8241       8241     100.0%
+label                      8241       8241     100.0%
+user_id                    8241       8241     100.0%
+
+--- Features sub-keys coverage ---
+Feature                                     Present  Non-empty  Coverage%
+clickHistoryRelevance                          8241       5903      71.6%
+clickLikelihood                                8241       8241     100.0%
+interestRecency                                8241       8101      98.3%
+interestStrength                               8241       8101      98.3%
+longTermRelevance                              8241       8241     100.0%
+novelty                                        8241       8241     100.0%
+quality                                        8241       8241     100.0%
+shortTermRelevance                             8241       8241     100.0%
+worthiness                                     8241       8241     100.0%
+
+--- Interests sub-keys coverage ---
+Interest field                    Present  Coverage%
+conversations                        8241     100.0%
+interactions                         8241     100.0%
+negative                             8241     100.0%
+positive                             8241     100.0%
+
+============================================================
+FILE: train_all.jsonl
+============================================================
+Total samples: 206990
+Top-level keys: ['feed_id', 'user_id', 'bizdate', 'is_ura', 'label', 'interests', 'history', 'candidate', 'features']
+
+--- Top-level field coverage ---
+Field                   Present  Non-empty  Coverage%
+bizdate                  206990     206990     100.0%
+candidate                206990     206990     100.0%
+features                 206990     136098      65.8%
+feed_id                  206990     206990     100.0%
+history                  206990      90693      43.8%
+interests                206990     206990     100.0%
+is_ura                   206990     206990     100.0%
+label                    206990     206990     100.0%
+user_id                  206990     206990     100.0%
+
+--- Features sub-keys coverage ---
+Feature                                     Present  Non-empty  Coverage%
+clickHistoryRelevance                        136098      99772      48.2%
+clickLikelihood                              136098     136098      65.8%
+interestRecency                              136098     111954      54.1%
+interestStrength                             136098     111954      54.1%
+longTermRelevance                            136098     136010      65.7%
+novelty                                      136098     136097      65.8%
+quality                                      136098     136098      65.8%
+shortTermRelevance                           136098     136008      65.7%
+worthiness                                   136098     136096      65.8%
+
+--- Interests sub-keys coverage ---
+Interest field                    Present  Coverage%
+conversations                      206990     100.0%
+interactions                       206990     100.0%
+negative                           206990     100.0%
+positive                           206990     100.0%
+
+============================================================
+FILE: train_ura.jsonl
+============================================================
+Total samples: 24349
+Top-level keys: ['feed_id', 'user_id', 'bizdate', 'is_ura', 'label', 'interests', 'history', 'candidate', 'features']
+
+--- Top-level field coverage ---
+Field                   Present  Non-empty  Coverage%
+bizdate                   24349      24349     100.0%
+candidate                 24349      24349     100.0%
+features                  24349      15969      65.6%
+feed_id                   24349      24349     100.0%
+history                   24349      10823      44.4%
+interests                 24349      24349     100.0%
+is_ura                    24349      24349     100.0%
+label                     24349      24349     100.0%
+user_id                   24349      24349     100.0%
+
+--- Features sub-keys coverage ---
+Feature                                     Present  Non-empty  Coverage%
+clickHistoryRelevance                         15969      11775      48.4%
+clickLikelihood                               15969      15969      65.6%
+interestRecency                               15969      13153      54.0%
+interestStrength                              15969      13153      54.0%
+longTermRelevance                             15969      15961      65.6%
+novelty                                       15969      15969      65.6%
+quality                                       15969      15969      65.6%
+shortTermRelevance                            15969      15961      65.6%
+worthiness                                    15969      15969      65.6%
+
+--- Interests sub-keys coverage ---
+Interest field                    Present  Coverage%
+conversations                       24349     100.0%
+interactions                        24349     100.0%
+negative                            24349     100.0%
+positive                            24349     100.0%
+
+DONE

@@ -1,0 +1,169 @@
+nohup: ignoring input
+Loading model from output/v9_Qwen3-0.6B_all_ep5/checkpoint-2815
+[2026-04-25 05:28:19,135] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+WARNING:root:Cannot import JIT optimized kernels. CUDA extension will be disabled.
+/opt/conda/envs/ptca/lib/python3.10/site-packages/mlflow/utils/requirements_utils.py:20: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources  # noqa: TID251
+' Yes' tokens: [7414] -> [' Yes']
+' No' tokens: [2308] -> [' No']
+Using yes_id=7414, no_id=2308
+'Yes' tokens: [9454] -> ['Yes']
+'No' tokens: [2753] -> ['No']
+[2026-04-25 05:28:23] Loaded 8241 samples from data_v9/eval_ura.jsonl
+Total eval samples: 8241
+
+================================================================================
+EVAL WITHOUT BUDGETING (like eval_auc.py)
+================================================================================
+[ 0] POS P(Yes)=0.5622 body_tok=2983 full_tok=3032 input_tok=3032 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' Yes', '26.25'), (' No', '26.00'), ('No', '15.75'), ('Yes', '15.62'), (' no', '13.44')]
+[ 1] POS P(Yes)=0.3486 body_tok=1348 full_tok=1397 input_tok=1397 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.12'), (' Yes', '25.50'), ('No', '15.88'), ('Yes', '14.94'), (' no', '13.69')]
+[ 2] POS P(Yes)=0.0373 body_tok=2685 full_tok=2734 input_tok=2734 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.62'), (' Yes', '23.38'), ('No', '16.25'), (' Nope', '14.00'), (' no', '13.94')]
+[ 3] POS P(Yes)=0.8706 body_tok=4079 full_tok=4128 input_tok=4096 TRUNC
+     last_tokens: ...'  summary: A complete guide shows how to structure'
+     top5: [(' training', '19.12'), (' a', '17.50'), (' your', '17.12'), (' the', '17.00'), (' and', '16.38')]
+[ 4] POS P(Yes)=0.4073 body_tok=1383 full_tok=1432 input_tok=1432 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.25'), (' Yes', '25.88'), ('No', '15.81'), ('Yes', '15.06'), (' Okay', '13.94')]
+[ 5] POS P(Yes)=0.0851 body_tok=1832 full_tok=1881 input_tok=1881 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.75'), (' Yes', '24.38'), ('No', '16.50'), (' no', '13.94'), ('Yes', '13.88')]
+[ 6] POS P(Yes)=0.2942 body_tok=2728 full_tok=2777 input_tok=2777 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.12'), (' Yes', '25.25'), ('No', '15.56'), ('Yes', '14.31'), (' no', '14.12')]
+[ 7] POS P(Yes)=0.5927 body_tok=2723 full_tok=2772 input_tok=2772 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' Yes', '26.25'), (' No', '25.88'), ('Yes', '15.31'), ('No', '15.25'), (' I', '13.88')]
+[ 8] POS P(Yes)=0.3208 body_tok=3290 full_tok=3339 input_tok=3339 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.12'), (' Yes', '25.38'), ('No', '15.38'), (' Okay', '14.44'), (' no', '14.19')]
+[ 9] POS P(Yes)=0.1192 body_tok=3425 full_tok=3474 input_tok=3474 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.88'), (' Yes', '24.88'), ('No', '16.12'), (' no', '14.25'), ('Yes', '13.88')]
+[10] NEG P(Yes)=0.0953 body_tok=3772 full_tok=3821 input_tok=3821 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.75'), (' Yes', '23.50'), ('No', '15.81'), (' no', '13.88'), (' Nope', '13.31')]
+[11] NEG P(Yes)=0.3208 body_tok=3779 full_tok=3828 input_tok=3828 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.50'), (' Yes', '24.75'), ('No', '15.00'), ('Yes', '13.81'), (' no', '13.75')]
+[12] NEG P(Yes)=0.2018 body_tok=3775 full_tok=3824 input_tok=3824 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.62'), (' Yes', '24.25'), ('No', '15.38'), (' no', '13.94'), ('Yes', '13.44')]
+[13] NEG P(Yes)=0.0851 body_tok=3787 full_tok=3836 input_tok=3836 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.88'), (' Yes', '23.50'), ('No', '15.62'), (' no', '14.06'), (' Nope', '13.44')]
+[14] NEG P(Yes)=0.2689 body_tok=3775 full_tok=3824 input_tok=3824 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.62'), (' Yes', '24.62'), ('No', '15.12'), (' no', '13.75'), ('Yes', '13.69')]
+[15] NEG P(Yes)=0.1824 body_tok=3775 full_tok=3824 input_tok=3824 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.88'), (' Yes', '24.38'), ('No', '15.56'), (' no', '13.94'), ('Yes', '13.56')]
+[16] NEG P(Yes)=0.5000 body_tok=2617 full_tok=2666 input_tok=2666 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.62'), (' Yes', '26.62'), ('No', '15.81'), ('Yes', '15.31'), (' Okay', '14.50')]
+[17] NEG P(Yes)=0.6792 body_tok=2621 full_tok=2670 input_tok=2670 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' Yes', '26.75'), (' No', '26.00'), ('Yes', '15.56'), ('No', '15.31'), (' Okay', '14.62')]
+[18] NEG P(Yes)=0.1192 body_tok=2301 full_tok=2350 input_tok=2350 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.62'), (' Yes', '24.62'), ('No', '15.94'), (' Nope', '14.06'), ('Yes', '13.69')]
+[19] NEG P(Yes)=0.0474 body_tok=2301 full_tok=2350 input_tok=2350 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '27.25'), (' Yes', '24.25'), ('No', '16.62'), (' Nope', '14.25'), ('Yes', '13.69')]
+
+Mini AUC (no budget): 0.6350
+
+================================================================================
+EVAL WITH BUDGETING (like training)
+================================================================================
+[ 0] POS P(Yes)=0.5622 input_tok=3032 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' Yes', '26.25'), (' No', '26.00'), ('No', '15.75'), ('Yes', '15.62'), (' no', '13.44')]
+[ 1] POS P(Yes)=0.3486 input_tok=1397 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.12'), (' Yes', '25.50'), ('No', '15.88'), ('Yes', '14.94'), (' no', '13.69')]
+[ 2] POS P(Yes)=0.0373 input_tok=2734 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.62'), (' Yes', '23.38'), ('No', '16.25'), (' Nope', '14.00'), (' no', '13.94')]
+[ 3] POS P(Yes)=0.1824 input_tok=3993 TRUNC(dh=9,dc=0)
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.38'), (' Yes', '24.88'), ('No', '15.88'), (' no', '14.12'), ('Yes', '14.00')]
+[ 4] POS P(Yes)=0.4073 input_tok=1432 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.25'), (' Yes', '25.88'), ('No', '15.81'), ('Yes', '15.06'), (' Okay', '13.94')]
+[ 5] POS P(Yes)=0.0851 input_tok=1881 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.75'), (' Yes', '24.38'), ('No', '16.50'), (' no', '13.94'), ('Yes', '13.88')]
+[ 6] POS P(Yes)=0.2942 input_tok=2777 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.12'), (' Yes', '25.25'), ('No', '15.56'), ('Yes', '14.31'), (' no', '14.12')]
+[ 7] POS P(Yes)=0.5927 input_tok=2772 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' Yes', '26.25'), (' No', '25.88'), ('Yes', '15.31'), ('No', '15.25'), (' I', '13.88')]
+[ 8] POS P(Yes)=0.3208 input_tok=3339 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.12'), (' Yes', '25.38'), ('No', '15.38'), (' Okay', '14.44'), (' no', '14.19')]
+[ 9] POS P(Yes)=0.1192 input_tok=3474 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.88'), (' Yes', '24.88'), ('No', '16.12'), (' no', '14.25'), ('Yes', '13.88')]
+[10] NEG P(Yes)=0.0953 input_tok=3821 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.75'), (' Yes', '23.50'), ('No', '15.81'), (' no', '13.88'), (' Nope', '13.31')]
+[11] NEG P(Yes)=0.3208 input_tok=3828 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.50'), (' Yes', '24.75'), ('No', '15.00'), ('Yes', '13.81'), (' no', '13.75')]
+[12] NEG P(Yes)=0.2018 input_tok=3824 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.62'), (' Yes', '24.25'), ('No', '15.38'), (' no', '13.94'), ('Yes', '13.44')]
+[13] NEG P(Yes)=0.0851 input_tok=3836 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.88'), (' Yes', '23.50'), ('No', '15.62'), (' no', '14.06'), (' Nope', '13.44')]
+[14] NEG P(Yes)=0.2689 input_tok=3824 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.62'), (' Yes', '24.62'), ('No', '15.12'), (' no', '13.75'), ('Yes', '13.69')]
+[15] NEG P(Yes)=0.1824 input_tok=3824 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '25.88'), (' Yes', '24.38'), ('No', '15.56'), (' no', '13.94'), ('Yes', '13.56')]
+[16] NEG P(Yes)=0.5000 input_tok=2666 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.62'), (' Yes', '26.62'), ('No', '15.81'), ('Yes', '15.31'), (' Okay', '14.50')]
+[17] NEG P(Yes)=0.6792 input_tok=2670 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' Yes', '26.75'), (' No', '26.00'), ('Yes', '15.56'), ('No', '15.31'), (' Okay', '14.62')]
+[18] NEG P(Yes)=0.1192 input_tok=2350 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '26.62'), (' Yes', '24.62'), ('No', '15.94'), (' Nope', '14.06'), ('Yes', '13.69')]
+[19] NEG P(Yes)=0.0474 input_tok=2350 ok
+     last_tokens: ...' answer Yes or No:<|im_end|>\n<|im_start|>assistant\n'
+     top5: [(' No', '27.25'), (' Yes', '24.25'), ('No', '16.62'), (' Nope', '14.25'), ('Yes', '13.69')]
+
+Mini AUC (budgeted): 0.5800
+
+=== Score comparison ===
+[ 0] POS  no_budget=0.5622  budgeted=0.5622  diff=+0.0000
+[ 1] POS  no_budget=0.3486  budgeted=0.3486  diff=+0.0000
+[ 2] POS  no_budget=0.0373  budgeted=0.0373  diff=+0.0000
+[ 3] POS  no_budget=0.8706  budgeted=0.1824  diff=-0.6882
+[ 4] POS  no_budget=0.4073  budgeted=0.4073  diff=+0.0000
+[ 5] POS  no_budget=0.0851  budgeted=0.0851  diff=+0.0000
+[ 6] POS  no_budget=0.2942  budgeted=0.2942  diff=+0.0000
+[ 7] POS  no_budget=0.5927  budgeted=0.5927  diff=+0.0000
+[ 8] POS  no_budget=0.3208  budgeted=0.3208  diff=+0.0000
+[ 9] POS  no_budget=0.1192  budgeted=0.1192  diff=+0.0000
+[10] NEG  no_budget=0.0953  budgeted=0.0953  diff=+0.0000
+[11] NEG  no_budget=0.3208  budgeted=0.3208  diff=+0.0000
+[12] NEG  no_budget=0.2018  budgeted=0.2018  diff=+0.0000
+[13] NEG  no_budget=0.0851  budgeted=0.0851  diff=+0.0000
+[14] NEG  no_budget=0.2689  budgeted=0.2689  diff=+0.0000
+[15] NEG  no_budget=0.1824  budgeted=0.1824  diff=+0.0000
+[16] NEG  no_budget=0.5000  budgeted=0.5000  diff=+0.0000
+[17] NEG  no_budget=0.6792  budgeted=0.6792  diff=+0.0000
+[18] NEG  no_budget=0.1192  budgeted=0.1192  diff=+0.0000
+[19] NEG  no_budget=0.0474  budgeted=0.0474  diff=+0.0000
+
+DONE

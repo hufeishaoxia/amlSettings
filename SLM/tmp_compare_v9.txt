@@ -1,0 +1,123 @@
+================================================================================
+STEP 1: Pick user_ids from v9 eval_ura.jsonl
+================================================================================
+Selected 4 users:
+  k2ys8SuCF6RNHCmumg93F: 8 samples, hist=True, feat=True, conv=True
+  7wYNtaF1VM7bGzVYza94K: 2 samples, hist=False, feat=True, conv=True
+  8b94QVG7PagASVYEZoy78: 45 samples, hist=True, feat=True, conv=True
+  ndLQnNogQPs6BbuPA77h6: 2 samples, hist=False, feat=True, conv=True
+
+================================================================================
+STEP 2: Load same users from raw parquet via load_samples()
+================================================================================
+[2026-04-25 05:20:35][load_samples] feeds_seen=132817 feeds_with_impressions=2709 candidates_total=52330 impressions_seen=15948 impressions_kept=10424 samples=10424 flight='discover-rk-ura' require_features=True bizdate=[20260417, +inf]
+Parquet total: 10424 samples, 2414 users
+
+================================================================================
+STEP 3: Field-by-field comparison
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+USER: k2ys8SuCF6RNHCmumg93F
+  v9 JSONL samples: 8
+  Parquet samples:  21
+  Keys in both:    8
+  Only in v9:      0
+  Only in parquet: 13
+  ⚠ Samples only in parquet (first 3):
+    feed=572mdYR5SXqHbamXHa8rV, item=eGWAYdPzmkdqZZPf6zRZB, has_pos_interests=False
+    feed=572mdYR5SXqHbamXHa8rV, item=zyfiwWhvzJ4KcqgozEXUX, has_pos_interests=False
+    feed=572mdYR5SXqHbamXHa8rV, item=5FyxJDq934om8nsmyDiuU, has_pos_interests=False
+
+  === Detailed comparison for feed=pt2CMA99VbJeHqjBLmEhe, item=4Jwk9A7uEH3ySW9Eqsy9v ===
+  [✓] interests.positive: v9=7 items, pq=7 items
+  [✓] interests.negative: v9=0 items, pq=0 items
+  [✓] conversations: v9=20 groups, pq=20 groups
+  [✓] conv total msgs: v9=54, pq=54
+  [✓] history: v9=30 items, pq=30 items
+  [✓] features keys: v9=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness'], pq=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness']
+
+──────────────────────────────────────────────────────────────────────
+USER: 7wYNtaF1VM7bGzVYza94K
+  v9 JSONL samples: 2
+  Parquet samples:  2
+  Keys in both:    2
+  Only in v9:      0
+  Only in parquet: 0
+
+  === Detailed comparison for feed=vjHEgJBwammTZPSDp7zS9, item=68X2sY5rFsWwUth1QSQCY ===
+  [✓] interests.positive: v9=7 items, pq=7 items
+  [✓] interests.negative: v9=0 items, pq=0 items
+  [✓] conversations: v9=20 groups, pq=20 groups
+  [✓] conv total msgs: v9=50, pq=50
+  [✓] history: v9=0 items, pq=0 items
+  [✓] features keys: v9=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness'], pq=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness']
+
+──────────────────────────────────────────────────────────────────────
+USER: 8b94QVG7PagASVYEZoy78
+  v9 JSONL samples: 45
+  Parquet samples:  63
+  Keys in both:    45
+  Only in v9:      0
+  Only in parquet: 18
+  ⚠ Samples only in parquet (first 3):
+    feed=BmHLpkVggsCuS9DYmmggV, item=W1e7AppVc1ZA8ayf1DMNR, has_pos_interests=False
+    feed=BmHLpkVggsCuS9DYmmggV, item=XP27fMhsPU9Xy3tav29Ri, has_pos_interests=False
+    feed=BmHLpkVggsCuS9DYmmggV, item=tNWgvqytQ3TdAbCeijS5L, has_pos_interests=False
+
+  === Detailed comparison for feed=5Nvkn7snf5FKZqNfLzC9M, item=2JfCJg1UzPJeUEDyE218k ===
+  [✓] interests.positive: v9=9 items, pq=9 items
+  [✓] interests.negative: v9=0 items, pq=0 items
+  [✓] conversations: v9=20 groups, pq=20 groups
+  [✓] conv total msgs: v9=43, pq=43
+  [✓] history: v9=30 items, pq=30 items
+  [✓] features keys: v9=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness'], pq=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness']
+
+──────────────────────────────────────────────────────────────────────
+USER: ndLQnNogQPs6BbuPA77h6
+  v9 JSONL samples: 2
+  Parquet samples:  2
+  Keys in both:    2
+  Only in v9:      0
+  Only in parquet: 0
+
+  === Detailed comparison for feed=A6G3HLbWmsezVWBxAtsbv, item=i7jNoxCpgChmwymXSj7WE ===
+  [✓] interests.positive: v9=7 items, pq=7 items
+  [✓] interests.negative: v9=0 items, pq=0 items
+  [✓] conversations: v9=20 groups, pq=20 groups
+  [✓] conv total msgs: v9=37, pq=37
+  [✓] history: v9=0 items, pq=0 items
+  [✓] features keys: v9=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness'], pq=['clickHistoryRelevance', 'clickLikelihood', 'interestRecency', 'interestStrength', 'longTermRelevance', 'novelty', 'quality', 'shortTermRelevance', 'worthiness']
+
+================================================================================
+STEP 4: Compare generated prompts (v9 JSONL vs parquet)
+================================================================================
+
+──────────────────────────────────────────────────────────────────────
+USER: k2ys8SuCF6RNHCmumg93F, feed=pt2CMA99VbJeHqjBLmEhe, item=4Jwk9A7uEH3ySW9Eqsy9v
+  [✓] Prompts are IDENTICAL
+
+──────────────────────────────────────────────────────────────────────
+USER: 7wYNtaF1VM7bGzVYza94K, feed=vjHEgJBwammTZPSDp7zS9, item=68X2sY5rFsWwUth1QSQCY
+  [✓] Prompts are IDENTICAL
+
+================================================================================
+STEP 5: Global consistency check
+================================================================================
+Parquet samples with empty positive interests: 2183/10424 (20.9%)
+  (These are filtered OUT in v9 JSONL)
+
+User overlap: both=1977, only_v9=0, only_pq=437
+Sample count comparison (for 1977 shared users):
+  Exact match:     1889
+  v9 has more:     0
+  parquet has more: 88
+
+Users only in parquet (first 5):
+  9mRagegHPUD3fMKm4YsSX: 10 samples, 10 with empty pos interests
+  uN4nykui4gGXFssUwKfc2: 2 samples, 2 with empty pos interests
+  tV8M9EJafQnCJqH9Sv2ck: 1 samples, 1 with empty pos interests
+  n8e9ZUbocouxQiwLBNnMN: 9 samples, 9 with empty pos interests
+  f4fWaLppcSccPHGeuq11z: 11 samples, 11 with empty pos interests
+
+DONE
