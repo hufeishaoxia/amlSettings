@@ -102,7 +102,7 @@ def _yes_no_token_ids(tokenizer):
 
 
 def _eval_split(model, tokenizer, samples, batch_size, max_len, device,
-                use_chat_template, label_name):
+                use_chat_template, label_name, save_scores_path: str = ""):
     if not samples:
         if _rank() == 0:
             print(f"[{label_name}] empty split")
@@ -151,6 +151,20 @@ def _eval_split(model, tokenizer, samples, batch_size, max_len, device,
     elapsed = time.time() - t0
     print(f"[{label_name}] n={len(samples)} pos={pos} neg={neg} ctr={ctr:.4f} "
           f"AUC={auc:.4f}  ({elapsed:.0f}s, {world} GPUs)")
+    if save_scores_path:
+        os.makedirs(os.path.dirname(save_scores_path) or ".", exist_ok=True)
+        with open(save_scores_path, "w") as f:
+            for i, s in enumerate(samples):
+                f.write(json.dumps({
+                    "idx": i,
+                    "label": int(s.get("label", 0)),
+                    "score": float(scores[i]),
+                    "bizdate": s.get("bizdate", ""),
+                    "is_ura": int(s.get("is_ura", 0)),
+                    "feed_id": s.get("feed_id", ""),
+                    "user_id": s.get("user_id", ""),
+                }) + "\n")
+        print(f"  wrote per-row scores to {save_scores_path}")
     return {"split": label_name, "n": len(samples), "pos": pos, "neg": neg,
             "ctr": ctr, "auc": auc}
 
@@ -170,6 +184,8 @@ def main(
     eval_ura_jsonl: str = "",
     eval_all_jsonl: str = "",
     ura_only: int = 0,
+    save_scores_ura: str = "",
+    save_scores_all: str = "",
 ):
     # Init distributed if launched via torchrun
     if "RANK" in os.environ:
@@ -228,11 +244,11 @@ def main(
 
     results = []
     r = _eval_split(model, tokenizer, ura_samples, batch_size, max_len, device,
-                    use_chat_template, "URA")
+                    use_chat_template, "URA", save_scores_path=save_scores_ura)
     if r: results.append(r)
     if not int(ura_only):
         r = _eval_split(model, tokenizer, all_samples, batch_size, max_len, device,
-                        use_chat_template, "ALL")
+                        use_chat_template, "ALL", save_scores_path=save_scores_all)
         if r: results.append(r)
 
     if rank == 0:
