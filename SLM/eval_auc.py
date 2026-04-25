@@ -24,7 +24,7 @@ import torch.distributed as dist
 from sklearn.metrics import roc_auc_score
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from data import build_prompt, load_samples, load_samples_jsonl
+from data import build_prompt, build_prompt_budgeted, load_samples, load_samples_jsonl
 
 
 def _is_distributed():
@@ -42,27 +42,42 @@ def _world():
 @torch.inference_mode()
 def _score_batch(model, tokenizer, prompts: List[str], yes_id: int, no_id: int,
                  max_len: int, device) -> np.ndarray:
-    """Return P(Yes)/(P(Yes)+P(No)) for each prompt at the next-token position."""
+    """Return P(Yes)/(P(Yes)+P(No)) for each prompt at the next-token position.
+
+    NOTE: Tokenizer must be configured with padding_side='left' and
+    truncation_side='left' so that (a) the candidate+question at the END of
+    the prompt is preserved and (b) the last column of logits is the
+    next-token prediction position for every row.
+    """
     enc = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True,
                     max_length=max_len, add_special_tokens=False)
     input_ids = enc["input_ids"].to(device)
     attn = enc["attention_mask"].to(device)
     out = model(input_ids=input_ids, attention_mask=attn)
-    # Last non-pad position per row
-    last_pos = attn.sum(dim=1) - 1
-    logits = out.logits[torch.arange(input_ids.size(0)), last_pos]   # (B, V)
+    # With left padding, the next-token position is always the last column.
+    logits = out.logits[:, -1, :]   # (B, V)
     yn = logits[:, [yes_id, no_id]].float()
     p = torch.softmax(yn, dim=-1)[:, 0]
     return p.cpu().numpy()
 
 
-def _build_prompts(samples, tokenizer, use_chat_template: bool) -> List[str]:
+def _build_prompts(samples, tokenizer, use_chat_template: bool,
+                   max_len: int) -> List[str]:
+    """Build prompts mirroring training: budget the body, then wrap in chat template.
+
+    The body budget reserves ~120 tokens for the chat-template wrapper so the
+    candidate + question never get truncated.
+    """
     sys_msg = ("I am a recommendation assistant. I read the user's interests, recent "
                "conversations, and shown cards, then predict whether they will click "
                "the candidate item. I answer Yes or No.")
+    body_budget = max(256, max_len - 120)
     out = []
     for s in samples:
-        body = build_prompt(s["history"], s["interests"], s["candidate"])
+        body, _truncated, _dh, _dc = build_prompt_budgeted(
+            s["history"], s["interests"], s["candidate"],
+            tokenizer, body_budget,
+        )
         if use_chat_template:
             msgs = [{"role": "system", "content": sys_msg},
                     {"role": "user",   "content": body}]
@@ -98,7 +113,7 @@ def _eval_split(model, tokenizer, samples, batch_size, max_len, device,
     my_indices = list(range(rank, len(samples), world))
     my_samples = [samples[i] for i in my_indices]
 
-    prompts = _build_prompts(my_samples, tokenizer, use_chat_template)
+    prompts = _build_prompts(my_samples, tokenizer, use_chat_template, max_len)
     yes_id, no_id = _yes_no_token_ids(tokenizer)
 
     my_scores = np.zeros(len(my_samples), dtype=np.float32)
@@ -172,7 +187,12 @@ def main(
     tokenizer = AutoTokenizer.from_pretrained(ckpt, trust_remote_code=True)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # Left-pad so the next-token position is always the last column.
     tokenizer.padding_side = "left"
+    # Left-truncate so the candidate + question at the END of the prompt are
+    # preserved when the tokenized prompt exceeds max_len. (build_prompt_budgeted
+    # already handles most of this, but this is a safety net.)
+    tokenizer.truncation_side = "left"
     model = AutoModelForCausalLM.from_pretrained(ckpt, torch_dtype=torch.bfloat16).to(device)
     model.eval()
 
