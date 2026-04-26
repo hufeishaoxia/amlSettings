@@ -1,0 +1,30 @@
+[
+  {
+    "trained_on": "Full-7d",
+    "tested_on": "Full",
+    "AUC": 0.6063189552231072,
+    "LogLoss": 0.257389057627353,
+    "n_test": 71140
+  },
+  {
+    "trained_on": "Full-7d",
+    "tested_on": "URA",
+    "AUC": 0.6043073863415815,
+    "LogLoss": 0.246679896946667,
+    "n_test": 8241
+  },
+  {
+    "trained_on": "URA-7d",
+    "tested_on": "Full",
+    "AUC": 0.5722567094732253,
+    "LogLoss": 0.2626384584900498,
+    "n_test": 71140
+  },
+  {
+    "trained_on": "URA-7d",
+    "tested_on": "URA",
+    "AUC": 0.5850283246985434,
+    "LogLoss": 0.25078775542952036,
+    "n_test": 8241
+  }
+]

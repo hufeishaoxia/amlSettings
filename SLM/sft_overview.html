@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Point-wise SFT &mdash; Training Pipeline</title>
+<style>
+  :root {
+    --bg:#f7f9fc; --panel:#ffffff; --ink:#1a2233; --muted:#6b7793;
+    --accent:#1d6fdc; --accent2:#e07a1f; --good:#1f9d55; --bad:#d23f3f;
+    --border:#dde3ee; --code:#f1f4fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; padding:32px;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background:var(--bg); color:var(--ink);
+  }
+  h1 { font-size:22px; margin:0 0 6px; }
+  .sub { color:var(--muted); margin-bottom:24px; font-size:13px; }
+  .bullets {
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:14px 22px; margin-bottom:28px;
+    box-shadow:0 1px 2px rgba(20,30,60,.04);
+  }
+  .bullets li { margin:6px 0; line-height:1.55; }
+  .pipeline { display:flex; gap:14px; align-items:stretch; flex-wrap:wrap; }
+  .card {
+    flex:1 1 220px; min-width:220px;
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:14px 16px;
+    display:flex; flex-direction:column;
+    box-shadow:0 1px 2px rgba(20,30,60,.04);
+  }
+  .card h3 {
+    margin:0 0 8px; font-size:13px; color:var(--accent);
+    letter-spacing:.5px; text-transform:uppercase;
+  }
+  .card .body { font-size:12.5px; line-height:1.5; }
+  .arrow { display:flex; align-items:center; color:var(--accent2); font-size:22px; font-weight:700; }
+  pre {
+    background:var(--code); border:1px solid var(--border); border-radius:6px;
+    padding:10px; font-size:11.5px; color:#1a2233; margin:6px 0 0; overflow-x:auto;
+    font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  }
+  .yes { color:var(--good); font-weight:600; }
+  .no  { color:var(--bad);  font-weight:600; }
+  .loss-box {
+    margin-top:24px; background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:14px 16px;
+    box-shadow:0 1px 2px rgba(20,30,60,.04);
+  }
+  .loss-box h3 { margin:0 0 6px; color:var(--accent2); font-size:13px;
+                 letter-spacing:.5px; text-transform:uppercase; }
+  .loss-box code { background:var(--code); padding:1px 6px; border-radius:4px; }
+  .legend { margin-top:18px; font-size:12px; color:var(--muted); }
+  .mask { background:#fbeaea; color:#a33; padding:0 4px; border-radius:3px; }
+  .ans  { background:#e6f5ec; color:var(--good); padding:0 4px; border-radius:3px; font-weight:600; }
+</style>
+</head>
+<body>
+
+<h1>Point-wise SFT &mdash; Yes/No Click Prediction</h1>
+<div class="sub">Qwen3-0.6B / 1.7B &middot; Discover-feed candidate ranking &middot; v10 splits &middot; ctx 4096</div>
+
+<div class="bullets">
+  <ul>
+    <li><b>Task.</b> Each (user, candidate) pair becomes a single-token binary classification: continue the prompt with <span class="yes">" Yes"</span> or <span class="no">" No"</span>; label = <code>is_clicked</code>. At inference, ranking score is <code>P(" Yes") / (P(" Yes") + P(" No"))</code>.</li>
+    <li><b>Prompt.</b> Chat-template-wrapped <code>system + user</code> with last 30 click history items, the interests blob, and the candidate (title / summary). <code>enable_thinking = false</code>, cutoff 4096.</li>
+    <li><b>Loss / Optim.</b> Weighted cross-entropy on the answer token only (prompt tokens masked with -100). AdamW-8bit, lr 2e-5, bs 128 (mbs 2 + grad-accum), 2 epochs, neg_frac 0.3, DeepSpeed ZeRO across 8&times;A100.</li>
+  </ul>
+</div>
+
+<div class="pipeline">
+  <div class="card">
+    <h3>1. Raw row</h3>
+    <div class="body">
+<pre>{
+  user_id, bizdate,
+  history: [...30],
+  interests: {...},
+  candidate: {title, summary},
+  label: 0 / 1
+}</pre>
+    </div>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <div class="card">
+    <h3>2. Prompt build</h3>
+    <div class="body">
+      Chat template, system + user concatenated:
+<pre>SYS: You are a ranker...
+USR: History: ...
+     Interests: ...
+     Candidate: title / summary
+     Will the user click?
+ASSISTANT:</pre>
+    </div>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <div class="card">
+    <h3>3. Label mask</h3>
+    <div class="body">
+      Tokens:<br>
+      <span class="mask">[SYS ... USR ... ASSISTANT:]</span>
+      <span class="ans">" Yes"</span> or <span class="ans">" No"</span><br><br>
+      Masked tokens carry <code>label = -100</code> &mdash; only the final answer token contributes to CE.
+    </div>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <div class="card">
+    <h3>4. Weighted CE</h3>
+    <div class="body">
+<pre>logits = LM(input_ids)
+ce     = CE(logit[ans], "Yes" / "No")
+loss   = (ce * weight).mean()</pre>
+      Memory-efficient: gather logits only at active positions.
+    </div>
+  </div>
+
+  <div class="arrow">&#8594;</div>
+
+  <div class="card">
+    <h3>5. Inference</h3>
+    <div class="body">
+      Read next-token logits:<br>
+      <code>p = softmax([l_Yes, l_No])[0]</code><br><br>
+      <code>p</code> &isin; [0,1] &rarr; ranking score &rarr; AUC.
+    </div>
+  </div>
+</div>
+
+<div class="loss-box">
+  <h3>Loss</h3>
+  $$L = \frac{1}{N}\sum_i w_i \cdot \mathrm{CE}\bigl(z_i^{\text{ans}},\; y_i \in \{\text{Yes},\text{No}\}\bigr)$$
+  Prompt-segment tokens have <code>label = -100</code> and do not contribute to gradients.
+</div>
+
+<div class="legend">
+  Legend &mdash;
+  <span class="ans">green</span>: answer token (gradient flows),
+  <span class="mask">red</span>: prompt token (masked),
+  <span style="color:var(--accent)">blue</span>: pipeline step,
+  <span style="color:var(--accent2)">orange</span>: loss / arrows.
+</div>
+
+</body>
+</html>
