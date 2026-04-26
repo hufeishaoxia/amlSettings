@@ -25,7 +25,7 @@ export TRAIN_URA_ONLY=1
 export NEG_FRAC=0
 export NEG_RATIO=0
 export OPTIM=adamw_torch
-export DISABLE_EARLY_STOP=0
+export DISABLE_EARLY_STOP=1
 
 # No JSONL — load directly from parquet like v1
 export TRAIN_JSONL=""

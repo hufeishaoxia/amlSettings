@@ -16,4 +16,4 @@ pip install --user "transformers==4.51.3" "tokenizers>=0.21,<0.22" "numpy>=1.26,
 
 
 copy data: 
-cp -r /scratch/azureml/cr/j/cb7f3b2f13af4de88e98a157ca0e3eaa/exe/wd/amlSettings/SLM/data_v8 /mnt/msndni//shares/UDC/RnR/HLLM/Copilot/SLM/
+cp -r /scratch/azureml/cr/j/cb7f3b2f13af4de88e98a157ca0e3eaa/exe/wd/amlSettings/SLM/output/v10_Qwen3-0.6B_all_ep2/inference_model /mnt/msndni//shares/UDC/RnR/HLLM/Copilot/SLM/v10_Qwen3-0.6B_inference
