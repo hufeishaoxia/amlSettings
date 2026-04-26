@@ -225,7 +225,7 @@ def _load_model(model_path: str, tp: int = 1):
     _no_id = no_ids[0]
 
     # Pre-build sampling params: generate 1 token, return logprobs
-    _sampling_params = SamplingParams(max_tokens=1, temperature=0, logprobs=100)
+    _sampling_params = SamplingParams(max_tokens=1, temperature=0, logprobs=20)
 
     logger.info(f"vLLM engine ready. Yes={_yes_id}, No={_no_id}")
 
