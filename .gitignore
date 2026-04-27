@@ -62,5 +62,14 @@ venv/
 .idea/
 .DS_Store
 
+# ===== DLIS 部署大文件 =====
+SLM/dlis_deploy/**/*.safetensors
+SLM/dlis_deploy/**/*.bin
+SLM/dlis_deploy/**/*.pt
+SLM/dlis_deploy/**/*.pth
+SLM/dlis_deploy/**/*.ckpt
+SLM/dlis_deploy/**/*.onnx
+SLM/dlis_deploy/*.tar
+
 # ===== 本脚本(含 token) =====
 setup_and_push.sh
