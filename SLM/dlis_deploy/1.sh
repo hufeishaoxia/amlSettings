@@ -1,0 +1,13 @@
+$env:AZCOPY_CRED_TYPE = "Anonymous";
+$env:AZCOPY_CONCURRENCY_VALUE = "AUTO";
+$env:HTTPS_PROXY = "dummy.invalid";
+$env:NO_PROXY = "*";
+$env:https_proxy = "dummy.invalid";
+$env:no_proxy = "*";
+./azcopy.exe copy "https://csnewsandfeeds4150361735.blob.core.windows.net/unium/v-shaoboliu/CH03-Diffusion/feedsvl_relevance_V5/*?sv=2025-07-05&se=2026-05-27T04%3A07%3A17Z&sr=c&sp=rl&sig=QUrPvG9FprfpDj4JQ3WLh%2FYnv9HcL%2Bmr7TErb%2BMTpfU%3D" "E:\workspace\models" --overwrite=prompt --check-md5 FailIfDifferent --from-to=BlobLocal --list-of-files "C:\Users\penghu\AppData\Local\Temp\stg-exp-azcopy-65eaf175-1abc-4038-8797-524fc4df74d1.txt" --recursive --log-level=INFO;
+$env:AZCOPY_CRED_TYPE = "";
+$env:AZCOPY_CONCURRENCY_VALUE = "";
+$env:HTTPS_PROXY = "";
+$env:NO_PROXY = "";
+$env:https_proxy = "";
+$env:no_proxy = "";

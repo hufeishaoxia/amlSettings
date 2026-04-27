@@ -1,10 +1,10 @@
-FROM vllm/vllm-openai:v0.19.1
+FROM f9309c3acdd842848c88032e1ec736d2.azurecr.io/azureml/azureml_706102b3657c5ad26506186a8ffb061e:latest
 
-RUN pip install --no-cache-dir tornado protobuf && \
+RUN pip install --no-cache-dir protobuf && \
     echo "=== Build-time verification ===" && \
     python3 -c "import vllm; print('vllm:', vllm.__version__)" && \
     python3 -c "import transformers; print('transformers:', transformers.__version__)" && \
-    python3 -c "import triton; print('triton:', triton.__version__)" && \
+    python3 -c "import tornado; print('tornado:', tornado.version)" && \
     echo "=== Build OK ==="
 
 WORKDIR /app
