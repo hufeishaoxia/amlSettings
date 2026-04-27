@@ -1,7 +1,6 @@
 import platform
 import os
 import json
-import watchdog.events
 import threading
 import time
 import asyncio

@@ -12,7 +12,7 @@ import utils
 from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 
-MODEL_VERSION = "v21-dlis"
+MODEL_VERSION = "v22-dlis"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
