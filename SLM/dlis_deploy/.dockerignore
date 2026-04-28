@@ -1,0 +1,15 @@
+benchmark_results/
+eval_results/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.log
+*.csv
+
+feedsvl_dlis/
+feedsvl_dlis.tar
+model/
+
+.git/
+.ipynb_checkpoints/
+setup_and_deploy.ipynb
