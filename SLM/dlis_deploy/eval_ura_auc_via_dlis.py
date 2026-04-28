@@ -80,6 +80,12 @@ def parse_args() -> argparse.Namespace:
         default=2048,
         help="Per-request prompt body budget (matches offline eval_auc.py default).",
     )
+    p.add_argument(
+        "--deterministic",
+        action="store_true",
+        help="Ask the server for bit-reproducible scoring (slower; bypasses prefix "
+             "cache and runs one prompt per vLLM batch). Server defaults to off.",
+    )
     return p.parse_args()
 
 
@@ -104,7 +110,7 @@ def build_payload(sample: dict[str, Any], args: argparse.Namespace) -> dict[str,
         if isinstance(h, dict) and h.get("title")
     ]
     cand = sample.get("candidate") or {}
-    return {
+    payload = {
         "interests": interests,
         "history": history,
         "candidates": [
@@ -116,6 +122,9 @@ def build_payload(sample: dict[str, Any], args: argparse.Namespace) -> dict[str,
         ],
         "max_len": args.max_len,
     }
+    if getattr(args, "deterministic", False):
+        payload["deterministic"] = True
+    return payload
 
 
 # ── HTTP ───────────────────────────────────────────────────────────────────────
