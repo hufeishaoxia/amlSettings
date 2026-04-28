@@ -35,7 +35,7 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v25-dlis-logprobs200"
+MODEL_VERSION = "v26-dlis-yesno-mask"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,6 +43,28 @@ logger = logging.getLogger(__name__)
 # Global lock used only for deterministic-mode requests to keep them out of
 # concurrent batches with regular requests. Regular requests do NOT take it.
 _DET_LOCK = threading.Lock()
+
+
+def _make_yesno_mask_processor(yes_id: int, no_id: int):
+    """Return a vLLM logits processor that masks every vocab id except
+    ``yes_id`` and ``no_id`` to ``-inf``. After this mask, the next-token
+    softmax is computed over a 2-element distribution -- mathematically
+    identical to the offline scorer's ``softmax(logits[[yes_id, no_id]])``.
+
+    The processor is stateless and safe to share across requests / threads.
+    Signature matches vLLM's ``LogitsProcessor`` ABC: ``(token_ids, logits) ->
+    logits`` where ``logits`` is a 1-D float tensor of shape ``(vocab_size,)``.
+    """
+    import torch  # local import: vLLM already pulls torch into the image
+
+    def _proc(_token_ids, logits):
+        # In-place mask is fine -- vLLM passes a fresh tensor per step.
+        keep = torch.full_like(logits, float("-inf"))
+        keep[yes_id] = logits[yes_id]
+        keep[no_id] = logits[no_id]
+        return keep
+
+    return _proc
 
 
 class ModelImp:
@@ -73,15 +95,8 @@ class ModelImp:
         self.eval_max_len = int(os.getenv("EVAL_MAX_LEN", "2048"))
         self.body_budget = max(256, self.eval_max_len - 120)
 
-        # Number of top-K logprobs vLLM returns per generated token. We need
-        # both ' Yes' (id=7414) and ' No' (id=2308) to ALWAYS be present, otherwise
-        # the score code falls back to lp=-100 and softmax((-100,-100))=(0.5,0.5),
-        # producing a tied score for ~4% of URA samples and a measurable AUC drop.
-        # Vocab is ~151k tokens; 200 is comfortably enough for a binary head.
-        self.logprobs_k = int(os.getenv("LOGPROBS_K", "200"))
-
         print(f"=== Qwen3-0.6B Ranker {MODEL_VERSION} ===")
-        print(f"Loading vLLM engine from {ckpt_path} (tp={tp}, max_len={max_model_len}, dtype={dtype}, eager=True, max_logprobs={self.logprobs_k})")
+        print(f"Loading vLLM engine from {ckpt_path} (tp={tp}, max_len={max_model_len}, dtype={dtype}, eager=True)")
         self.llm = LLM(
             model=ckpt_path,
             dtype=dtype,
@@ -92,7 +107,6 @@ class ModelImp:
             enable_prefix_caching=True,
             enable_chunked_prefill=True,
             enforce_eager=True,
-            max_logprobs=self.logprobs_k,
         )
 
         self.tokenizer = AutoTokenizer.from_pretrained(ckpt_path, trust_remote_code=True)
@@ -106,8 +120,20 @@ class ModelImp:
             no_ids = self.tokenizer.encode("No", add_special_tokens=False)
         self.yes_id = yes_ids[0]
         self.no_id = no_ids[0]
-        # Default fast sampling params (used by the optimized path).
-        self.sampling_params = SamplingParams(max_tokens=1, temperature=0, logprobs=self.logprobs_k)
+
+        # Restrict the next-token distribution to {Yes, No} via a logits
+        # processor that sets every other vocab entry to -inf. After this mask,
+        # vLLM's softmax produces exactly P(Yes) / (P(Yes) + P(No)) -- the same
+        # quantity the offline eval (eval_auc.py) computes via
+        #     softmax(logits[:, -1, [yes_id, no_id]])[:, 0]
+        # Because the post-mask distribution has only 2 non-zero entries, the
+        # top-2 logprobs vLLM returns are guaranteed to be Yes and No, so we
+        # only need logprobs=2 (no top-K truncation hazard, no fallback).
+        self._yesno_processor = _make_yesno_mask_processor(self.yes_id, self.no_id)
+        self.sampling_params = SamplingParams(
+            max_tokens=1, temperature=0, logprobs=2,
+            logits_processors=[self._yesno_processor],
+        )
         # Probe whether SamplingParams supports cache_salt (vLLM >= 0.6.6).
         self._sp_supports_cache_salt = self._probe_cache_salt_support()
 
@@ -117,7 +143,11 @@ class ModelImp:
 
     def _probe_cache_salt_support(self) -> bool:
         try:
-            SamplingParams(max_tokens=1, temperature=0, logprobs=self.logprobs_k, cache_salt="probe")
+            SamplingParams(
+                max_tokens=1, temperature=0, logprobs=2,
+                logits_processors=[self._yesno_processor],
+                cache_salt="probe",
+            )
             return True
         except TypeError:
             return False
@@ -127,7 +157,8 @@ class ModelImp:
         ALWAYS misses. Falls back to the regular params on older vLLM."""
         if self._sp_supports_cache_salt:
             return SamplingParams(
-                max_tokens=1, temperature=0, logprobs=self.logprobs_k,
+                max_tokens=1, temperature=0, logprobs=2,
+                logits_processors=[self._yesno_processor],
                 cache_salt=uuid.uuid4().hex,
             )
         return self.sampling_params
@@ -147,14 +178,13 @@ class ModelImp:
         return [self._extract_yes_prob(o) for o in outputs]
 
     def _extract_yes_prob(self, out) -> float:
+        # After the yes/no mask, vLLM's logprobs at this position are computed
+        # over a 2-element distribution -> Yes is guaranteed present. Both lp
+        # values are normalized so exp(yes_lp) + exp(no_lp) == 1, but we keep
+        # the explicit two-way softmax for safety / numerical hygiene.
         logprobs_dict = out.outputs[0].logprobs[0]
-        # Fallback for the (now rare) case where Yes/No fall outside top-K:
-        # use the smallest observed logprob in the returned set as a tight
-        # upper bound on the missing token's true logprob. This avoids the
-        # old -100 sentinel that mapped both-missing -> exact 0.5.
-        floor_lp = min(lp.logprob for lp in logprobs_dict.values())
-        yes_lp = logprobs_dict[self.yes_id].logprob if self.yes_id in logprobs_dict else floor_lp
-        no_lp = logprobs_dict[self.no_id].logprob if self.no_id in logprobs_dict else floor_lp
+        yes_lp = logprobs_dict[self.yes_id].logprob
+        no_lp = logprobs_dict[self.no_id].logprob
         max_lp = max(yes_lp, no_lp)
         return math.exp(yes_lp - max_lp) / (math.exp(yes_lp - max_lp) + math.exp(no_lp - max_lp))
 
