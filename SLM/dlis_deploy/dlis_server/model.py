@@ -26,7 +26,7 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v27-dlis"
+MODEL_VERSION = "v28-dlis"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,8 +55,8 @@ class ModelImp:
         dtype = os.getenv("VLLM_DTYPE", "bfloat16")
         # Token budget for the prompt body (excludes ~120 tokens reserved for
         # the chat-template wrapper). Keep this aligned with the offline
-        # eval setting so AUC matches; SLM/eval_auc.py defaults to max_len=2048.
-        self.eval_max_len = int(os.getenv("EVAL_MAX_LEN", "2048"))
+        # eval setting so AUC matches; SLM/eval_auc.py defaults to max_len=4096.
+        self.eval_max_len = int(os.getenv("EVAL_MAX_LEN", "4096"))
         self.body_budget = max(256, self.eval_max_len - 120)
 
         print(f"=== Qwen3-0.6B Ranker {MODEL_VERSION} ===")
