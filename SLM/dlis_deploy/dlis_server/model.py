@@ -5,24 +5,15 @@ Uses vLLM for accelerated inference with prefix KV cache.
 Produces prompts that are byte-identical to the offline training/eval pipeline
 (``SLM/data.py`` + ``SLM/eval_auc.py``). See ``prompt.py`` (vendored copy).
 
-Determinism:
-  vLLM with bf16 + dynamic batching + prefix cache + chunked prefill is
-  NOT bit-reproducible: the same prompt can produce slightly different
-  logits depending on (a) which other prompts share the prefill batch,
-  (b) whether the prefix is cached, and (c) bf16 reduce ordering. For URA
-  test we observed |Δscore| up to ~0.06 across runs (Pearson 0.998, AUC
-  swing < 0.001). Enough for ranking, but not deterministic.
-
-  Clients can request a deterministic-but-slower path by sending
-  ``"deterministic": true`` in the JSON request. Default is fast (batched).
+Scoring is mathematically identical to the offline scorer: a vLLM logits
+processor masks every vocab id except ' Yes' / ' No' to -inf before sampling,
+so the returned logprobs are exactly ``softmax(logits[[yes_id, no_id]])``.
 """
 import os
 import json
 import math
 import time
-import uuid
 import logging
-import threading
 import utils
 
 from vllm import LLM, SamplingParams
@@ -35,14 +26,10 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v26-dlis-yesno-mask"
+MODEL_VERSION = "v26-dlis"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Global lock used only for deterministic-mode requests to keep them out of
-# concurrent batches with regular requests. Regular requests do NOT take it.
-_DET_LOCK = threading.Lock()
 
 
 def _make_yesno_mask_processor(yes_id: int, no_id: int):
@@ -134,47 +121,12 @@ class ModelImp:
             max_tokens=1, temperature=0, logprobs=2,
             logits_processors=[self._yesno_processor],
         )
-        # Probe whether SamplingParams supports cache_salt (vLLM >= 0.6.6).
-        self._sp_supports_cache_salt = self._probe_cache_salt_support()
 
-        print(f"vLLM engine ready. Yes={self.yes_id}, No={self.no_id}, "
-              f"cache_salt_supported={self._sp_supports_cache_salt}")
+        print(f"vLLM engine ready. Yes={self.yes_id}, No={self.no_id}")
         print("model loaded.")
 
-    def _probe_cache_salt_support(self) -> bool:
-        try:
-            SamplingParams(
-                max_tokens=1, temperature=0, logprobs=2,
-                logits_processors=[self._yesno_processor],
-                cache_salt="probe",
-            )
-            return True
-        except TypeError:
-            return False
-
-    def _det_sampling_params(self) -> SamplingParams:
-        """SamplingParams with a unique cache_salt so the prefix cache
-        ALWAYS misses. Falls back to the regular params on older vLLM."""
-        if self._sp_supports_cache_salt:
-            return SamplingParams(
-                max_tokens=1, temperature=0, logprobs=2,
-                logits_processors=[self._yesno_processor],
-                cache_salt=uuid.uuid4().hex,
-            )
-        return self.sampling_params
-
-    def _score_prompts(self, prompts, sampling_params=None, one_at_a_time: bool = False):
-        sp = sampling_params or self.sampling_params
-        if one_at_a_time:
-            scores = []
-            for p in prompts:
-                # One prompt per generate() so the per-call vLLM batch shape
-                # is always (1,) -> reduce order for matmul/attention is
-                # constant across runs -> bit-reproducible logits.
-                outputs = self.llm.generate([p], sp)
-                scores.extend(self._extract_yes_prob(o) for o in outputs)
-            return scores
-        outputs = self.llm.generate(prompts, sp)
+    def _score_prompts(self, prompts):
+        outputs = self.llm.generate(prompts, self.sampling_params)
         return [self._extract_yes_prob(o) for o in outputs]
 
     def _extract_yes_prob(self, out) -> float:
@@ -202,12 +154,6 @@ class ModelImp:
         deployed AUC matches the offline eval AUC for the same checkpoint.
 
         Optional flags:
-          "deterministic": true   -> bit-reproducible scoring (slower).
-                                     Bypasses the prefix KV cache (unique
-                                     cache_salt), processes one prompt per
-                                     vLLM batch, and serializes against
-                                     other deterministic requests with a
-                                     global lock. Default is false.
           "max_len":      int     -> per-request prompt body budget.
         """
         try:
@@ -221,7 +167,6 @@ class ModelImp:
             history, interests, candidates = normalize_request(req)
             req_max_len = int(req.get("max_len") or self.eval_max_len)
             body_budget = max(256, req_max_len - 120)
-            deterministic = bool(req.get("deterministic", False))
 
             prompts = []
             for card in candidates:
@@ -242,15 +187,7 @@ class ModelImp:
                 prompts.append(text)
 
             t1 = time.time()
-            if deterministic:
-                with _DET_LOCK:
-                    all_scores = self._score_prompts(
-                        prompts,
-                        sampling_params=self._det_sampling_params(),
-                        one_at_a_time=True,
-                    )
-            else:
-                all_scores = self._score_prompts(prompts)
+            all_scores = self._score_prompts(prompts)
             t2 = time.time()
 
             prompt_ms = (t1 - t0) * 1000
@@ -270,7 +207,6 @@ class ModelImp:
                 "prompt_build_ms": round(prompt_ms, 1),
                 "inference_ms": round(infer_ms, 1),
                 "model_version": MODEL_VERSION,
-                "deterministic": deterministic,
             }
             return json.dumps(response)
 
