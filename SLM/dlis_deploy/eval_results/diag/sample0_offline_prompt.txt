@@ -1,0 +1,142 @@
+<|im_start|>system
+I am a recommendation assistant. I read the user's interests, recent conversations, and shown cards, then predict whether they will click the candidate item. I answer Yes or No.<|im_end|>
+<|im_start|>user
+I am a click-prediction ranker for the Discover feed. I read one user's interest
+profile, recent chat conversations, interaction history (clicks, thumbs-up,
+thumbs-down), and the cards shown to them on previous days, then I predict
+whether they will click the candidate item if I show it to them today.
+
+Signals the user may consider:
+1. Source signal priority: interests sourced from inline curation (explicitly
+   added by the user) carry more weight than user interactions (clicks, likes),
+   which carry more weight than chat history (inferred from messages).
+2. Interest strength: high (0.9-1.0) > medium (0.8-0.9) > exploratory (below 0.8).
+3. Long-term interest relevance: alignment with stable USER_INTERESTS, including
+   keyword overlap.
+4. Short-term interest relevance: alignment with the most recent CONVERSATIONS.
+5. USER_INTERACTION affinity: topical overlap with thumbs-up, clicked, or
+   thumbs-down card titles in USER_INTERACTIONS.
+6. Negative-interest match: whether the candidate matches a topic the user has
+   shown disinterest in (USER_INTERESTS negative list).
+7. Freshness: how recent or newly created the content is.
+8. Importance: how significant or consequential the content is.
+9. Novelty against SHOWN_CARDS: whether the candidate duplicates cards the user
+   was already shown on previous days.
+
+I answer with a single token: Yes if the user will click, No otherwise.
+
+Inputs:
+
+USER_INTERESTS (positive, ranked by strength):
+  1. Photo restoration and digitization  [domain=Photography; classification=Topic; status=Stable; intent=Apply; strength=0.78; sources=ChatHistory]
+    keywords: photo restoration, scanning, digitize, enhance, photo editing, iphone scanning, document legibility
+    why: User repeatedly asked about restoring old photographs and apps (2025-10-26; 2026-03-04), enhancing legibility of documents and photos (2025-11-09 to 2025-11-10), resizing/printing photos (2025-11-04), and lighting for photographing artwork (2025-12-29). This spans several months and shows sustained interest.
+  2. Genealogy and family records  [domain=Genealogy; classification=Topic; status=Stable; intent=Apply; strength=0.72; sources=ChatHistory]
+    keywords: genealogy, family tree, family records, census, forms, archival documents
+    why: User requested printable family history forms and guidance for building a family tree (2026-02-17) and worked with historical census/document images (exporting and enhancing an 1850 U.S. Federal document on 2025-11-09 to 2025-11-10).
+  3. Numismatics and valuation  [domain=Collecting; classification=Topic; status=Emerging; intent=Learn; strength=0.70; sources=ChatHistory]
+    keywords: coin collecting, numismatics, coin value, silver proof, 1944 penny, virginia halfpenny, california fractional gold, ethiopia, haile selassie
+    why: Multiple coin-related queries across late March to early April 2026: identifying and valuing coins (Ethiopian $5 silver, Haile Selassie 1972 coin on 2026-04-06/21:05; 1944 pennies on 2026-04-01; Virginia 1773 half-penny and California octagonal gold token on 2026-03-25), plus storage of silver proof coins (2026-04-07) and compiling a coin list (2026-03-27).
+  4. Backyard pest control  [domain=Home & Garden; classification=Topic; status=Emerging; intent=Apply; strength=0.68; sources=ChatHistory]
+    keywords: pest control, rabbits, repellent, humane trap, starlings, bird deterrent, backyard
+    why: User asked multiple times in April 2026 about humane rabbit trapping and safe repellents (2026-04-14, 2026-04-15) and how to stop starlings raiding nests (2026-04-15). Also earlier asked about preventing birds perching on utility lines (2026-03-21). This shows sustained, practical engagement with managing wildlife around the home.
+  5. Lawn care and weeds  [domain=Home & Garden; classification=Topic; status=Stable; intent=Apply; strength=0.65; sources=ChatHistory]
+    keywords: lawn care, zoysia, weed control, scotts, fertilizer, yard maintenance
+    why: User discussed removing Zoysia grass (2026-03-31) and earlier planned a season using Scotts products with a printable guideline (2026-02-10), indicating ongoing lawn maintenance interest.
+  6. Dietary fiber and anti-inflammatory foods  [domain=Nutrition; classification=Topic; status=Emerging; intent=Apply; strength=0.58; sources=ChatHistory]
+    keywords: soluble fiber, anti-inflammatory, diet, nutrition, food list
+    why: User asked for foods high in soluble fiber and printable lists (2026-02-28 and 2026-03-23) and requested foods that fight inflammation (2026-03-16), indicating a nutrition-focused interest.
+  7. Watercolor and acrylic painting  [domain=Art & Creativity; classification=Skill; status=Dormant; intent=Learn; strength=0.55; sources=ChatHistory]
+    keywords: watercolor, acrylic painting, step-by-step, pencil sketch, charcoal study, art techniques
+    why: User requested step-by-step painting guides and generated watercolor/acrylic versions of scenes (2025-10-22 and 2025-10-09) and later iterated on a winter scene watercolor with composition changes (2025-12-28). No recent mentions since Dec 2025, indicating decline.
+  8. US civil rights history  [domain=History; classification=Topic; status=Dormant; intent=Learn; strength=0.50; sources=ChatHistory]
+    keywords: civil rights, voting rights act, jim crow, us history, reading plan
+    why: User asked to see and summarize the Voting Rights Act of 1965 (2025-10-17) and later requested a reading plan and materials about the Jim Crow era (2025-11-16). No mentions since late 2025.
+  9. Estate planning basics  [domain=Personal Finance; classification=Topic; status=Emerging; intent=Learn; strength=0.50; sources=ChatHistory]
+    keywords: estate planning, will, trust, life insurance, beneficiaries
+    why: User explored will/trust options (2025-10-08) and later asked about life insurance and naming a family trust (2026-01-26), suggesting periodic interest in estate planning topics.
+
+USER_INTERACTIONS: (none)
+
+CONVERSATIONS (recent groups, newest first):
+  Conversation 1 (2026-04-17 21:10):
+    [user] What do you think it’s gonna happen with the interest rates next month as far as bank interest rate or
+    [user] I have a CD that’s coming due in May on the 22nd where would be the best place to reinvest
+  Conversation 2 (2026-04-17 13:55):
+    [user] Make me a picture of a beautiful lady walking out of the house and forgetting her watch.  draw attention
+    [user] add the caption  "Don't forget your watch"
+    [user] make the watch an Apple watch
+  Conversation 3 (2026-04-17 03:40):
+    [user] Is there a reverse look up app or a way that I can determine who tried to call me and
+    [user] Yes the number is +1(650)761-7789
+  Conversation 4 (2026-04-15 18:56):
+    [user] Why do starlings destroy the nests of the other birds in my backyard?
+    [user] Yes give me a plan
+    [user] Ok so the starlings are raiding the Martin house where the sparrows are living. How do I stop that?
+  Conversation 5 (2026-04-15 15:44):
+    [user] Yes, can you tell me if tiger P can be used as a animal repellent?
+    [user] Let's go. what can I use to repel rabbits in my backyard?
+    [user] What can I use as a rabbit repellent that is safe around dogs?
+  Conversation 6 (2026-04-14 22:51):
+    [user] Hi, what kind of food can I put in a trap to trap rabbit rabbits in a humane rabbit trap
+  Conversation 7 (2026-04-12 15:14):
+    [user] Create a complete estate‑binder package for my annuity, including: (1) a call script for contacting the annuity company, written in
+    [user] OK, I opened the document and looked at it and it looks fine but I don’t know how to print
+    [user] I’ll try to option one an option two and they are not available to me. Can you email me the
+  Conversation 8 (2026-04-12 15:06):
+    [user] Hi there
+    [user] I have a fixed an hoodie that was just transferred from one management company to [pii_person_name-nTKBmd] in the paperwork. It
+    [user] And that’s an annuity, not hoodie
+  Conversation 9 (2026-04-12 04:08):
+    [user] How do I record a conversation on my Apple Watch so I can have a record of it
+    [user] What is triamcinolone actinide cream prescribed for?
+    [user] No
+  Conversation 10 (2026-04-10 17:17):
+    [user] Hi, can you tell me how many different magnesium supplements, their arm and what their names are and what their
+  Conversation 11 (2026-04-10 01:45):
+    [user] I vote we're 1966 to 1969 and a half dollar reward.
+    [user] Let's go with the 1966.
+    [user] It's barely circulated.
+  Conversation 12 (2026-04-10 01:21):
+    [user] Silver content every 96 to six can be half dollar.
+    [user] What did you say the silver content was?
+    [user] $1,000,000. $1,000,000.
+  Conversation 13 (2026-04-07 22:44):
+    [user] Yes, it was the Standing Liberty Quarter, and that's it.
+    [user] You tell me the value of a Sacagawea dollar with a Philadelphia mint mark from the year 2000. It's in
+    [user] It's uncirculated. Does that increase the value?
+  Conversation 14 (2026-04-07 22:38):
+    [user] Did you say a colon was if it was uncirculated?
+    [user] Well, almost uncirculated.
+    [user] It's a 1776-1976 Eisenhower dollar in almost uncirculated condition.
+  Conversation 15 (2026-04-07 22:36):
+    [user] What is a 1776-1976 version two Eisenhower dollar rule?
+    [user] It looks like it's slightly uncirculated.
+    [user] Now, what if it's
+  Conversation 16 (2026-04-07 22:28):
+    [user] What is a 1977 D Kennedy half dollar worth?
+  Conversation 17 (2026-04-07 07:47):
+    [user] Taking into account humidity and other factors, what would be the best way to Store silver proof coins at home
+  Conversation 18 (2026-04-07 03:50):
+    [user] Hi, how are you?
+    [user] I have a 1976 series $2 bill. What is it worth?
+    [user] Yes, I have one that's a 1928 series G with the serial number of [pii_bank_account_number-vSZwqx]. Is that worth anything? It's
+  Conversation 19 (2026-04-07 01:21):
+    [user] I have a novelty Lincoln.
+    [user] dash Kennedy penny. It's an uncirculated Lincoln head penny stamped with a profile reproduction of John F. Kennedy looking at
+    [user] Okay.
+  Conversation 20 (2026-04-07 00:47):
+    [user] What's a golden George Washington one dollar coin worth?
+    [user] Yes, they are straight from the mint in uncirculated condition.
+    [user] How much are we talking about dollar-wise each?
+
+SHOWN_CARDS (last 2 cards shown to the user on previous days):
+  1. Extension experts outline natural zoysia control
+  2. Manual removal tackles stubborn zoysia patches
+
+CANDIDATE_ITEM:
+  title: Revocable and irrevocable trusts serve different goals
+  summary: Revocable trusts offer flexibility, while irrevocable trusts provide stronger protection and tax benefits.
+
+Will the user click this candidate item? I answer Yes or No:<|im_end|>
+<|im_start|>assistant

@@ -1,0 +1,80 @@
+<|im_start|>system
+I am a recommendation assistant. I read the user's interests, recent conversations, and shown cards, then predict whether they will click the candidate item. I answer Yes or No.<|im_end|>
+<|im_start|>user
+I am a click-prediction ranker for the Discover feed. I read one user's interest
+profile, recent chat conversations, interaction history (clicks, thumbs-up,
+thumbs-down), and the cards shown to them on previous days, then I predict
+whether they will click the candidate item if I show it to them today.
+
+Signals the user may consider:
+1. Source signal priority: interests sourced from inline curation (explicitly
+   added by the user) carry more weight than user interactions (clicks, likes),
+   which carry more weight than chat history (inferred from messages).
+2. Interest strength: high (0.9-1.0) > medium (0.8-0.9) > exploratory (below 0.8).
+3. Long-term interest relevance: alignment with stable USER_INTERESTS, including
+   keyword overlap.
+4. Short-term interest relevance: alignment with the most recent CONVERSATIONS.
+5. USER_INTERACTION affinity: topical overlap with thumbs-up, clicked, or
+   thumbs-down card titles in USER_INTERACTIONS.
+6. Negative-interest match: whether the candidate matches a topic the user has
+   shown disinterest in (USER_INTERESTS negative list).
+7. Freshness: how recent or newly created the content is.
+8. Importance: how significant or consequential the content is.
+9. Novelty against SHOWN_CARDS: whether the candidate duplicates cards the user
+   was already shown on previous days.
+
+I answer with a single token: Yes if the user will click, No otherwise.
+
+Inputs:
+
+USER_INTERESTS (positive, ranked by strength):
+  1. Digital photo management  [domain=Consumer Technology; classification=Skill; status=Stable; intent=Apply; strength=0.72; sources=ChatHistory]
+    keywords: iphone photos, ipad photos, live photo, photo transfer, albums, full resolution, windows laptop, apple
+    why: User repeatedly asked how to transfer, organize, and extract stills from iPhone/iPad photos across multiple sessions (2025-04-21, 2025-05-12, 2025-05-16, 2025-07-04, 2025-07-16) and returned recently on 2026-04-13 to ask about transferring photos from iPhone to an HP laptop, indicating an ongoing skill need.
+  2. Cloud storage management  [domain=Cloud Services; classification=Skill; status=Stable; intent=Apply; strength=0.68; sources=ChatHistory]
+    keywords: onedrive, icloud, file management, photo sync, storage, microsoft 365, backup
+    why: Multiple sessions about iCloud and OneDrive—viewing photos, moving/copying files, storage amounts, and cross-device behavior (2025-01-14, 2025-02-01, 2026-02-01, 2026-03-18)—indicate an ongoing skill interest in managing cloud storage services.
+  3. Raspberry cultivation  [domain=Gardening; classification=Topic; status=Dormant; intent=Apply; strength=0.60; sources=ChatHistory]
+    keywords: raspberry, fertilizer, soil, phosphorus, chloride, liquid feed, horticulture
+    why: Concentrated gardening questions about raspberries across July 2025 (2025-07-07, 2025-07-15, 2025-07-30, 2025-07-31) covering soil, fertilizers, phosphorus, liquid feeding, and chloride levels show a focused horticulture interest that has since gone quiet.
+  4. Septic system maintenance  [domain=Home Maintenance; classification=Topic; status=Dormant; intent=Plan; strength=0.58; sources=ChatHistory]
+    keywords: septic system, drain field, insulation blanket, freeze protection, winterization, maintenance
+    why: User asked about locating a drain field (2025-07-18) and later about timing and installing an insulation blanket to prevent freezing (2025-10-17, 2025-11-07), indicating a practical home maintenance interest that has been inactive since late 2025.
+  5. Pollinator conservation  [domain=Environmental Conservation; classification=Topic; status=Emerging; intent=Learn; strength=0.55; sources=ChatHistory]
+    keywords: bees, pollinators, habitat, native plants, conservation, bee-friendly
+    why: Explicit declaration: "I'm passionate about nature and really want to do more to help save bees" on 2025-02-23 signals a clear interest in supporting bees and pollinators.
+  6. Personal alert systems  [domain=Personal Safety; classification=Topic; status=Dormant; intent=Learn; strength=0.50; sources=ChatHistory]
+    keywords: emergency alert, personal alarm, medical alert, fall detection, wearable
+    why: User asked about emergency alert buttons/personal alert alarms in two separate conversations (2025-07-15 and 2025-07-31), suggesting interest in personal safety devices though not revisited since.
+
+USER_INTERACTIONS: (none)
+
+CONVERSATIONS (recent groups, newest first):
+  Conversation 1 (2026-04-15 15:14):
+    [user] For the past couple months, I have been experiencing almost constant itching of my eyebrows. Nowhere else - just the
+  Conversation 2 (2026-04-11 18:28):
+    [user] how do i refresh
+  Conversation 3 (2026-04-11 18:13):
+    [user] I am having trouble getting my emails on my HP laptop.
+    [user] How do I transfer photos from my iPhone to my HP laptop
+    [user] I have been filling out an application online for a digital newspaper subscription. When I get to the part where
+  Conversation 4 (2026-03-19 16:26):
+    [user] I have a subscription to Microsoft Office 365 and love it. However, [pii_person_name-JqUHKw] is not likely to ever use it
+  Conversation 5 (2026-03-18 21:12):
+    [user] I have been paying $2.99 a month for extra I Cloud storage. But then I purchased a subscription for Microsoft
+    [user] How do I find out how much I have stored in I Cloud
+  Conversation 6 (2026-03-07 15:16):
+    [user] Is it possible to retrieve one of your responses from the past?
+    [user] I had asked about a severely frostbitten hand which created great pain, but now is suddenly feeling real cold.
+  Conversation 7 (2026-03-06 22:23):
+    [user] I just got a Philips HearLink 9050 TR hearing aid. I have it connected to my IPhone 13 Pro via
+    [user] If a person has gotten severe frostbite of their hand, and has suffered incredible pain for a few weeks which
+
+SHOWN_CARDS: (none)
+
+CANDIDATE_ITEM:
+  title: Native bees thrive with local plants
+  summary: A garden club event highlights how planting natives helps preserve bee populations in California.
+
+Will the user click this candidate item? I answer Yes or No:<|im_end|>
+<|im_start|>assistant

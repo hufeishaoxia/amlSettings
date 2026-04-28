@@ -1,6 +1,9 @@
 """
 DLIS ModelImp for Qwen3-0.6B pointwise ranker.
 Uses vLLM for accelerated inference with prefix KV cache.
+
+Produces prompts that are byte-identical to the offline training/eval pipeline
+(``SLM/data.py`` + ``SLM/eval_auc.py``). See ``prompt.py`` (vendored copy).
 """
 import os
 import json
@@ -12,73 +15,17 @@ import utils
 from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 
-MODEL_VERSION = "v22-dlis"
+from prompt import (
+    SYSTEM_MSG,
+    build_prompt,
+    build_prompt_budgeted,
+    normalize_request,
+)
+
+MODEL_VERSION = "v23-dlis-aligned"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-SYSTEM_MSG = (
-    "I am a recommendation assistant. I read the user's interests, recent "
-    "conversations, and shown cards, then predict whether they will click "
-    "the candidate item. I answer Yes or No."
-)
-
-
-def _format_interest(it: dict) -> str:
-    name = (it.get("name") or "").strip()
-    if not name:
-        return ""
-    parts = [name]
-    meta = []
-    for key in ("domain", "classification", "status", "intent"):
-        v = it.get(key)
-        if v not in (None, "", []):
-            meta.append(f"{key}={v}")
-    s = it.get("strength")
-    if s is not None:
-        try:
-            meta.append(f"strength={float(s):.2f}")
-        except Exception:
-            pass
-    if meta:
-        parts[0] += "  [" + "; ".join(meta) + "]"
-    return "\n".join(parts)
-
-
-def build_inference_prompt(
-    interests, shown_titles, conversations, candidate_title,
-    candidate_summary="", candidate_matched_interest="",
-    max_interests=30, max_shown=30, max_conv_groups=5, max_msgs_per_group=6,
-):
-    sections = []
-    if interests:
-        sorted_ints = sorted(interests, key=lambda x: -float(x.get("strength") or 0))
-        formatted = [_format_interest(it) for it in sorted_ints[:max_interests]]
-        formatted = [f for f in formatted if f]
-        if formatted:
-            sections.append("USER_INTERESTS:\n" + "\n".join(f"- {f}" for f in formatted))
-    if shown_titles:
-        sections.append("SHOWN_CARDS:\n" + "\n".join(f"- {t}" for t in shown_titles[:max_shown]))
-    if conversations:
-        conv_lines = []
-        for g in conversations[:max_conv_groups]:
-            msgs = g.get("messages", [])[-max_msgs_per_group:]
-            for m in msgs:
-                author = m.get("author", "?")
-                text = m.get("text", "").strip().replace("\n", " ")
-                if len(text) > 220:
-                    text = text[:219] + "..."
-                conv_lines.append(f"  [{author}] {text}")
-        if conv_lines:
-            sections.append("RECENT_CONVERSATIONS:\n" + "\n".join(conv_lines))
-    cand_parts = [f"Title: {candidate_title}"]
-    if candidate_summary:
-        cand_parts.append(f"Summary: {candidate_summary}")
-    if candidate_matched_interest:
-        cand_parts.append(f"Matched Interest: {candidate_matched_interest}")
-    sections.append("CANDIDATE:\n" + "\n".join(cand_parts))
-    sections.append("Will the user click this candidate? Answer Yes or No.")
-    return "\n\n".join(sections)
 
 
 class ModelImp:
@@ -103,6 +50,11 @@ class ModelImp:
         max_model_len = int(os.getenv("MAX_MODEL_LEN", "4096"))
         gpu_mem = float(os.getenv("GPU_MEMORY_UTILIZATION", "0.9"))
         dtype = os.getenv("VLLM_DTYPE", "bfloat16")
+        # Token budget for the prompt body (excludes ~120 tokens reserved for
+        # the chat-template wrapper). Keep this aligned with the offline
+        # eval setting so AUC matches; SLM/eval_auc.py defaults to max_len=2048.
+        self.eval_max_len = int(os.getenv("EVAL_MAX_LEN", "2048"))
+        self.body_budget = max(256, self.eval_max_len - 120)
 
         print(f"=== Qwen3-0.6B Ranker {MODEL_VERSION} ===")
         print(f"Loading vLLM engine from {ckpt_path} (tp={tp}, max_len={max_model_len}, dtype={dtype}, eager=True)")
@@ -147,7 +99,18 @@ class ModelImp:
         return scores
 
     def Eval(self, data):
-        """DLIS string eval interface. JSON in, JSON out."""
+        """DLIS string eval interface. JSON in, JSON out.
+
+        Accepts both the new rich schema (mirrors training JSONL):
+            {"interests": {"positive":[...], "negative":[...],
+                            "interactions": {...}, "conversations":[...]},
+             "history":   [{"title": str, "summary": str}],
+             "candidates":[{"id": str, "title": str, "summary": str}]}
+
+        and the legacy flat schema (interests=list[dict], shownTitles=...).
+        Prompt format is identical to ``SLM/data.py:build_prompt`` so the
+        deployed AUC matches the offline eval AUC for the same checkpoint.
+        """
         try:
             req = json.loads(data)
         except Exception as e:
@@ -156,30 +119,27 @@ class ModelImp:
 
         try:
             t0 = time.time()
-            candidates = req.get("candidates", [])
-            if not candidates:
-                # Single candidate mode (flat request)
-                candidates = [req]
-
-            interests = req.get("interests", [])
-            shown_titles = req.get("shownTitles", req.get("shown_titles", []))
-            conversations = req.get("conversations", [])
+            history, interests, candidates = normalize_request(req)
+            # Per-request override of body budget if the client sends max_len.
+            req_max_len = int(req.get("max_len") or self.eval_max_len)
+            body_budget = max(256, req_max_len - 120)
 
             prompts = []
             for card in candidates:
-                body = build_inference_prompt(
-                    interests=interests,
-                    shown_titles=shown_titles,
-                    conversations=conversations,
-                    candidate_title=card.get("title", ""),
-                    candidate_summary=card.get("summary", ""),
-                    candidate_matched_interest=card.get("matchedInterest", card.get("matched_interest", "")),
+                cand = {
+                    "title": card.get("title", ""),
+                    "summary": card.get("summary", ""),
+                }
+                body, _truncated, _dh, _dc = build_prompt_budgeted(
+                    history, interests, cand, self.tokenizer, body_budget,
                 )
                 msgs = [
                     {"role": "system", "content": SYSTEM_MSG},
                     {"role": "user", "content": body},
                 ]
-                text = self.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+                text = self.tokenizer.apply_chat_template(
+                    msgs, tokenize=False, add_generation_prompt=True,
+                )
                 prompts.append(text)
 
             t1 = time.time()
@@ -202,11 +162,12 @@ class ModelImp:
                 "latency_ms": round(total_ms, 1),
                 "prompt_build_ms": round(prompt_ms, 1),
                 "inference_ms": round(infer_ms, 1),
+                "model_version": MODEL_VERSION,
             }
             return json.dumps(response)
 
         except Exception as e:
-            logger.error(f"Eval error: {e}")
+            logger.exception(f"Eval error: {e}")
             return json.dumps({"error": str(e)})
 
     def EvalBatch(self, data_list):

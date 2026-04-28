@@ -1,0 +1,57 @@
+<|im_start|>system
+I am a recommendation assistant. I read the user's interests, recent conversations, and shown cards, then predict whether they will click the candidate item. I answer Yes or No.<|im_end|>
+<|im_start|>user
+USER_INTERESTS:
+- Photo restoration and digitization  [domain=Photography; classification=Topic; status=Stable; intent=Apply; strength=0.78; sources=ChatHistory]
+    keywords: photo restoration, scanning, digitize, enhance, photo editing, iphone scanning, document legibility
+    why: User repeatedly asked about restoring old photographs and apps (2025-10-26; 2026-03-04), enhancing legibility of documents and photos (2025-11-09 to 2025-11-10), resizing/printing photos (2025-11-04), and lighting for photographing artwork (2025-12-29). This spans several months and shows sustained interest.
+- Genealogy and family records  [domain=Genealogy; classification=Topic; status=Stable; intent=Apply; strength=0.72; sources=ChatHistory]
+    keywords: genealogy, family tree, family records, census, forms, archival documents
+    why: User requested printable family history forms and guidance for building a family tree (2026-02-17) and worked with historical census/document images (exporting and enhancing an 1850 U.S. Federal document on 2025-11-09 to 2025-11-10).
+- Numismatics and valuation  [domain=Collecting; classification=Topic; status=Emerging; intent=Learn; strength=0.70; sources=ChatHistory]
+    keywords: coin collecting, numismatics, coin value, silver proof, 1944 penny, virginia halfpenny, california fractional gold, ethiopia, haile selassie
+    why: Multiple coin-related queries across late March to early April 2026: identifying and valuing coins (Ethiopian $5 silver, Haile Selassie 1972 coin on 2026-04-06/21:05; 1944 pennies on 2026-04-01; Virginia 1773 half-penny and California octagonal gold token on 2026-03-25), plus storage of silver proof coins (2026-04-07) and compiling a coin list (2026-03-27).
+- Backyard pest control  [domain=Home & Garden; classification=Topic; status=Emerging; intent=Apply; strength=0.68; sources=ChatHistory]
+    keywords: pest control, rabbits, repellent, humane trap, starlings, bird deterrent, backyard
+    why: User asked multiple times in April 2026 about humane rabbit trapping and safe repellents (2026-04-14, 2026-04-15) and how to stop starlings raiding nests (2026-04-15). Also earlier asked about preventing birds perching on utility lines (2026-03-21). This shows sustained, practical engagement with managing wildlife around the home.
+- Lawn care and weeds  [domain=Home & Garden; classification=Topic; status=Stable; intent=Apply; strength=0.65; sources=ChatHistory]
+    keywords: lawn care, zoysia, weed control, scotts, fertilizer, yard maintenance
+    why: User discussed removing Zoysia grass (2026-03-31) and earlier planned a season using Scotts products with a printable guideline (2026-02-10), indicating ongoing lawn maintenance interest.
+- Dietary fiber and anti-inflammatory foods  [domain=Nutrition; classification=Topic; status=Emerging; intent=Apply; strength=0.58; sources=ChatHistory]
+    keywords: soluble fiber, anti-inflammatory, diet, nutrition, food list
+    why: User asked for foods high in soluble fiber and printable lists (2026-02-28 and 2026-03-23) and requested foods that fight inflammation (2026-03-16), indicating a nutrition-focused interest.
+- Watercolor and acrylic painting  [domain=Art & Creativity; classification=Skill; status=Dormant; intent=Learn; strength=0.55; sources=ChatHistory]
+    keywords: watercolor, acrylic painting, step-by-step, pencil sketch, charcoal study, art techniques
+    why: User requested step-by-step painting guides and generated watercolor/acrylic versions of scenes (2025-10-22 and 2025-10-09) and later iterated on a winter scene watercolor with composition changes (2025-12-28). No recent mentions since Dec 2025, indicating decline.
+- US civil rights history  [domain=History; classification=Topic; status=Dormant; intent=Learn; strength=0.50; sources=ChatHistory]
+    keywords: civil rights, voting rights act, jim crow, us history, reading plan
+    why: User asked to see and summarize the Voting Rights Act of 1965 (2025-10-17) and later requested a reading plan and materials about the Jim Crow era (2025-11-16). No mentions since late 2025.
+- Estate planning basics  [domain=Personal Finance; classification=Topic; status=Emerging; intent=Learn; strength=0.50; sources=ChatHistory]
+    keywords: estate planning, will, trust, life insurance, beneficiaries
+    why: User explored will/trust options (2025-10-08) and later asked about life insurance and naming a family trust (2026-01-26), suggesting periodic interest in estate planning topics.
+
+SHOWN_CARDS:
+- Extension experts outline natural zoysia control
+- Manual removal tackles stubborn zoysia patches
+
+RECENT_CONVERSATIONS:
+  [human] What do you think it’s gonna happen with the interest rates next month as far as bank interest rate or
+  [human] I have a CD that’s coming due in May on the 22nd where would be the best place to reinvest
+  [human] Make me a picture of a beautiful lady walking out of the house and forgetting her watch.  draw attention
+  [human] add the caption  "Don't forget your watch"
+  [human] make the watch an Apple watch
+  [human] Is there a reverse look up app or a way that I can determine who tried to call me and
+  [human] Yes the number is +1(650)761-7789
+  [human] Why do starlings destroy the nests of the other birds in my backyard?
+  [human] Yes give me a plan
+  [human] Ok so the starlings are raiding the Martin house where the sparrows are living. How do I stop that?
+  [human] Yes, can you tell me if tiger P can be used as a animal repellent?
+  [human] Let's go. what can I use to repel rabbits in my backyard?
+  [human] What can I use as a rabbit repellent that is safe around dogs?
+
+CANDIDATE:
+Title: Executor duties demand time, accuracy, and care
+Summary: Executors manage probate, debts, and distributions, often requiring over 500 hours of work.
+
+Will the user click this candidate? Answer Yes or No.<|im_end|>
+<|im_start|>assistant
