@@ -81,10 +81,20 @@ def parse_args() -> argparse.Namespace:
         help="Per-request prompt body budget (matches offline eval_auc.py default).",
     )
     p.add_argument(
-        "--deterministic",
-        action="store_true",
-        help="Ask the server for bit-reproducible scoring (slower; bypasses prefix "
-             "cache and runs one prompt per vLLM batch). Server defaults to off.",
+        "--require-version",
+        type=str,
+        default="",
+        help="If set, only accept responses whose model_version == this string. "
+             "On a mismatch the request is retried (up to --version-retries) so "
+             "results from a stale rolling-update pod don't poison the AUC.",
+    )
+    p.add_argument(
+        "--version-retries",
+        type=int,
+        default=20,
+        help="Max retries per request when --require-version mismatches. "
+             "Each retry is an independent HTTP call (LB will eventually route to "
+             "a matching pod).",
     )
     return p.parse_args()
 
@@ -110,7 +120,7 @@ def build_payload(sample: dict[str, Any], args: argparse.Namespace) -> dict[str,
         if isinstance(h, dict) and h.get("title")
     ]
     cand = sample.get("candidate") or {}
-    payload = {
+    return {
         "interests": interests,
         "history": history,
         "candidates": [
@@ -122,9 +132,6 @@ def build_payload(sample: dict[str, Any], args: argparse.Namespace) -> dict[str,
         ],
         "max_len": args.max_len,
     }
-    if getattr(args, "deterministic", False):
-        payload["deterministic"] = True
-    return payload
 
 
 # ── HTTP ───────────────────────────────────────────────────────────────────────
@@ -166,6 +173,40 @@ def parse_score(body: str) -> float | None:
         return float(s)
     except Exception:
         return None
+
+
+def parse_model_version(body: str) -> str:
+    try:
+        return str(json.loads(body).get("model_version", ""))
+    except Exception:
+        return ""
+
+
+def send_request_with_version(url: str, payload: dict[str, Any], timeout: float,
+                              require_version: str, max_retries: int) -> dict[str, Any]:
+    """Send one request; if --require-version is set and the response's
+    model_version does not match, retry (different LB hop may pick a fresh
+    pod). Tracks total attempts in result['attempts'] and the last seen
+    mismatched version in result['mismatched_version']."""
+    last = None
+    mismatched = ""
+    attempts = 0
+    total_elapsed = 0.0
+    for _ in range(max(1, max_retries + 1)):
+        attempts += 1
+        r = send_request(url, payload, timeout)
+        total_elapsed += r["elapsed_ms"]
+        last = r
+        if not r["ok"] or not require_version:
+            break
+        mv = parse_model_version(r["body"])
+        if mv == require_version:
+            break
+        mismatched = mv
+    last["attempts"] = attempts
+    last["mismatched_version"] = mismatched
+    last["elapsed_ms"] = total_elapsed  # cumulative wall time across retries
+    return last
 
 
 # ── AUC ────────────────────────────────────────────────────────────────────────
@@ -231,12 +272,17 @@ def main() -> int:
 
     print(f"endpoint={args.url}")
     print(f"concurrency={args.concurrency} timeout={args.timeout}s warmup={args.warmup}")
+    if args.require_version:
+        print(f"require_version={args.require_version!r} (max retries per req = {args.version_retries})")
 
     # Warmup
     for i in range(min(args.warmup, len(samples))):
-        r = send_request(args.url, build_payload(samples[i], args), args.timeout)
+        r = send_request_with_version(args.url, build_payload(samples[i], args),
+                                      args.timeout, args.require_version,
+                                      args.version_retries)
         print(f"  warmup {i + 1}: status={r['status']} ok={r['ok']} "
-              f"latency_ms={r['elapsed_ms']:.1f} score={parse_score(r['body'])}")
+              f"latency_ms={r['elapsed_ms']:.1f} attempts={r.get('attempts',1)} "
+              f"mv={parse_model_version(r['body'])!r} score={parse_score(r['body'])}")
         if not r["ok"]:
             print(f"  warmup body: {r['body'][:500]}")
 
@@ -246,7 +292,10 @@ def main() -> int:
     completed = 0
 
     def _task(idx: int):
-        return idx, send_request(args.url, build_payload(samples[idx], args), args.timeout)
+        return idx, send_request_with_version(
+            args.url, build_payload(samples[idx], args), args.timeout,
+            args.require_version, args.version_retries,
+        )
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
         futures = [ex.submit(_task, i) for i in range(len(samples))]
@@ -268,11 +317,22 @@ def main() -> int:
     latencies: list[float] = []
     failures = 0
     parse_failures = 0
+    version_mismatches = 0
+    total_attempts = 0
+    version_counts: dict[str, int] = {}
     rows_out = []
     for sample, r in zip(samples, results):
         latencies.append(r["elapsed_ms"])
+        total_attempts += int(r.get("attempts", 1))
         if not r["ok"]:
             failures += 1
+            continue
+        mv = parse_model_version(r["body"])
+        version_counts[mv] = version_counts.get(mv, 0) + 1
+        if args.require_version and mv != args.require_version:
+            # Exhausted retries without ever hitting the required version
+            # -> drop this sample from AUC rather than mixing versions.
+            version_mismatches += 1
             continue
         sc = parse_score(r["body"])
         if sc is None or not math.isfinite(sc):
@@ -293,7 +353,12 @@ def main() -> int:
     print("\n=== Summary ===")
     print(f"requests={len(samples)} ok={len(samples) - failures} "
           f"http_failures={failures} parse_failures={parse_failures} "
+          f"version_mismatches={version_mismatches} "
+          f"total_http_attempts={total_attempts} "
           f"qps={qps:.2f} wall={elapsed:.1f}s")
+    if version_counts:
+        vc = sorted(version_counts.items(), key=lambda kv: -kv[1])
+        print("model_version distribution: " + ", ".join(f"{k!r}={v}" for k, v in vc))
     if latencies:
         def pct(p):
             xs = sorted(latencies); k = (len(xs) - 1) * p / 100; lo = int(k); hi = min(lo + 1, len(xs) - 1)
