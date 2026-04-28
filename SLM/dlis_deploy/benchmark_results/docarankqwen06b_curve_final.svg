@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+<style>text{font-family:Arial,Helvetica,sans-serif;font-size:13px}.title{font-size:18px;font-weight:bold}.axis{stroke:#333;stroke-width:1.2}.grid{stroke:#ddd;stroke-width:1}.legend{font-size:14px}</style>
+<rect width="100%" height="100%" fill="white"/>
+<text class="title" x="450.0" y="25" text-anchor="middle">docarankqwen06b final latency curve</text>
+<line class="grid" x1="80" y1="450.00" x2="870" y2="450.00"/>
+<text x="70" y="454.00" text-anchor="end">0</text>
+<line class="grid" x1="80" y1="387.99" x2="870" y2="387.99"/>
+<text x="70" y="391.99" text-anchor="end">1000</text>
+<line class="grid" x1="80" y1="325.97" x2="870" y2="325.97"/>
+<text x="70" y="329.97" text-anchor="end">2000</text>
+<line class="grid" x1="80" y1="263.96" x2="870" y2="263.96"/>
+<text x="70" y="267.96" text-anchor="end">3000</text>
+<line class="grid" x1="80" y1="201.94" x2="870" y2="201.94"/>
+<text x="70" y="205.94" text-anchor="end">4000</text>
+<line class="grid" x1="80" y1="139.93" x2="870" y2="139.93"/>
+<text x="70" y="143.93" text-anchor="end">5000</text>
+<line class="grid" x1="80" y1="77.92" x2="870" y2="77.92"/>
+<text x="70" y="81.92" text-anchor="end">6000</text>
+<line class="grid" x1="80.00" y1="45" x2="80.00" y2="450"/>
+<text x="80.00" y="472" text-anchor="middle">1</text>
+<line class="grid" x1="178.75" y1="45" x2="178.75" y2="450"/>
+<text x="178.75" y="472" text-anchor="middle">2</text>
+<line class="grid" x1="277.50" y1="45" x2="277.50" y2="450"/>
+<text x="277.50" y="472" text-anchor="middle">4</text>
+<line class="grid" x1="376.25" y1="45" x2="376.25" y2="450"/>
+<text x="376.25" y="472" text-anchor="middle">8</text>
+<line class="grid" x1="475.00" y1="45" x2="475.00" y2="450"/>
+<text x="475.00" y="472" text-anchor="middle">16</text>
+<line class="grid" x1="573.75" y1="45" x2="573.75" y2="450"/>
+<text x="573.75" y="472" text-anchor="middle">32</text>
+<line class="grid" x1="672.50" y1="45" x2="672.50" y2="450"/>
+<text x="672.50" y="472" text-anchor="middle">64</text>
+<line class="grid" x1="771.25" y1="45" x2="771.25" y2="450"/>
+<text x="771.25" y="472" text-anchor="middle">128</text>
+<line class="grid" x1="870.00" y1="45" x2="870.00" y2="450"/>
+<text x="870.00" y="472" text-anchor="middle">256</text>
+<line class="axis" x1="80" y1="450" x2="870" y2="450"/>
+<line class="axis" x1="80" y1="45" x2="80" y2="450"/>
+<text x="450.0" y="500" text-anchor="middle">Concurrency (log2 scale)</text>
+<text transform="translate(22 260.0) rotate(-90)" text-anchor="middle">Latency (ms)</text>
+<polyline fill="none" stroke="#1f77b4" stroke-width="3" points="80.00,388.88 178.75,388.56 277.50,387.63 376.25,383.79 475.00,386.00 573.75,374.12 672.50,310.88 771.25,212.81 870.00,181.40"/>
+<circle cx="80.00" cy="388.88" r="4" fill="#1f77b4"><title>avg_ms c=1: 985.622 ms</title></circle>
+<circle cx="178.75" cy="388.56" r="4" fill="#1f77b4"><title>avg_ms c=2: 990.810 ms</title></circle>
+<circle cx="277.50" cy="387.63" r="4" fill="#1f77b4"><title>avg_ms c=4: 1005.784 ms</title></circle>
+<circle cx="376.25" cy="383.79" r="4" fill="#1f77b4"><title>avg_ms c=8: 1067.623 ms</title></circle>
+<circle cx="475.00" cy="386.00" r="4" fill="#1f77b4"><title>avg_ms c=16: 1032.054 ms</title></circle>
+<circle cx="573.75" cy="374.12" r="4" fill="#1f77b4"><title>avg_ms c=32: 1223.602 ms</title></circle>
+<circle cx="672.50" cy="310.88" r="4" fill="#1f77b4"><title>avg_ms c=64: 2243.296 ms</title></circle>
+<circle cx="771.25" cy="212.81" r="4" fill="#1f77b4"><title>avg_ms c=128: 3824.779 ms</title></circle>
+<circle cx="870.00" cy="181.40" r="4" fill="#1f77b4"><title>avg_ms c=256: 4331.246 ms</title></circle>
+<polyline fill="none" stroke="#d62728" stroke-width="3" points="80.00,380.17 178.75,385.18 277.50,379.61 376.25,368.38 475.00,365.12 573.75,328.70 672.50,289.46 771.25,129.33 870.00,81.82"/>
+<circle cx="80.00" cy="380.17" r="4" fill="#d62728"><title>p95_ms c=1: 1126.055 ms</title></circle>
+<circle cx="178.75" cy="385.18" r="4" fill="#d62728"><title>p95_ms c=2: 1045.322 ms</title></circle>
+<circle cx="277.50" cy="379.61" r="4" fill="#d62728"><title>p95_ms c=4: 1135.141 ms</title></circle>
+<circle cx="376.25" cy="368.38" r="4" fill="#d62728"><title>p95_ms c=8: 1316.160 ms</title></circle>
+<circle cx="475.00" cy="365.12" r="4" fill="#d62728"><title>p95_ms c=16: 1368.749 ms</title></circle>
+<circle cx="573.75" cy="328.70" r="4" fill="#d62728"><title>p95_ms c=32: 1956.013 ms</title></circle>
+<circle cx="672.50" cy="289.46" r="4" fill="#d62728"><title>p95_ms c=64: 2588.731 ms</title></circle>
+<circle cx="771.25" cy="129.33" r="4" fill="#d62728"><title>p95_ms c=128: 5171.016 ms</title></circle>
+<circle cx="870.00" cy="81.82" r="4" fill="#d62728"><title>p95_ms c=256: 5937.090 ms</title></circle>
+<line x1="720" y1="55" x2="748" y2="55" stroke="#1f77b4" stroke-width="3"/>
+<text class="legend" x="756" y="60">avg_ms</text>
+<line x1="720" y1="79" x2="748" y2="79" stroke="#d62728" stroke-width="3"/>
+<text class="legend" x="756" y="84">p95_ms</text>
+</svg>

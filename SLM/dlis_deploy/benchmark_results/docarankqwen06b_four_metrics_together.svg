@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="900" viewBox="0 0 1100 900">
+<style>text{font-family:Arial,Helvetica,sans-serif;font-size:13px;fill:#222}.title{font-size:20px;font-weight:700}.axis{stroke:#333;stroke-width:1}.grid{stroke:#ddd;stroke-width:1}.line{fill:none;stroke-width:2.5}.dot{stroke:white;stroke-width:1.4}</style>
+<rect width="100%" height="100%" fill="white"/>
+<text class="title" x="550.0" y="28" text-anchor="middle">DocaRank Qwen 0.6B latency metrics (p95)</text>
+<line class="grid" x1="105" y1="211.19" x2="1060" y2="211.19"/>
+<text x="95" y="215.19" text-anchor="end">1,000</text>
+<line class="grid" x1="105" y1="155.38" x2="1060" y2="155.38"/>
+<text x="95" y="159.38" text-anchor="end">2,000</text>
+<line class="grid" x1="105" y1="99.56" x2="1060" y2="99.56"/>
+<text x="95" y="103.56" text-anchor="end">3,000</text>
+<line class="axis" x1="105" y1="220.75" x2="1060" y2="220.75"/>
+<line class="axis" x1="105" y1="55.00" x2="105" y2="220.75"/>
+<path class="line" d="M 105.00 209.08 L 108.75 209.32 L 116.24 208.41 L 131.22 201.85 L 161.18 181.05 L 221.10 155.98 L 340.94 123.83 L 580.63 66.43 L 1060.00 67.58" stroke="#1f77b4"/>
+<circle class="dot" cx="105.00" cy="209.08" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="108.75" cy="209.32" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="116.24" cy="208.41" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="131.22" cy="201.85" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="161.18" cy="181.05" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="221.10" cy="155.98" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="340.94" cy="123.83" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="580.63" cy="66.43" r="4" fill="#1f77b4"/>
+<circle class="dot" cx="1060.00" cy="67.58" r="4" fill="#1f77b4"/>
+<text x="105" y="45.00" font-weight="700" fill="#1f77b4">end2end_p95_ms</text>
+<text x="1060" y="45.00" text-anchor="end">own y-scale, ms</text>
+<line class="grid" x1="105" y1="355.44" x2="1060" y2="355.44"/>
+<text x="95" y="359.44" text-anchor="end">36</text>
+<line class="grid" x1="105" y1="278.82" x2="1060" y2="278.82"/>
+<text x="95" y="282.82" text-anchor="end">37</text>
+<line class="axis" x1="105" y1="420.50" x2="1060" y2="420.50"/>
+<line class="axis" x1="105" y1="254.75" x2="105" y2="420.50"/>
+<path class="line" d="M 105.00 273.84 L 108.75 286.48 L 116.24 266.18 L 131.22 266.18 L 161.18 350.84 L 221.10 373.44 L 340.94 401.41 L 580.63 401.41 L 1060.00 409.07" stroke="#d62728"/>
+<circle class="dot" cx="105.00" cy="273.84" r="4" fill="#d62728"/>
+<circle class="dot" cx="108.75" cy="286.48" r="4" fill="#d62728"/>
+<circle class="dot" cx="116.24" cy="266.18" r="4" fill="#d62728"/>
+<circle class="dot" cx="131.22" cy="266.18" r="4" fill="#d62728"/>
+<circle class="dot" cx="161.18" cy="350.84" r="4" fill="#d62728"/>
+<circle class="dot" cx="221.10" cy="373.44" r="4" fill="#d62728"/>
+<circle class="dot" cx="340.94" cy="401.41" r="4" fill="#d62728"/>
+<circle class="dot" cx="580.63" cy="401.41" r="4" fill="#d62728"/>
+<circle class="dot" cx="1060.00" cy="409.07" r="4" fill="#d62728"/>
+<text x="105" y="244.75" font-weight="700" fill="#d62728">latency_p95_ms</text>
+<text x="1060" y="244.75" text-anchor="end">own y-scale, ms</text>
+<line class="grid" x1="105" y1="608.82" x2="1060" y2="608.82"/>
+<text x="95" y="612.82" text-anchor="end">0.30</text>
+<line class="grid" x1="105" y1="537.38" x2="1060" y2="537.38"/>
+<text x="95" y="541.38" text-anchor="end">0.35</text>
+<line class="grid" x1="105" y1="465.93" x2="1060" y2="465.93"/>
+<text x="95" y="469.93" text-anchor="end">0.40</text>
+<line class="axis" x1="105" y1="620.25" x2="1060" y2="620.25"/>
+<line class="axis" x1="105" y1="454.50" x2="105" y2="620.25"/>
+<path class="line" d="M 105.00 465.93 L 108.75 465.93 L 116.24 465.93 L 131.22 465.93 L 161.18 608.82 L 221.10 608.82 L 340.94 608.82 L 580.63 608.82 L 1060.00 608.82" stroke="#2ca02c"/>
+<circle class="dot" cx="105.00" cy="465.93" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="108.75" cy="465.93" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="116.24" cy="465.93" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="131.22" cy="465.93" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="161.18" cy="608.82" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="221.10" cy="608.82" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="340.94" cy="608.82" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="580.63" cy="608.82" r="4" fill="#2ca02c"/>
+<circle class="dot" cx="1060.00" cy="608.82" r="4" fill="#2ca02c"/>
+<text x="105" y="444.50" font-weight="700" fill="#2ca02c">prompt_build_p95_ms</text>
+<text x="1060" y="444.50" text-anchor="end">own y-scale, ms</text>
+<line class="grid" x1="105" y1="808.57" x2="1060" y2="808.57"/>
+<text x="95" y="812.57" text-anchor="end">35</text>
+<line class="grid" x1="105" y1="731.95" x2="1060" y2="731.95"/>
+<text x="95" y="735.95" text-anchor="end">36</text>
+<line class="grid" x1="105" y1="655.34" x2="1060" y2="655.34"/>
+<text x="95" y="659.34" text-anchor="end">37</text>
+<line class="axis" x1="105" y1="820.00" x2="1060" y2="820.00"/>
+<line class="axis" x1="105" y1="654.25" x2="105" y2="820.00"/>
+<path class="line" d="M 105.00 678.32 L 108.75 688.67 L 116.24 665.68 L 131.22 670.66 L 161.18 742.68 L 221.10 772.94 L 340.94 800.91 L 580.63 800.91 L 1060.00 808.57" stroke="#9467bd"/>
+<circle class="dot" cx="105.00" cy="678.32" r="4" fill="#9467bd"/>
+<circle class="dot" cx="108.75" cy="688.67" r="4" fill="#9467bd"/>
+<circle class="dot" cx="116.24" cy="665.68" r="4" fill="#9467bd"/>
+<circle class="dot" cx="131.22" cy="670.66" r="4" fill="#9467bd"/>
+<circle class="dot" cx="161.18" cy="742.68" r="4" fill="#9467bd"/>
+<circle class="dot" cx="221.10" cy="772.94" r="4" fill="#9467bd"/>
+<circle class="dot" cx="340.94" cy="800.91" r="4" fill="#9467bd"/>
+<circle class="dot" cx="580.63" cy="800.91" r="4" fill="#9467bd"/>
+<circle class="dot" cx="1060.00" cy="808.57" r="4" fill="#9467bd"/>
+<text x="105" y="644.25" font-weight="700" fill="#9467bd">inference_p95_ms</text>
+<text x="1060" y="644.25" text-anchor="end">own y-scale, ms</text>
+<line class="axis" x1="105.00" y1="820.00" x2="105.00" y2="826.00"/>
+<text x="105.00" y="844.00" text-anchor="middle">1</text>
+<line class="axis" x1="108.75" y1="820.00" x2="108.75" y2="826.00"/>
+<text x="108.75" y="844.00" text-anchor="middle">2</text>
+<line class="axis" x1="116.24" y1="820.00" x2="116.24" y2="826.00"/>
+<text x="116.24" y="844.00" text-anchor="middle">4</text>
+<line class="axis" x1="131.22" y1="820.00" x2="131.22" y2="826.00"/>
+<text x="131.22" y="844.00" text-anchor="middle">8</text>
+<line class="axis" x1="161.18" y1="820.00" x2="161.18" y2="826.00"/>
+<text x="161.18" y="844.00" text-anchor="middle">16</text>
+<line class="axis" x1="221.10" y1="820.00" x2="221.10" y2="826.00"/>
+<text x="221.10" y="844.00" text-anchor="middle">32</text>
+<line class="axis" x1="340.94" y1="820.00" x2="340.94" y2="826.00"/>
+<text x="340.94" y="844.00" text-anchor="middle">64</text>
+<line class="axis" x1="580.63" y1="820.00" x2="580.63" y2="826.00"/>
+<text x="580.63" y="844.00" text-anchor="middle">128</text>
+<line class="axis" x1="1060.00" y1="820.00" x2="1060.00" y2="826.00"/>
+<text x="1060.00" y="844.00" text-anchor="middle">256</text>
+<text x="550.0" y="878" text-anchor="middle" font-weight="700">concurrency</text>
+</svg>

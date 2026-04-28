@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run a concurrency sweep for docarankqwen06b and write a latency curve."""
+"""Run a concurrency sweep for docarankqwen06b and write latency curves."""
 
 from __future__ import annotations
 
@@ -62,17 +62,23 @@ def send_request(url: str, body: bytes, timeout: float) -> dict[str, Any]:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             response_text = response.read().decode("utf-8", errors="replace")
             elapsed_ms = (time.perf_counter() - started_at) * 1000.0
-            model_latency_ms = None
+            latency_ms = None
+            prompt_build_ms = None
+            inference_ms = None
             try:
                 response_json = json.loads(response_text)
-                model_latency_ms = response_json.get("latency_ms")
+                latency_ms = response_json.get("latency_ms")
+                prompt_build_ms = response_json.get("prompt_build_ms")
+                inference_ms = response_json.get("inference_ms")
             except Exception:
                 pass
             return {
                 "ok": 200 <= response.status < 300,
                 "status": response.status,
                 "elapsed_ms": elapsed_ms,
-                "model_latency_ms": model_latency_ms,
+                "latency_ms": latency_ms,
+                "prompt_build_ms": prompt_build_ms,
+                "inference_ms": inference_ms,
                 "error": "",
                 "body": response_text,
             }
@@ -82,7 +88,9 @@ def send_request(url: str, body: bytes, timeout: float) -> dict[str, Any]:
             "ok": False,
             "status": error.code,
             "elapsed_ms": (time.perf_counter() - started_at) * 1000.0,
-            "model_latency_ms": None,
+            "latency_ms": None,
+            "prompt_build_ms": None,
+            "inference_ms": None,
             "error": str(error),
             "body": response_text,
         }
@@ -91,7 +99,9 @@ def send_request(url: str, body: bytes, timeout: float) -> dict[str, Any]:
             "ok": False,
             "status": 0,
             "elapsed_ms": (time.perf_counter() - started_at) * 1000.0,
-            "model_latency_ms": None,
+            "latency_ms": None,
+            "prompt_build_ms": None,
+            "inference_ms": None,
             "error": str(error),
             "body": "",
         }
@@ -109,8 +119,10 @@ def percentile(values: list[float], percent: float) -> float:
 
 
 def summarize_level(concurrency: int, results: list[dict[str, Any]], elapsed_s: float) -> dict[str, Any]:
-    latencies = [result["elapsed_ms"] for result in results]
-    model_latencies = [result["model_latency_ms"] for result in results if result["model_latency_ms"] is not None]
+    end2end_latencies = [result["elapsed_ms"] for result in results]
+    service_latencies = [result["latency_ms"] for result in results if result["latency_ms"] is not None]
+    prompt_build_latencies = [result["prompt_build_ms"] for result in results if result["prompt_build_ms"] is not None]
+    inference_latencies = [result["inference_ms"] for result in results if result["inference_ms"] is not None]
     success_count = sum(1 for result in results if result["ok"])
     failure_count = len(results) - success_count
     status_counts: dict[int, int] = {}
@@ -123,15 +135,22 @@ def summarize_level(concurrency: int, results: list[dict[str, Any]], elapsed_s: 
         "failure": failure_count,
         "failure_rate": failure_count / len(results) if results else 0.0,
         "qps": len(results) / elapsed_s if elapsed_s > 0 else 0.0,
-        "avg_ms": statistics.mean(latencies) if latencies else 0.0,
-        "min_ms": min(latencies) if latencies else 0.0,
-        "p50_ms": percentile(latencies, 50),
-        "p90_ms": percentile(latencies, 90),
-        "p95_ms": percentile(latencies, 95),
-        "p99_ms": percentile(latencies, 99),
-        "max_ms": max(latencies) if latencies else 0.0,
-        "model_avg_ms": statistics.mean(model_latencies) if model_latencies else 0.0,
-        "model_p95_ms": percentile(model_latencies, 95) if model_latencies else 0.0,
+        "end2end_avg_ms": statistics.mean(end2end_latencies) if end2end_latencies else 0.0,
+        "end2end_min_ms": min(end2end_latencies) if end2end_latencies else 0.0,
+        "end2end_p50_ms": percentile(end2end_latencies, 50),
+        "end2end_p90_ms": percentile(end2end_latencies, 90),
+        "end2end_p95_ms": percentile(end2end_latencies, 95),
+        "end2end_p99_ms": percentile(end2end_latencies, 99),
+        "end2end_max_ms": max(end2end_latencies) if end2end_latencies else 0.0,
+        "latency_avg_ms": statistics.mean(service_latencies) if service_latencies else 0.0,
+        "latency_p50_ms": percentile(service_latencies, 50) if service_latencies else 0.0,
+        "latency_p95_ms": percentile(service_latencies, 95) if service_latencies else 0.0,
+        "prompt_build_avg_ms": statistics.mean(prompt_build_latencies) if prompt_build_latencies else 0.0,
+        "prompt_build_p50_ms": percentile(prompt_build_latencies, 50) if prompt_build_latencies else 0.0,
+        "prompt_build_p95_ms": percentile(prompt_build_latencies, 95) if prompt_build_latencies else 0.0,
+        "inference_avg_ms": statistics.mean(inference_latencies) if inference_latencies else 0.0,
+        "inference_p50_ms": percentile(inference_latencies, 50) if inference_latencies else 0.0,
+        "inference_p95_ms": percentile(inference_latencies, 95) if inference_latencies else 0.0,
         "status_counts": json.dumps(dict(sorted(status_counts.items())), sort_keys=True),
     }
 
@@ -158,7 +177,21 @@ def write_csv(rows: list[dict[str, Any]], path: Path) -> None:
 
 
 def write_markdown(rows: list[dict[str, Any]], path: Path, url: str) -> None:
-    headers = ["concurrency", "qps", "success", "failure", "avg_ms", "p50_ms", "p90_ms", "p95_ms", "p99_ms", "model_p95_ms", "status_counts"]
+    headers = [
+        "concurrency",
+        "qps",
+        "success",
+        "failure",
+        "end2end_p95_ms",
+        "latency_p95_ms",
+        "prompt_build_p95_ms",
+        "inference_p95_ms",
+        "end2end_avg_ms",
+        "latency_avg_ms",
+        "prompt_build_avg_ms",
+        "inference_avg_ms",
+        "status_counts",
+    ]
     lines = ["# docarankqwen06b Load Curve", "", f"Endpoint: `{url}`", "", "| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
     for row in rows:
         values = []
@@ -177,8 +210,8 @@ def svg_polyline(points: list[tuple[float, float]], color: str) -> str:
 
 
 def write_svg(rows: list[dict[str, Any]], path: Path) -> None:
-    width = 900
-    height = 520
+    width = 980
+    height = 560
     left = 80
     right = 40
     top = 40
@@ -186,18 +219,28 @@ def write_svg(rows: list[dict[str, Any]], path: Path) -> None:
     plot_width = width - left - right
     plot_height = height - top - bottom
     max_concurrency = max(row["concurrency"] for row in rows)
-    max_latency = max(max(row["p95_ms"], row["avg_ms"], 1.0) for row in rows)
+    metric_names = [
+        "end2end_p95_ms",
+        "latency_p95_ms",
+        "prompt_build_p95_ms",
+        "inference_p95_ms",
+    ]
+    max_latency = max(max(row[metric] for metric in metric_names) for row in rows)
 
     def point(row: dict[str, Any], metric: str) -> tuple[float, float]:
         x_value = row["concurrency"] / max_concurrency
         y_value = row[metric] / max_latency
         return left + x_value * plot_width, top + (1.0 - y_value) * plot_height
 
-    avg_points = [point(row, "avg_ms") for row in rows]
-    p95_points = [point(row, "p95_ms") for row in rows]
+    series = [
+        ("end2end p95", "end2end_p95_ms", "#1f77b4"),
+        ("latency_ms p95", "latency_p95_ms", "#d62728"),
+        ("prompt_build_ms p95", "prompt_build_p95_ms", "#2ca02c"),
+        ("inference_ms p95", "inference_p95_ms", "#9467bd"),
+    ]
     tick_lines = []
     for row in rows:
-        x_position, _ = point(row, "avg_ms")
+        x_position, _ = point(row, "end2end_p95_ms")
         tick_lines.append(f'<line x1="{x_position:.1f}" y1="{top}" x2="{x_position:.1f}" y2="{height - bottom}" stroke="#eeeeee" />')
         tick_lines.append(f'<text x="{x_position:.1f}" y="{height - 45}" text-anchor="middle" font-size="13">{row["concurrency"]}</text>')
     for index in range(6):
@@ -208,19 +251,15 @@ def write_svg(rows: list[dict[str, Any]], path: Path) -> None:
 
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <rect width="100%" height="100%" fill="white" />
-  <text x="{width / 2}" y="24" text-anchor="middle" font-size="20" font-family="Arial">docarankqwen06b Latency vs Concurrency</text>
+    <text x="{width / 2}" y="24" text-anchor="middle" font-size="20" font-family="Arial">docarankqwen06b Internal and End-to-End Latency vs Concurrency</text>
   {''.join(tick_lines)}
   <line x1="{left}" y1="{height - bottom}" x2="{width - right}" y2="{height - bottom}" stroke="#333333" />
   <line x1="{left}" y1="{top}" x2="{left}" y2="{height - bottom}" stroke="#333333" />
-  {svg_polyline(avg_points, '#1f77b4')}
-  {svg_polyline(p95_points, '#d62728')}
+    {''.join(svg_polyline([point(row, metric) for row in rows], color) for _, metric, color in series)}
   <text x="{width / 2}" y="{height - 12}" text-anchor="middle" font-size="15" font-family="Arial">Concurrency</text>
   <text x="20" y="{height / 2}" transform="rotate(-90 20,{height / 2})" text-anchor="middle" font-size="15" font-family="Arial">Latency ms</text>
-  <rect x="{width - 210}" y="50" width="150" height="54" fill="white" stroke="#dddddd" />
-  <line x1="{width - 195}" y1="70" x2="{width - 160}" y2="70" stroke="#1f77b4" stroke-width="3" />
-  <text x="{width - 150}" y="75" font-size="14" font-family="Arial">avg latency</text>
-  <line x1="{width - 195}" y1="92" x2="{width - 160}" y2="92" stroke="#d62728" stroke-width="3" />
-  <text x="{width - 150}" y="97" font-size="14" font-family="Arial">p95 latency</text>
+    <rect x="{width - 260}" y="50" width="220" height="105" fill="white" stroke="#dddddd" />
+    {''.join(f'<line x1="{width - 245}" y1="{70 + index * 22}" x2="{width - 210}" y2="{70 + index * 22}" stroke="{color}" stroke-width="3" /><text x="{width - 200}" y="{75 + index * 22}" font-size="14" font-family="Arial">{label}</text>' for index, (label, _, color) in enumerate(series))}
 </svg>
 '''
     path.write_text(svg, encoding="utf-8")
@@ -244,10 +283,11 @@ def main() -> int:
         rows.append(row)
         print(
             f"c={concurrency:>3} qps={row['qps']:.2f} success={row['success']}/{row['requests']} "
-            f"avg={row['avg_ms']:.1f}ms p95={row['p95_ms']:.1f}ms p99={row['p99_ms']:.1f}ms "
-            f"model_p95={row['model_p95_ms']:.1f}ms status={row['status_counts']}"
+            f"e2e_p95={row['end2end_p95_ms']:.1f}ms latency_p95={row['latency_p95_ms']:.1f}ms "
+            f"prompt_p95={row['prompt_build_p95_ms']:.1f}ms inference_p95={row['inference_p95_ms']:.1f}ms "
+            f"status={row['status_counts']}"
         )
-        if row["failure_rate"] > args.stop_failure_rate or row["p95_ms"] > args.stop_p95_ms:
+        if row["failure_rate"] > args.stop_failure_rate or row["end2end_p95_ms"] > args.stop_p95_ms:
             print("Stopping sweep because failure rate or p95 latency crossed the configured threshold.")
             break
 
