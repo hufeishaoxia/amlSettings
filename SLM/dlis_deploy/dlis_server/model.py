@@ -5,9 +5,9 @@ Uses vLLM for accelerated inference with prefix KV cache.
 Produces prompts that are byte-identical to the offline training/eval pipeline
 (``SLM/data.py`` + ``SLM/eval_auc.py``). See ``prompt.py`` (vendored copy).
 
-Scoring is mathematically identical to the offline scorer: a vLLM logits
-processor masks every vocab id except ' Yes' / ' No' to -inf before sampling,
-so the returned logprobs are exactly ``softmax(logits[[yes_id, no_id]])``.
+Scoring is mathematically identical to the offline scorer: vLLM is constrained
+to the allowed token ids for ' Yes' / ' No', so the returned logprobs are
+exactly ``softmax(logits[[yes_id, no_id]])``.
 """
 import os
 import json
@@ -26,33 +26,10 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v26-dlis"
+MODEL_VERSION = "v27-dlis"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-def _make_yesno_mask_processor(yes_id: int, no_id: int):
-    """Return a vLLM logits processor that masks every vocab id except
-    ``yes_id`` and ``no_id`` to ``-inf``. After this mask, the next-token
-    softmax is computed over a 2-element distribution -- mathematically
-    identical to the offline scorer's ``softmax(logits[[yes_id, no_id]])``.
-
-    The processor is stateless and safe to share across requests / threads.
-    Signature matches vLLM's ``LogitsProcessor`` ABC: ``(token_ids, logits) ->
-    logits`` where ``logits`` is a 1-D float tensor of shape ``(vocab_size,)``.
-    """
-    import torch  # local import: vLLM already pulls torch into the image
-
-    def _proc(_token_ids, logits):
-        # In-place mask is fine -- vLLM passes a fresh tensor per step.
-        keep = torch.full_like(logits, float("-inf"))
-        keep[yes_id] = logits[yes_id]
-        keep[no_id] = logits[no_id]
-        return keep
-
-    return _proc
-
 
 class ModelImp:
     def __init__(self):
@@ -108,18 +85,15 @@ class ModelImp:
         self.yes_id = yes_ids[0]
         self.no_id = no_ids[0]
 
-        # Restrict the next-token distribution to {Yes, No} via a logits
-        # processor that sets every other vocab entry to -inf. After this mask,
-        # vLLM's softmax produces exactly P(Yes) / (P(Yes) + P(No)) -- the same
-        # quantity the offline eval (eval_auc.py) computes via
+        # Restrict the next-token distribution to {Yes, No}. This vLLM build
+        # exposes the mask through SamplingParams.allowed_token_ids rather than
+        # logits_processors. After the mask, vLLM's softmax produces the same
+        # quantity offline eval computes via
         #     softmax(logits[:, -1, [yes_id, no_id]])[:, 0]
-        # Because the post-mask distribution has only 2 non-zero entries, the
-        # top-2 logprobs vLLM returns are guaranteed to be Yes and No, so we
-        # only need logprobs=2 (no top-K truncation hazard, no fallback).
-        self._yesno_processor = _make_yesno_mask_processor(self.yes_id, self.no_id)
+        # With only 2 allowed entries, logprobs=2 always includes Yes and No.
         self.sampling_params = SamplingParams(
             max_tokens=1, temperature=0, logprobs=2,
-            logits_processors=[self._yesno_processor],
+            allowed_token_ids=[self.yes_id, self.no_id],
         )
 
         print(f"vLLM engine ready. Yes={self.yes_id}, No={self.no_id}")
