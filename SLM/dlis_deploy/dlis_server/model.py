@@ -35,7 +35,7 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v24-dlis-aligned-detmode"
+MODEL_VERSION = "v25-dlis-logprobs200"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -73,8 +73,15 @@ class ModelImp:
         self.eval_max_len = int(os.getenv("EVAL_MAX_LEN", "2048"))
         self.body_budget = max(256, self.eval_max_len - 120)
 
+        # Number of top-K logprobs vLLM returns per generated token. We need
+        # both ' Yes' (id=7414) and ' No' (id=2308) to ALWAYS be present, otherwise
+        # the score code falls back to lp=-100 and softmax((-100,-100))=(0.5,0.5),
+        # producing a tied score for ~4% of URA samples and a measurable AUC drop.
+        # Vocab is ~151k tokens; 200 is comfortably enough for a binary head.
+        self.logprobs_k = int(os.getenv("LOGPROBS_K", "200"))
+
         print(f"=== Qwen3-0.6B Ranker {MODEL_VERSION} ===")
-        print(f"Loading vLLM engine from {ckpt_path} (tp={tp}, max_len={max_model_len}, dtype={dtype}, eager=True)")
+        print(f"Loading vLLM engine from {ckpt_path} (tp={tp}, max_len={max_model_len}, dtype={dtype}, eager=True, max_logprobs={self.logprobs_k})")
         self.llm = LLM(
             model=ckpt_path,
             dtype=dtype,
@@ -85,6 +92,7 @@ class ModelImp:
             enable_prefix_caching=True,
             enable_chunked_prefill=True,
             enforce_eager=True,
+            max_logprobs=self.logprobs_k,
         )
 
         self.tokenizer = AutoTokenizer.from_pretrained(ckpt_path, trust_remote_code=True)
@@ -99,7 +107,7 @@ class ModelImp:
         self.yes_id = yes_ids[0]
         self.no_id = no_ids[0]
         # Default fast sampling params (used by the optimized path).
-        self.sampling_params = SamplingParams(max_tokens=1, temperature=0, logprobs=20)
+        self.sampling_params = SamplingParams(max_tokens=1, temperature=0, logprobs=self.logprobs_k)
         # Probe whether SamplingParams supports cache_salt (vLLM >= 0.6.6).
         self._sp_supports_cache_salt = self._probe_cache_salt_support()
 
@@ -109,7 +117,7 @@ class ModelImp:
 
     def _probe_cache_salt_support(self) -> bool:
         try:
-            SamplingParams(max_tokens=1, temperature=0, logprobs=20, cache_salt="probe")
+            SamplingParams(max_tokens=1, temperature=0, logprobs=self.logprobs_k, cache_salt="probe")
             return True
         except TypeError:
             return False
@@ -119,7 +127,7 @@ class ModelImp:
         ALWAYS misses. Falls back to the regular params on older vLLM."""
         if self._sp_supports_cache_salt:
             return SamplingParams(
-                max_tokens=1, temperature=0, logprobs=20,
+                max_tokens=1, temperature=0, logprobs=self.logprobs_k,
                 cache_salt=uuid.uuid4().hex,
             )
         return self.sampling_params
@@ -140,8 +148,13 @@ class ModelImp:
 
     def _extract_yes_prob(self, out) -> float:
         logprobs_dict = out.outputs[0].logprobs[0]
-        yes_lp = logprobs_dict[self.yes_id].logprob if self.yes_id in logprobs_dict else -100.0
-        no_lp = logprobs_dict[self.no_id].logprob if self.no_id in logprobs_dict else -100.0
+        # Fallback for the (now rare) case where Yes/No fall outside top-K:
+        # use the smallest observed logprob in the returned set as a tight
+        # upper bound on the missing token's true logprob. This avoids the
+        # old -100 sentinel that mapped both-missing -> exact 0.5.
+        floor_lp = min(lp.logprob for lp in logprobs_dict.values())
+        yes_lp = logprobs_dict[self.yes_id].logprob if self.yes_id in logprobs_dict else floor_lp
+        no_lp = logprobs_dict[self.no_id].logprob if self.no_id in logprobs_dict else floor_lp
         max_lp = max(yes_lp, no_lp)
         return math.exp(yes_lp - max_lp) / (math.exp(yes_lp - max_lp) + math.exp(no_lp - max_lp))
 
