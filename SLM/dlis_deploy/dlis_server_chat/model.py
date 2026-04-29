@@ -34,7 +34,7 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v28-dlis-chat"
+MODEL_VERSION = "v29-dlis-chat"
 MODEL_NAME_PUBLIC = "docarankqwen06b"
 
 logging.basicConfig(level=logging.INFO)

@@ -1,0 +1,53 @@
+{
+  "interests": [
+    {
+      "name": "Artificial Intelligence",
+      "strength": 0.95,
+      "classification": "topic",
+      "status": "stable",
+      "intent": "stay informed",
+      "keywords": ["LLM", "GPT", "transformer"],
+      "rationale": "User frequently reads AI-related articles"
+    },
+    {
+      "name": "Electric Vehicles",
+      "strength": 0.72,
+      "classification": "topic",
+      "status": "emerging",
+      "intent": "explore"
+    }
+  ],
+  "shownTitles": [
+    "GPT-5 Released with Multimodal Capabilities",
+    "Tesla Q1 Earnings Beat Expectations",
+    "New Study on Climate Change Impact"
+  ],
+  "conversations": [
+    {
+      "conversation_id": "conv-1",
+      "messages": [
+        {"author": "user", "text": "What are the latest developments in AI?"},
+        {"author": "assistant", "text": "Recent breakthroughs include..."}
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "id": "card-001",
+      "title": "OpenAI Announces New Reasoning Model",
+      "summary": "OpenAI has released a new model focused on complex reasoning tasks.",
+      "matchedInterest": "Artificial Intelligence"
+    },
+    {
+      "id": "card-002",
+      "title": "Best Hiking Trails in Colorado",
+      "summary": "Discover the top 10 hiking trails in the Rocky Mountains."
+    },
+    {
+      "id": "card-003",
+      "title": "Rivian R2 SUV Pre-Orders Open",
+      "summary": "Rivian opens pre-orders for its affordable R2 electric SUV.",
+      "matchedInterest": "Electric Vehicles"
+    }
+  ]
+}

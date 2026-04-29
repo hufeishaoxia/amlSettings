@@ -1,3 +1,4 @@
+# Same base image / build pattern as v28-dlis (known-good).
 FROM f9309c3acdd842848c88032e1ec736d2.azurecr.io/azureml/azureml_706102b3657c5ad26506186a8ffb061e:latest
 
 RUN pip install --no-cache-dir protobuf && \
@@ -9,11 +10,15 @@ RUN pip install --no-cache-dir protobuf && \
 
 WORKDIR /app
 
-COPY dlis_server/ /app/dlis_server/
-COPY qwen3_model/ /qwen3_model/
+# Dual-mode ModelImp (raw schema + OpenAI chat-completions).
+# Mount under /app/dlis_server so existing run.sh (cd /app/dlis_server) keeps working.
+COPY dlis_server_chat/ /app/dlis_server/
+COPY qwen3_model/      /qwen3_model/
 
 RUN chmod +x /app/dlis_server/run.sh
 
+# Force pure-Python protobuf parsing (matches v28 image) so legacy *_pb2.py
+# files work regardless of protobuf C++ version in the base image.
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 ENV QWEN3_MODEL_PATH=/qwen3_model
 ENV MAX_MODEL_LEN=4096
@@ -24,5 +29,4 @@ ENV _ListeningPort_=8888
 
 EXPOSE 8888
 
-ENTRYPOINT []
 CMD ["bash", "/app/dlis_server/run.sh"]
