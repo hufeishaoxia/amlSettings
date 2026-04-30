@@ -1,0 +1,1052 @@
+{
+  "name": "docarankqwen06b_consistency_pair",
+  "description": "Two candidates scored for the SAME user (identical interests / interactions / conversations / history; only `candidates[0]` differs). Use as a golden test: for each entry in `cases`, POST `chat_request` to the Papyrus endpoint (or `request` to DLIS direct) and assert `abs(parsed_score - expected.score_mean) <= expected.tolerance` and `response.model_version == expected.model_version`.",
+  "shared": {
+    "user_id": "9vkcnnb23BnjYaVoeqqQU",
+    "feed_id": "igi56EXjCywVqxuYvVxSz",
+    "bizdate": "20260417",
+    "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
+    "model_version": "v29-dlis-chat",
+    "calibration_calls": 32,
+    "captured_at_unix": 1777519010
+  },
+  "cases": [
+    {
+      "name": "docarankqwen06b_positive_label",
+      "description": "Golden test fixture for docarankqwen06b. Send `chat_request` to the Papyrus endpoint (or `request` to DLIS directly) and verify that the parsed P(click) score satisfies `abs(score - expected.score_mean) <= expected.tolerance` (NOT exact equality). The endpoint is load-balanced over many A100 pods; identical prompts can produce slightly different bf16 logprobs across replicas. `expected.score_min` / `score_max` capture the observed envelope across 32 sequential calls at fixture-capture time; tolerance = (max - min) + slack.",
+      "expected": {
+        "score_mean": 0.929856,
+        "score_min": 0.924142,
+        "score_max": 0.932453,
+        "tolerance": 0.028311,
+        "observed_unique_scores": [
+          0.924142,
+          0.932453
+        ],
+        "calibration_calls": 32,
+        "model_version": "v29-dlis-chat"
+      },
+      "request": {
+        "interests": {
+          "positive": [
+            "Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\n    keywords: robotics, ros, natural language, llm, ai control\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.",
+            "Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.",
+            "Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.",
+            "GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\n    keywords: github actions, ci/cd, automation, npm token, workflow\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.",
+            "Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\n    keywords: kotlin, android, mobile development, plugins, backend\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development."
+          ],
+          "negative": [
+            "AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\n    keywords: aws, mcp, strategy, cloud\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content."
+          ],
+          "interactions": {
+            "clicks": [
+              "New runtimes teach AI agents to self-heal",
+              "Language-driven grasping tackles ambiguous instructions",
+              "Reinforcement learning adapts high-frequency trading strategies",
+              "Neuro-symbolic AI reshapes predictive dreaming models",
+              "Adaptive AI architectures mimic living organisms",
+              "Quantum simulations accelerate new material discovery",
+              "Foundation models transform market microstructure analysis",
+              "Reflex-speed AI loops cut latency to 20ms",
+              "Finance models borrow from ecological systems",
+              "Kotlin coroutines reshape AI app concurrency"
+            ],
+            "thumbsUp": [
+              "Robots gain natural language control with ROS"
+            ],
+            "thumbsDown": [
+              "AWS guidance outlines core MCP strategy pillars"
+            ]
+          },
+          "conversations": [
+            {
+              "id": "qrvHkaif6RTTsrQwPidsD",
+              "started_at": "2026-04-17T13:09:58.135Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target"
+                }
+              ]
+            },
+            {
+              "id": "J1mFmwUE7DGUAYpJJaTmr",
+              "started_at": "2026-04-16T23:02:38.045Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Build me a quick detailed overview of what we have"
+                }
+              ]
+            },
+            {
+              "id": "WsTsU55ew6yyfn1nhEFKc",
+              "started_at": "2026-04-16T22:43:24.408Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                }
+              ]
+            },
+            {
+              "id": "eoA4fW73btmuyRyTorjuo",
+              "started_at": "2026-04-16T06:20:05.457Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how"
+                }
+              ]
+            },
+            {
+              "id": "Pxpzk5eSgr12MF45vhbmu",
+              "started_at": "2026-04-16T03:27:35.537Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "I need help brainstorming some ideas. Ask me about what I'm working on."
+                },
+                {
+                  "author": "human",
+                  "text": "Artifact packaging ideas"
+                },
+                {
+                  "author": "human",
+                  "text": "Brainstorm architecture-focused artifact packaging"
+                }
+              ]
+            },
+            {
+              "id": "mPtjzucTshDqTDFTroDkN",
+              "started_at": "2026-04-15T19:13:45.019Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "pkg install fdroidcl"
+                },
+                {
+                  "author": "human",
+                  "text": "[pii_username-pmkPRQ]"
+                }
+              ]
+            },
+            {
+              "id": "AxEKMimx7k3WybfArbgyv",
+              "started_at": "2026-04-15T18:05:33.097Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "f-droid.org"
+                },
+                {
+                  "author": "human",
+                  "text": "https://f-droid.org/en/packages/com.termux/"
+                },
+                {
+                  "author": "human",
+                  "text": "A"
+                }
+              ]
+            },
+            {
+              "id": "j2vXcWq4hfwVC6pGazF1W",
+              "started_at": "2026-04-15T13:36:18.748Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Build an Multi agent AI to build apps on telegram"
+                },
+                {
+                  "author": "human",
+                  "text": "3"
+                },
+                {
+                  "author": "human",
+                  "text": "Build of android"
+                }
+              ]
+            },
+            {
+              "id": "6XZdYKPguY1bcwBXUuMjW",
+              "started_at": "2026-04-14T17:08:20.596Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true"
+                }
+              ]
+            },
+            {
+              "id": "aBCXDoLZTaNftFHsDUUCT",
+              "started_at": "2026-04-14T15:36:44.149Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now."
+                },
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                }
+              ]
+            },
+            {
+              "id": "JVFUZ4aRk3rDfQXpTnLG2",
+              "started_at": "2026-04-14T01:52:10.813Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors"
+                },
+                {
+                  "author": "human",
+                  "text": "Everything modular design"
+                },
+                {
+                  "author": "human",
+                  "text": "I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture"
+                }
+              ]
+            },
+            {
+              "id": "bS14vLXiMMGzV74TKMDeG",
+              "started_at": "2026-04-14T01:50:42.526Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic"
+                },
+                {
+                  "author": "human",
+                  "text": "A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →"
+                },
+                {
+                  "author": "human",
+                  "text": "- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)"
+                }
+              ]
+            },
+            {
+              "id": "RWTAVXxFZEd7vpDADoKBo",
+              "started_at": "2026-04-13T22:21:49.429Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,"
+                },
+                {
+                  "author": "human",
+                  "text": "I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·"
+                }
+              ]
+            },
+            {
+              "id": "pdxJFH1cGMHguXeyMfrwB",
+              "started_at": "2026-04-13T06:23:22.681Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
+                },
+                {
+                  "author": "human",
+                  "text": "Resume"
+                }
+              ]
+            },
+            {
+              "id": "jLiwP4er9U6fYzTeXs42q",
+              "started_at": "2026-04-13T06:02:29.544Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "{   \"task\": \"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control"
+                },
+                {
+                  "author": "human",
+                  "text": "I can downloadable file"
+                },
+                {
+                  "author": "human",
+                  "text": "Give me a full technical overview of the system"
+                }
+              ]
+            },
+            {
+              "id": "r55QtHnDw4jDvDACqewaE",
+              "started_at": "2026-04-13T06:01:14.997Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "start PDF and zip"
+                },
+                {
+                  "author": "human",
+                  "text": "[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
+                },
+                {
+                  "author": "human",
+                  "text": "Make branding kit  images"
+                }
+              ]
+            },
+            {
+              "id": "d8t1dqAoWM5WzwBSYyVRg",
+              "started_at": "2026-04-12T10:36:43.889Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS"
+                },
+                {
+                  "author": "human",
+                  "text": "Assemble the full 4-prompt Quantum Leap AI suite"
+                },
+                {
+                  "author": "human",
+                  "text": "Expand the Nervous System Fabric spec"
+                }
+              ]
+            },
+            {
+              "id": "Sg1kmJ85tnnHrSbjWnnHT",
+              "started_at": "2026-04-12T04:05:49.325Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System"
+                },
+                {
+                  "author": "human",
+                  "text": "Yes"
+                },
+                {
+                  "author": "human",
+                  "text": "turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY"
+                }
+              ]
+            },
+            {
+              "id": "G36tDjWM2gKKpWBfGUGtS",
+              "started_at": "2026-04-05T18:07:14.194Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6"
+                },
+                {
+                  "author": "human",
+                  "text": "All"
+                },
+                {
+                  "author": "human",
+                  "text": "C"
+                }
+              ]
+            },
+            {
+              "id": "qScL8PR33AH3LoncnoNJJ",
+              "started_at": "2026-04-03T15:16:39.021Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]"
+                },
+                {
+                  "author": "human",
+                  "text": "Yes"
+                },
+                {
+                  "author": "human",
+                  "text": "C"
+                }
+              ]
+            }
+          ]
+        },
+        "history": [
+          {
+            "title": "AriseAlpha debuts AI crypto trading app",
+            "summary": ""
+          },
+          {
+            "title": "AI trading terminal debuts with forecasting and seasonality tools",
+            "summary": ""
+          },
+          {
+            "title": "Explainable AI becomes mandatory in finance",
+            "summary": ""
+          },
+          {
+            "title": "Financial data pipelines face speed-cost tradeoffs",
+            "summary": ""
+          },
+          {
+            "title": "Latency tricks unlock hidden arbitrage profits",
+            "summary": ""
+          },
+          {
+            "title": "Anvil Robotics raises funds for modular robot kits",
+            "summary": ""
+          },
+          {
+            "title": "Google unveils embodied reasoning model for robots",
+            "summary": ""
+          },
+          {
+            "title": "Robots gain sharper perception through multimodal fusion",
+            "summary": ""
+          },
+          {
+            "title": "Flutter and Kotlin Multiplatform diverge in 2026",
+            "summary": ""
+          },
+          {
+            "title": "Kotlin Multiplatform simplifies cross-platform code sharing",
+            "summary": ""
+          },
+          {
+            "title": "Panpsychism resurfaces in quantum consciousness debates",
+            "summary": ""
+          },
+          {
+            "title": "Quantum consciousness theories gain experimental traction",
+            "summary": ""
+          },
+          {
+            "title": "Robotic sculptures turn poetry into moving forms",
+            "summary": ""
+          },
+          {
+            "title": "MoMA showcases evolving AI-generated poetry",
+            "summary": ""
+          },
+          {
+            "title": "IonQ surges 20% on DARPA deal and quantum networking first",
+            "summary": ""
+          },
+          {
+            "title": "Brain-inspired chips promise 2,000x efficiency gains",
+            "summary": ""
+          },
+          {
+            "title": "New runtimes teach AI agents to self-heal",
+            "summary": ""
+          },
+          {
+            "title": "AI models reshape urban futures at CityScope",
+            "summary": ""
+          },
+          {
+            "title": "Brian Eno’s generative music still shapes sound",
+            "summary": ""
+          },
+          {
+            "title": "Live coding reshapes generative soundscapes",
+            "summary": ""
+          },
+          {
+            "title": "Language-driven grasping tackles ambiguous instructions",
+            "summary": ""
+          },
+          {
+            "title": "Robots stumble at tasks despite LLM planning",
+            "summary": ""
+          },
+          {
+            "title": "Hedging strategies evolve amid volatile markets",
+            "summary": ""
+          },
+          {
+            "title": "AI bots harness real-time sentiment data",
+            "summary": ""
+          },
+          {
+            "title": "Ant-inspired algorithms optimize logistics routing",
+            "summary": ""
+          },
+          {
+            "title": "IMF chief warns AI cyber risks threaten global finance",
+            "summary": ""
+          },
+          {
+            "title": "Catastrophe bonds surge with climate risk models",
+            "summary": ""
+          },
+          {
+            "title": "Cobot safety hinges on detection and avoidance",
+            "summary": ""
+          },
+          {
+            "title": "Reinforcement learning adapts high-frequency trading strategies",
+            "summary": ""
+          },
+          {
+            "title": "Foundation models transform market microstructure analysis",
+            "summary": ""
+          }
+        ],
+        "candidates": [
+          {
+            "id": "Fp1JBK6HRnAcHnfzmEFMr",
+            "title": "Breakthrough model teaches robots unseen tasks",
+            "summary": "A U.S. startup’s AI enables robots to follow new language commands without prior training."
+          }
+        ],
+        "max_len": 2048
+      },
+      "chat_request": {
+        "model": "docarankqwen06b",
+        "messages": [
+          {
+            "role": "user",
+            "content": "{\"interests\": {\"positive\": [\"Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\\n    keywords: robotics, ros, natural language, llm, ai control\\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.\", \"Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.\", \"Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.\", \"GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\\n    keywords: github actions, ci/cd, automation, npm token, workflow\\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.\", \"Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\\n    keywords: kotlin, android, mobile development, plugins, backend\\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development.\"], \"negative\": [\"AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\\n    keywords: aws, mcp, strategy, cloud\\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content.\"], \"interactions\": {\"clicks\": [\"New runtimes teach AI agents to self-heal\", \"Language-driven grasping tackles ambiguous instructions\", \"Reinforcement learning adapts high-frequency trading strategies\", \"Neuro-symbolic AI reshapes predictive dreaming models\", \"Adaptive AI architectures mimic living organisms\", \"Quantum simulations accelerate new material discovery\", \"Foundation models transform market microstructure analysis\", \"Reflex-speed AI loops cut latency to 20ms\", \"Finance models borrow from ecological systems\", \"Kotlin coroutines reshape AI app concurrency\"], \"thumbsUp\": [\"Robots gain natural language control with ROS\"], \"thumbsDown\": [\"AWS guidance outlines core MCP strategy pillars\"]}, \"conversations\": [{\"id\": \"qrvHkaif6RTTsrQwPidsD\", \"started_at\": \"2026-04-17T13:09:58.135Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target\"}]}, {\"id\": \"J1mFmwUE7DGUAYpJJaTmr\", \"started_at\": \"2026-04-16T23:02:38.045Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build me a quick detailed overview of what we have\"}]}, {\"id\": \"WsTsU55ew6yyfn1nhEFKc\", \"started_at\": \"2026-04-16T22:43:24.408Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"eoA4fW73btmuyRyTorjuo\", \"started_at\": \"2026-04-16T06:20:05.457Z\", \"messages\": [{\"author\": \"human\", \"text\": \"If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how\"}]}, {\"id\": \"Pxpzk5eSgr12MF45vhbmu\", \"started_at\": \"2026-04-16T03:27:35.537Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I need help brainstorming some ideas. Ask me about what I'm working on.\"}, {\"author\": \"human\", \"text\": \"Artifact packaging ideas\"}, {\"author\": \"human\", \"text\": \"Brainstorm architecture-focused artifact packaging\"}]}, {\"id\": \"mPtjzucTshDqTDFTroDkN\", \"started_at\": \"2026-04-15T19:13:45.019Z\", \"messages\": [{\"author\": \"human\", \"text\": \"pkg install fdroidcl\"}, {\"author\": \"human\", \"text\": \"[pii_username-pmkPRQ]\"}]}, {\"id\": \"AxEKMimx7k3WybfArbgyv\", \"started_at\": \"2026-04-15T18:05:33.097Z\", \"messages\": [{\"author\": \"human\", \"text\": \"f-droid.org\"}, {\"author\": \"human\", \"text\": \"https://f-droid.org/en/packages/com.termux/\"}, {\"author\": \"human\", \"text\": \"A\"}]}, {\"id\": \"j2vXcWq4hfwVC6pGazF1W\", \"started_at\": \"2026-04-15T13:36:18.748Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build an Multi agent AI to build apps on telegram\"}, {\"author\": \"human\", \"text\": \"3\"}, {\"author\": \"human\", \"text\": \"Build of android\"}]}, {\"id\": \"6XZdYKPguY1bcwBXUuMjW\", \"started_at\": \"2026-04-14T17:08:20.596Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true\"}]}, {\"id\": \"aBCXDoLZTaNftFHsDUUCT\", \"started_at\": \"2026-04-14T15:36:44.149Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now.\"}, {\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"JVFUZ4aRk3rDfQXpTnLG2\", \"started_at\": \"2026-04-14T01:52:10.813Z\", \"messages\": [{\"author\": \"human\", \"text\": \"1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors\"}, {\"author\": \"human\", \"text\": \"Everything modular design\"}, {\"author\": \"human\", \"text\": \"I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture\"}]}, {\"id\": \"bS14vLXiMMGzV74TKMDeG\", \"started_at\": \"2026-04-14T01:50:42.526Z\", \"messages\": [{\"author\": \"human\", \"text\": \"It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic\"}, {\"author\": \"human\", \"text\": \"A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →\"}, {\"author\": \"human\", \"text\": \"- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)\"}]}, {\"id\": \"RWTAVXxFZEd7vpDADoKBo\", \"started_at\": \"2026-04-13T22:21:49.429Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,\"}, {\"author\": \"human\", \"text\": \"I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·\"}]}, {\"id\": \"pdxJFH1cGMHguXeyMfrwB\", \"started_at\": \"2026-04-13T06:23:22.681Z\", \"messages\": [{\"author\": \"human\", \"text\": \"[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Resume\"}]}, {\"id\": \"jLiwP4er9U6fYzTeXs42q\", \"started_at\": \"2026-04-13T06:02:29.544Z\", \"messages\": [{\"author\": \"human\", \"text\": \"{   \\\"task\\\": \\\"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control\"}, {\"author\": \"human\", \"text\": \"I can downloadable file\"}, {\"author\": \"human\", \"text\": \"Give me a full technical overview of the system\"}]}, {\"id\": \"r55QtHnDw4jDvDACqewaE\", \"started_at\": \"2026-04-13T06:01:14.997Z\", \"messages\": [{\"author\": \"human\", \"text\": \"start PDF and zip\"}, {\"author\": \"human\", \"text\": \"[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Make branding kit  images\"}]}, {\"id\": \"d8t1dqAoWM5WzwBSYyVRg\", \"started_at\": \"2026-04-12T10:36:43.889Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS\"}, {\"author\": \"human\", \"text\": \"Assemble the full 4-prompt Quantum Leap AI suite\"}, {\"author\": \"human\", \"text\": \"Expand the Nervous System Fabric spec\"}]}, {\"id\": \"Sg1kmJ85tnnHrSbjWnnHT\", \"started_at\": \"2026-04-12T04:05:49.325Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY\"}]}, {\"id\": \"G36tDjWM2gKKpWBfGUGtS\", \"started_at\": \"2026-04-05T18:07:14.194Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6\"}, {\"author\": \"human\", \"text\": \"All\"}, {\"author\": \"human\", \"text\": \"C\"}]}, {\"id\": \"qScL8PR33AH3LoncnoNJJ\", \"started_at\": \"2026-04-03T15:16:39.021Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"C\"}]}]}, \"history\": [{\"title\": \"AriseAlpha debuts AI crypto trading app\", \"summary\": \"\"}, {\"title\": \"AI trading terminal debuts with forecasting and seasonality tools\", \"summary\": \"\"}, {\"title\": \"Explainable AI becomes mandatory in finance\", \"summary\": \"\"}, {\"title\": \"Financial data pipelines face speed-cost tradeoffs\", \"summary\": \"\"}, {\"title\": \"Latency tricks unlock hidden arbitrage profits\", \"summary\": \"\"}, {\"title\": \"Anvil Robotics raises funds for modular robot kits\", \"summary\": \"\"}, {\"title\": \"Google unveils embodied reasoning model for robots\", \"summary\": \"\"}, {\"title\": \"Robots gain sharper perception through multimodal fusion\", \"summary\": \"\"}, {\"title\": \"Flutter and Kotlin Multiplatform diverge in 2026\", \"summary\": \"\"}, {\"title\": \"Kotlin Multiplatform simplifies cross-platform code sharing\", \"summary\": \"\"}, {\"title\": \"Panpsychism resurfaces in quantum consciousness debates\", \"summary\": \"\"}, {\"title\": \"Quantum consciousness theories gain experimental traction\", \"summary\": \"\"}, {\"title\": \"Robotic sculptures turn poetry into moving forms\", \"summary\": \"\"}, {\"title\": \"MoMA showcases evolving AI-generated poetry\", \"summary\": \"\"}, {\"title\": \"IonQ surges 20% on DARPA deal and quantum networking first\", \"summary\": \"\"}, {\"title\": \"Brain-inspired chips promise 2,000x efficiency gains\", \"summary\": \"\"}, {\"title\": \"New runtimes teach AI agents to self-heal\", \"summary\": \"\"}, {\"title\": \"AI models reshape urban futures at CityScope\", \"summary\": \"\"}, {\"title\": \"Brian Eno’s generative music still shapes sound\", \"summary\": \"\"}, {\"title\": \"Live coding reshapes generative soundscapes\", \"summary\": \"\"}, {\"title\": \"Language-driven grasping tackles ambiguous instructions\", \"summary\": \"\"}, {\"title\": \"Robots stumble at tasks despite LLM planning\", \"summary\": \"\"}, {\"title\": \"Hedging strategies evolve amid volatile markets\", \"summary\": \"\"}, {\"title\": \"AI bots harness real-time sentiment data\", \"summary\": \"\"}, {\"title\": \"Ant-inspired algorithms optimize logistics routing\", \"summary\": \"\"}, {\"title\": \"IMF chief warns AI cyber risks threaten global finance\", \"summary\": \"\"}, {\"title\": \"Catastrophe bonds surge with climate risk models\", \"summary\": \"\"}, {\"title\": \"Cobot safety hinges on detection and avoidance\", \"summary\": \"\"}, {\"title\": \"Reinforcement learning adapts high-frequency trading strategies\", \"summary\": \"\"}, {\"title\": \"Foundation models transform market microstructure analysis\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"Fp1JBK6HRnAcHnfzmEFMr\", \"title\": \"Breakthrough model teaches robots unseen tasks\", \"summary\": \"A U.S. startup’s AI enables robots to follow new language commands without prior training.\"}], \"max_len\": 2048}"
+          }
+        ],
+        "max_tokens": 1,
+        "temperature": 0.0
+      },
+      "meta": {
+        "feed_id": "igi56EXjCywVqxuYvVxSz",
+        "user_id": "9vkcnnb23BnjYaVoeqqQU",
+        "bizdate": "20260417",
+        "label": 1,
+        "candidate_id": "Fp1JBK6HRnAcHnfzmEFMr",
+        "captured_at_unix": 1777519000,
+        "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
+        "source_jsonl": "../data_v10/eval_ura.jsonl"
+      },
+      "sample_response": {
+        "scores": [
+          {
+            "id": "Fp1JBK6HRnAcHnfzmEFMr",
+            "score": 0.924142
+          }
+        ],
+        "latency_ms": 106.4,
+        "prompt_build_ms": 79.2,
+        "inference_ms": 27.2,
+        "model_version": "v29-dlis-chat"
+      }
+    },
+    {
+      "name": "docarankqwen06b_negative_label",
+      "description": "Golden test fixture for docarankqwen06b. Send `chat_request` to the Papyrus endpoint (or `request` to DLIS directly) and verify that the parsed P(click) score satisfies `abs(score - expected.score_mean) <= expected.tolerance` (NOT exact equality). The endpoint is load-balanced over many A100 pods; identical prompts can produce slightly different bf16 logprobs across replicas. `expected.score_min` / `score_max` capture the observed envelope across 32 sequential calls at fixture-capture time; tolerance = (max - min) + slack.",
+      "expected": {
+        "score_mean": 0.932453,
+        "score_min": 0.932453,
+        "score_max": 0.932453,
+        "tolerance": 0.02,
+        "observed_unique_scores": [
+          0.932453
+        ],
+        "calibration_calls": 32,
+        "model_version": "v29-dlis-chat"
+      },
+      "request": {
+        "interests": {
+          "positive": [
+            "Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\n    keywords: robotics, ros, natural language, llm, ai control\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.",
+            "Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.",
+            "Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.",
+            "GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\n    keywords: github actions, ci/cd, automation, npm token, workflow\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.",
+            "Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\n    keywords: kotlin, android, mobile development, plugins, backend\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development."
+          ],
+          "negative": [
+            "AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\n    keywords: aws, mcp, strategy, cloud\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content."
+          ],
+          "interactions": {
+            "clicks": [
+              "New runtimes teach AI agents to self-heal",
+              "Language-driven grasping tackles ambiguous instructions",
+              "Reinforcement learning adapts high-frequency trading strategies",
+              "Neuro-symbolic AI reshapes predictive dreaming models",
+              "Adaptive AI architectures mimic living organisms",
+              "Quantum simulations accelerate new material discovery",
+              "Foundation models transform market microstructure analysis",
+              "Reflex-speed AI loops cut latency to 20ms",
+              "Finance models borrow from ecological systems",
+              "Kotlin coroutines reshape AI app concurrency"
+            ],
+            "thumbsUp": [
+              "Robots gain natural language control with ROS"
+            ],
+            "thumbsDown": [
+              "AWS guidance outlines core MCP strategy pillars"
+            ]
+          },
+          "conversations": [
+            {
+              "id": "qrvHkaif6RTTsrQwPidsD",
+              "started_at": "2026-04-17T13:09:58.135Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target"
+                }
+              ]
+            },
+            {
+              "id": "J1mFmwUE7DGUAYpJJaTmr",
+              "started_at": "2026-04-16T23:02:38.045Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Build me a quick detailed overview of what we have"
+                }
+              ]
+            },
+            {
+              "id": "WsTsU55ew6yyfn1nhEFKc",
+              "started_at": "2026-04-16T22:43:24.408Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                }
+              ]
+            },
+            {
+              "id": "eoA4fW73btmuyRyTorjuo",
+              "started_at": "2026-04-16T06:20:05.457Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how"
+                }
+              ]
+            },
+            {
+              "id": "Pxpzk5eSgr12MF45vhbmu",
+              "started_at": "2026-04-16T03:27:35.537Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "I need help brainstorming some ideas. Ask me about what I'm working on."
+                },
+                {
+                  "author": "human",
+                  "text": "Artifact packaging ideas"
+                },
+                {
+                  "author": "human",
+                  "text": "Brainstorm architecture-focused artifact packaging"
+                }
+              ]
+            },
+            {
+              "id": "mPtjzucTshDqTDFTroDkN",
+              "started_at": "2026-04-15T19:13:45.019Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "pkg install fdroidcl"
+                },
+                {
+                  "author": "human",
+                  "text": "[pii_username-pmkPRQ]"
+                }
+              ]
+            },
+            {
+              "id": "AxEKMimx7k3WybfArbgyv",
+              "started_at": "2026-04-15T18:05:33.097Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "f-droid.org"
+                },
+                {
+                  "author": "human",
+                  "text": "https://f-droid.org/en/packages/com.termux/"
+                },
+                {
+                  "author": "human",
+                  "text": "A"
+                }
+              ]
+            },
+            {
+              "id": "j2vXcWq4hfwVC6pGazF1W",
+              "started_at": "2026-04-15T13:36:18.748Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Build an Multi agent AI to build apps on telegram"
+                },
+                {
+                  "author": "human",
+                  "text": "3"
+                },
+                {
+                  "author": "human",
+                  "text": "Build of android"
+                }
+              ]
+            },
+            {
+              "id": "6XZdYKPguY1bcwBXUuMjW",
+              "started_at": "2026-04-14T17:08:20.596Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true"
+                }
+              ]
+            },
+            {
+              "id": "aBCXDoLZTaNftFHsDUUCT",
+              "started_at": "2026-04-14T15:36:44.149Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now."
+                },
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                }
+              ]
+            },
+            {
+              "id": "JVFUZ4aRk3rDfQXpTnLG2",
+              "started_at": "2026-04-14T01:52:10.813Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors"
+                },
+                {
+                  "author": "human",
+                  "text": "Everything modular design"
+                },
+                {
+                  "author": "human",
+                  "text": "I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture"
+                }
+              ]
+            },
+            {
+              "id": "bS14vLXiMMGzV74TKMDeG",
+              "started_at": "2026-04-14T01:50:42.526Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic"
+                },
+                {
+                  "author": "human",
+                  "text": "A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →"
+                },
+                {
+                  "author": "human",
+                  "text": "- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)"
+                }
+              ]
+            },
+            {
+              "id": "RWTAVXxFZEd7vpDADoKBo",
+              "started_at": "2026-04-13T22:21:49.429Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,"
+                },
+                {
+                  "author": "human",
+                  "text": "I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·"
+                }
+              ]
+            },
+            {
+              "id": "pdxJFH1cGMHguXeyMfrwB",
+              "started_at": "2026-04-13T06:23:22.681Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
+                },
+                {
+                  "author": "human",
+                  "text": "Resume"
+                }
+              ]
+            },
+            {
+              "id": "jLiwP4er9U6fYzTeXs42q",
+              "started_at": "2026-04-13T06:02:29.544Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "{   \"task\": \"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control"
+                },
+                {
+                  "author": "human",
+                  "text": "I can downloadable file"
+                },
+                {
+                  "author": "human",
+                  "text": "Give me a full technical overview of the system"
+                }
+              ]
+            },
+            {
+              "id": "r55QtHnDw4jDvDACqewaE",
+              "started_at": "2026-04-13T06:01:14.997Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "start PDF and zip"
+                },
+                {
+                  "author": "human",
+                  "text": "[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
+                },
+                {
+                  "author": "human",
+                  "text": "Make branding kit  images"
+                }
+              ]
+            },
+            {
+              "id": "d8t1dqAoWM5WzwBSYyVRg",
+              "started_at": "2026-04-12T10:36:43.889Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS"
+                },
+                {
+                  "author": "human",
+                  "text": "Assemble the full 4-prompt Quantum Leap AI suite"
+                },
+                {
+                  "author": "human",
+                  "text": "Expand the Nervous System Fabric spec"
+                }
+              ]
+            },
+            {
+              "id": "Sg1kmJ85tnnHrSbjWnnHT",
+              "started_at": "2026-04-12T04:05:49.325Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System"
+                },
+                {
+                  "author": "human",
+                  "text": "Yes"
+                },
+                {
+                  "author": "human",
+                  "text": "turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY"
+                }
+              ]
+            },
+            {
+              "id": "G36tDjWM2gKKpWBfGUGtS",
+              "started_at": "2026-04-05T18:07:14.194Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6"
+                },
+                {
+                  "author": "human",
+                  "text": "All"
+                },
+                {
+                  "author": "human",
+                  "text": "C"
+                }
+              ]
+            },
+            {
+              "id": "qScL8PR33AH3LoncnoNJJ",
+              "started_at": "2026-04-03T15:16:39.021Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]"
+                },
+                {
+                  "author": "human",
+                  "text": "Yes"
+                },
+                {
+                  "author": "human",
+                  "text": "C"
+                }
+              ]
+            }
+          ]
+        },
+        "history": [
+          {
+            "title": "AriseAlpha debuts AI crypto trading app",
+            "summary": ""
+          },
+          {
+            "title": "AI trading terminal debuts with forecasting and seasonality tools",
+            "summary": ""
+          },
+          {
+            "title": "Explainable AI becomes mandatory in finance",
+            "summary": ""
+          },
+          {
+            "title": "Financial data pipelines face speed-cost tradeoffs",
+            "summary": ""
+          },
+          {
+            "title": "Latency tricks unlock hidden arbitrage profits",
+            "summary": ""
+          },
+          {
+            "title": "Anvil Robotics raises funds for modular robot kits",
+            "summary": ""
+          },
+          {
+            "title": "Google unveils embodied reasoning model for robots",
+            "summary": ""
+          },
+          {
+            "title": "Robots gain sharper perception through multimodal fusion",
+            "summary": ""
+          },
+          {
+            "title": "Flutter and Kotlin Multiplatform diverge in 2026",
+            "summary": ""
+          },
+          {
+            "title": "Kotlin Multiplatform simplifies cross-platform code sharing",
+            "summary": ""
+          },
+          {
+            "title": "Panpsychism resurfaces in quantum consciousness debates",
+            "summary": ""
+          },
+          {
+            "title": "Quantum consciousness theories gain experimental traction",
+            "summary": ""
+          },
+          {
+            "title": "Robotic sculptures turn poetry into moving forms",
+            "summary": ""
+          },
+          {
+            "title": "MoMA showcases evolving AI-generated poetry",
+            "summary": ""
+          },
+          {
+            "title": "IonQ surges 20% on DARPA deal and quantum networking first",
+            "summary": ""
+          },
+          {
+            "title": "Brain-inspired chips promise 2,000x efficiency gains",
+            "summary": ""
+          },
+          {
+            "title": "New runtimes teach AI agents to self-heal",
+            "summary": ""
+          },
+          {
+            "title": "AI models reshape urban futures at CityScope",
+            "summary": ""
+          },
+          {
+            "title": "Brian Eno’s generative music still shapes sound",
+            "summary": ""
+          },
+          {
+            "title": "Live coding reshapes generative soundscapes",
+            "summary": ""
+          },
+          {
+            "title": "Language-driven grasping tackles ambiguous instructions",
+            "summary": ""
+          },
+          {
+            "title": "Robots stumble at tasks despite LLM planning",
+            "summary": ""
+          },
+          {
+            "title": "Hedging strategies evolve amid volatile markets",
+            "summary": ""
+          },
+          {
+            "title": "AI bots harness real-time sentiment data",
+            "summary": ""
+          },
+          {
+            "title": "Ant-inspired algorithms optimize logistics routing",
+            "summary": ""
+          },
+          {
+            "title": "IMF chief warns AI cyber risks threaten global finance",
+            "summary": ""
+          },
+          {
+            "title": "Catastrophe bonds surge with climate risk models",
+            "summary": ""
+          },
+          {
+            "title": "Cobot safety hinges on detection and avoidance",
+            "summary": ""
+          },
+          {
+            "title": "Reinforcement learning adapts high-frequency trading strategies",
+            "summary": ""
+          },
+          {
+            "title": "Foundation models transform market microstructure analysis",
+            "summary": ""
+          }
+        ],
+        "candidates": [
+          {
+            "id": "bMwdJQeFag6b4oko4fKdo",
+            "title": "LLM-ROS integration redefines robot task planning",
+            "summary": "Researchers linked large language models with ROS, enabling robots to execute human instructions directly."
+          }
+        ],
+        "max_len": 2048
+      },
+      "chat_request": {
+        "model": "docarankqwen06b",
+        "messages": [
+          {
+            "role": "user",
+            "content": "{\"interests\": {\"positive\": [\"Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\\n    keywords: robotics, ros, natural language, llm, ai control\\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.\", \"Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.\", \"Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.\", \"GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\\n    keywords: github actions, ci/cd, automation, npm token, workflow\\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.\", \"Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\\n    keywords: kotlin, android, mobile development, plugins, backend\\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development.\"], \"negative\": [\"AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\\n    keywords: aws, mcp, strategy, cloud\\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content.\"], \"interactions\": {\"clicks\": [\"New runtimes teach AI agents to self-heal\", \"Language-driven grasping tackles ambiguous instructions\", \"Reinforcement learning adapts high-frequency trading strategies\", \"Neuro-symbolic AI reshapes predictive dreaming models\", \"Adaptive AI architectures mimic living organisms\", \"Quantum simulations accelerate new material discovery\", \"Foundation models transform market microstructure analysis\", \"Reflex-speed AI loops cut latency to 20ms\", \"Finance models borrow from ecological systems\", \"Kotlin coroutines reshape AI app concurrency\"], \"thumbsUp\": [\"Robots gain natural language control with ROS\"], \"thumbsDown\": [\"AWS guidance outlines core MCP strategy pillars\"]}, \"conversations\": [{\"id\": \"qrvHkaif6RTTsrQwPidsD\", \"started_at\": \"2026-04-17T13:09:58.135Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target\"}]}, {\"id\": \"J1mFmwUE7DGUAYpJJaTmr\", \"started_at\": \"2026-04-16T23:02:38.045Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build me a quick detailed overview of what we have\"}]}, {\"id\": \"WsTsU55ew6yyfn1nhEFKc\", \"started_at\": \"2026-04-16T22:43:24.408Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"eoA4fW73btmuyRyTorjuo\", \"started_at\": \"2026-04-16T06:20:05.457Z\", \"messages\": [{\"author\": \"human\", \"text\": \"If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how\"}]}, {\"id\": \"Pxpzk5eSgr12MF45vhbmu\", \"started_at\": \"2026-04-16T03:27:35.537Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I need help brainstorming some ideas. Ask me about what I'm working on.\"}, {\"author\": \"human\", \"text\": \"Artifact packaging ideas\"}, {\"author\": \"human\", \"text\": \"Brainstorm architecture-focused artifact packaging\"}]}, {\"id\": \"mPtjzucTshDqTDFTroDkN\", \"started_at\": \"2026-04-15T19:13:45.019Z\", \"messages\": [{\"author\": \"human\", \"text\": \"pkg install fdroidcl\"}, {\"author\": \"human\", \"text\": \"[pii_username-pmkPRQ]\"}]}, {\"id\": \"AxEKMimx7k3WybfArbgyv\", \"started_at\": \"2026-04-15T18:05:33.097Z\", \"messages\": [{\"author\": \"human\", \"text\": \"f-droid.org\"}, {\"author\": \"human\", \"text\": \"https://f-droid.org/en/packages/com.termux/\"}, {\"author\": \"human\", \"text\": \"A\"}]}, {\"id\": \"j2vXcWq4hfwVC6pGazF1W\", \"started_at\": \"2026-04-15T13:36:18.748Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build an Multi agent AI to build apps on telegram\"}, {\"author\": \"human\", \"text\": \"3\"}, {\"author\": \"human\", \"text\": \"Build of android\"}]}, {\"id\": \"6XZdYKPguY1bcwBXUuMjW\", \"started_at\": \"2026-04-14T17:08:20.596Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true\"}]}, {\"id\": \"aBCXDoLZTaNftFHsDUUCT\", \"started_at\": \"2026-04-14T15:36:44.149Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now.\"}, {\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"JVFUZ4aRk3rDfQXpTnLG2\", \"started_at\": \"2026-04-14T01:52:10.813Z\", \"messages\": [{\"author\": \"human\", \"text\": \"1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors\"}, {\"author\": \"human\", \"text\": \"Everything modular design\"}, {\"author\": \"human\", \"text\": \"I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture\"}]}, {\"id\": \"bS14vLXiMMGzV74TKMDeG\", \"started_at\": \"2026-04-14T01:50:42.526Z\", \"messages\": [{\"author\": \"human\", \"text\": \"It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic\"}, {\"author\": \"human\", \"text\": \"A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →\"}, {\"author\": \"human\", \"text\": \"- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)\"}]}, {\"id\": \"RWTAVXxFZEd7vpDADoKBo\", \"started_at\": \"2026-04-13T22:21:49.429Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,\"}, {\"author\": \"human\", \"text\": \"I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·\"}]}, {\"id\": \"pdxJFH1cGMHguXeyMfrwB\", \"started_at\": \"2026-04-13T06:23:22.681Z\", \"messages\": [{\"author\": \"human\", \"text\": \"[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Resume\"}]}, {\"id\": \"jLiwP4er9U6fYzTeXs42q\", \"started_at\": \"2026-04-13T06:02:29.544Z\", \"messages\": [{\"author\": \"human\", \"text\": \"{   \\\"task\\\": \\\"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control\"}, {\"author\": \"human\", \"text\": \"I can downloadable file\"}, {\"author\": \"human\", \"text\": \"Give me a full technical overview of the system\"}]}, {\"id\": \"r55QtHnDw4jDvDACqewaE\", \"started_at\": \"2026-04-13T06:01:14.997Z\", \"messages\": [{\"author\": \"human\", \"text\": \"start PDF and zip\"}, {\"author\": \"human\", \"text\": \"[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Make branding kit  images\"}]}, {\"id\": \"d8t1dqAoWM5WzwBSYyVRg\", \"started_at\": \"2026-04-12T10:36:43.889Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS\"}, {\"author\": \"human\", \"text\": \"Assemble the full 4-prompt Quantum Leap AI suite\"}, {\"author\": \"human\", \"text\": \"Expand the Nervous System Fabric spec\"}]}, {\"id\": \"Sg1kmJ85tnnHrSbjWnnHT\", \"started_at\": \"2026-04-12T04:05:49.325Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY\"}]}, {\"id\": \"G36tDjWM2gKKpWBfGUGtS\", \"started_at\": \"2026-04-05T18:07:14.194Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6\"}, {\"author\": \"human\", \"text\": \"All\"}, {\"author\": \"human\", \"text\": \"C\"}]}, {\"id\": \"qScL8PR33AH3LoncnoNJJ\", \"started_at\": \"2026-04-03T15:16:39.021Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"C\"}]}]}, \"history\": [{\"title\": \"AriseAlpha debuts AI crypto trading app\", \"summary\": \"\"}, {\"title\": \"AI trading terminal debuts with forecasting and seasonality tools\", \"summary\": \"\"}, {\"title\": \"Explainable AI becomes mandatory in finance\", \"summary\": \"\"}, {\"title\": \"Financial data pipelines face speed-cost tradeoffs\", \"summary\": \"\"}, {\"title\": \"Latency tricks unlock hidden arbitrage profits\", \"summary\": \"\"}, {\"title\": \"Anvil Robotics raises funds for modular robot kits\", \"summary\": \"\"}, {\"title\": \"Google unveils embodied reasoning model for robots\", \"summary\": \"\"}, {\"title\": \"Robots gain sharper perception through multimodal fusion\", \"summary\": \"\"}, {\"title\": \"Flutter and Kotlin Multiplatform diverge in 2026\", \"summary\": \"\"}, {\"title\": \"Kotlin Multiplatform simplifies cross-platform code sharing\", \"summary\": \"\"}, {\"title\": \"Panpsychism resurfaces in quantum consciousness debates\", \"summary\": \"\"}, {\"title\": \"Quantum consciousness theories gain experimental traction\", \"summary\": \"\"}, {\"title\": \"Robotic sculptures turn poetry into moving forms\", \"summary\": \"\"}, {\"title\": \"MoMA showcases evolving AI-generated poetry\", \"summary\": \"\"}, {\"title\": \"IonQ surges 20% on DARPA deal and quantum networking first\", \"summary\": \"\"}, {\"title\": \"Brain-inspired chips promise 2,000x efficiency gains\", \"summary\": \"\"}, {\"title\": \"New runtimes teach AI agents to self-heal\", \"summary\": \"\"}, {\"title\": \"AI models reshape urban futures at CityScope\", \"summary\": \"\"}, {\"title\": \"Brian Eno’s generative music still shapes sound\", \"summary\": \"\"}, {\"title\": \"Live coding reshapes generative soundscapes\", \"summary\": \"\"}, {\"title\": \"Language-driven grasping tackles ambiguous instructions\", \"summary\": \"\"}, {\"title\": \"Robots stumble at tasks despite LLM planning\", \"summary\": \"\"}, {\"title\": \"Hedging strategies evolve amid volatile markets\", \"summary\": \"\"}, {\"title\": \"AI bots harness real-time sentiment data\", \"summary\": \"\"}, {\"title\": \"Ant-inspired algorithms optimize logistics routing\", \"summary\": \"\"}, {\"title\": \"IMF chief warns AI cyber risks threaten global finance\", \"summary\": \"\"}, {\"title\": \"Catastrophe bonds surge with climate risk models\", \"summary\": \"\"}, {\"title\": \"Cobot safety hinges on detection and avoidance\", \"summary\": \"\"}, {\"title\": \"Reinforcement learning adapts high-frequency trading strategies\", \"summary\": \"\"}, {\"title\": \"Foundation models transform market microstructure analysis\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"bMwdJQeFag6b4oko4fKdo\", \"title\": \"LLM-ROS integration redefines robot task planning\", \"summary\": \"Researchers linked large language models with ROS, enabling robots to execute human instructions directly.\"}], \"max_len\": 2048}"
+          }
+        ],
+        "max_tokens": 1,
+        "temperature": 0.0
+      },
+      "meta": {
+        "feed_id": "igi56EXjCywVqxuYvVxSz",
+        "user_id": "9vkcnnb23BnjYaVoeqqQU",
+        "bizdate": "20260417",
+        "label": 0,
+        "candidate_id": "bMwdJQeFag6b4oko4fKdo",
+        "captured_at_unix": 1777519010,
+        "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
+        "source_jsonl": "../data_v10/eval_ura.jsonl"
+      },
+      "sample_response": {
+        "scores": [
+          {
+            "id": "bMwdJQeFag6b4oko4fKdo",
+            "score": 0.932453
+          }
+        ],
+        "latency_ms": 109.1,
+        "prompt_build_ms": 79.1,
+        "inference_ms": 30.0,
+        "model_version": "v29-dlis-chat"
+      }
+    }
+  ]
+}

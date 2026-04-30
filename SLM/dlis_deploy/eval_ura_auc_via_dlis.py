@@ -55,6 +55,15 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--url", default=DEFAULT_URL, help="DLIS endpoint URL.")
     p.add_argument(
+        "--mode", choices=["raw", "chat"], default="raw",
+        help="raw = post raw ranker schema (legacy dlis_server). "
+             "chat = wrap into OpenAI chat-completions (dlis_server_chat / Papyrus).",
+    )
+    p.add_argument(
+        "--chat-model-name", default="docarankqwen06b",
+        help="`model` field of the chat-completions request body (chat mode only).",
+    )
+    p.add_argument(
         "--input",
         default="../data_v10/eval_ura.jsonl",
         help="Path to URA eval JSONL.",
@@ -136,6 +145,38 @@ def build_payload(sample: dict[str, Any], args: argparse.Namespace) -> dict[str,
 
 # ── HTTP ───────────────────────────────────────────────────────────────────────
 
+def wrap_chat_completions(raw_payload: dict[str, Any], model: str) -> dict[str, Any]:
+    """Wrap raw ranker payload as an OpenAI chat-completions request body."""
+    return {
+        "model": model,
+        "messages": [
+            {"role": "user", "content": json.dumps(raw_payload, ensure_ascii=False)},
+        ],
+        "max_tokens": 1,
+        "temperature": 0.0,
+    }
+
+
+def unwrap_chat_response(body: str) -> str:
+    """Given a chat-completions response body string, return the inner ranker
+    response body (also a JSON string). Returns '' on parse failure."""
+    try:
+        outer = json.loads(body)
+        content = outer["choices"][0]["message"]["content"]
+        if not isinstance(content, str):
+            return ""
+        return content
+    except Exception:
+        return ""
+
+
+def extract_inner_body(body: str, mode: str) -> str:
+    """Return the inner raw-ranker JSON string regardless of transport mode."""
+    if mode == "chat":
+        return unwrap_chat_response(body)
+    return body
+
+
 def send_request(url: str, payload: dict[str, Any], timeout: float) -> dict[str, Any]:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
@@ -183,11 +224,15 @@ def parse_model_version(body: str) -> str:
 
 
 def send_request_with_version(url: str, payload: dict[str, Any], timeout: float,
-                              require_version: str, max_retries: int) -> dict[str, Any]:
+                              require_version: str, max_retries: int,
+                              mode: str) -> dict[str, Any]:
     """Send one request; if --require-version is set and the response's
     model_version does not match, retry (different LB hop may pick a fresh
     pod). Tracks total attempts in result['attempts'] and the last seen
-    mismatched version in result['mismatched_version']."""
+    mismatched version in result['mismatched_version'].
+
+    In chat mode the response is unwrapped before reading model_version.
+    """
     last = None
     mismatched = ""
     attempts = 0
@@ -199,7 +244,8 @@ def send_request_with_version(url: str, payload: dict[str, Any], timeout: float,
         last = r
         if not r["ok"] or not require_version:
             break
-        mv = parse_model_version(r["body"])
+        inner_body = extract_inner_body(r["body"], mode)
+        mv = parse_model_version(inner_body)
         if mv == require_version:
             break
         mismatched = mv
@@ -274,15 +320,23 @@ def main() -> int:
     print(f"concurrency={args.concurrency} timeout={args.timeout}s warmup={args.warmup}")
     if args.require_version:
         print(f"require_version={args.require_version!r} (max retries per req = {args.version_retries})")
+    print(f"mode={args.mode}" + (f" chat_model_name={args.chat_model_name!r}" if args.mode == "chat" else ""))
+
+    def _build(sample):
+        raw = build_payload(sample, args)
+        if args.mode == "chat":
+            return wrap_chat_completions(raw, args.chat_model_name)
+        return raw
 
     # Warmup
     for i in range(min(args.warmup, len(samples))):
-        r = send_request_with_version(args.url, build_payload(samples[i], args),
+        r = send_request_with_version(args.url, _build(samples[i]),
                                       args.timeout, args.require_version,
-                                      args.version_retries)
+                                      args.version_retries, args.mode)
+        inner = extract_inner_body(r["body"], args.mode)
         print(f"  warmup {i + 1}: status={r['status']} ok={r['ok']} "
               f"latency_ms={r['elapsed_ms']:.1f} attempts={r.get('attempts',1)} "
-              f"mv={parse_model_version(r['body'])!r} score={parse_score(r['body'])}")
+              f"mv={parse_model_version(inner)!r} score={parse_score(inner)}")
         if not r["ok"]:
             print(f"  warmup body: {r['body'][:500]}")
 
@@ -293,8 +347,8 @@ def main() -> int:
 
     def _task(idx: int):
         return idx, send_request_with_version(
-            args.url, build_payload(samples[idx], args), args.timeout,
-            args.require_version, args.version_retries,
+            args.url, _build(samples[idx]), args.timeout,
+            args.require_version, args.version_retries, args.mode,
         )
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as ex:
@@ -327,14 +381,19 @@ def main() -> int:
         if not r["ok"]:
             failures += 1
             continue
-        mv = parse_model_version(r["body"])
+        inner_body = extract_inner_body(r["body"], args.mode)
+        if args.mode == "chat" and not inner_body:
+            # Chat envelope present but content not parseable as inner JSON.
+            parse_failures += 1
+            continue
+        mv = parse_model_version(inner_body)
         version_counts[mv] = version_counts.get(mv, 0) + 1
         if args.require_version and mv != args.require_version:
             # Exhausted retries without ever hitting the required version
             # -> drop this sample from AUC rather than mixing versions.
             version_mismatches += 1
             continue
-        sc = parse_score(r["body"])
+        sc = parse_score(inner_body)
         if sc is None or not math.isfinite(sc):
             parse_failures += 1
             continue

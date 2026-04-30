@@ -127,7 +127,8 @@ def run(args):
             {"role": "user",   "content": body + USER_SUFFIX},
         ]
         prompt = tokenizer.apply_chat_template(
-            msgs, tokenize=False, add_generation_prompt=True
+            msgs, tokenize=False, add_generation_prompt=True,
+            enable_thinking=False,
         )
         prompts.append(prompt)
         n_truncated += int(truncated)

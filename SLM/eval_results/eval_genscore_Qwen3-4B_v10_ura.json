@@ -1,0 +1,13 @@
+[
+  {
+    "split": "URA",
+    "model": "Qwen/Qwen3-4B",
+    "method": "gen-score (gpt-5.1 prompt)",
+    "n": 8241,
+    "invalid": 0,
+    "pos": 571,
+    "neg": 7670,
+    "ctr": 0.06928770780245117,
+    "auc": 0.6123685658637722
+  }
+]
