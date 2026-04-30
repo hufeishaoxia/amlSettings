@@ -2,26 +2,26 @@
   "name": "docarankqwen06b_consistency_pair",
   "description": "Two candidates scored for the SAME user (identical interests / interactions / conversations / history; only `candidates[0]` differs). Use as a golden test: for each entry in `cases`, POST `chat_request` to the Papyrus endpoint (or `request` to DLIS direct) and assert `abs(parsed_score - expected.score_mean) <= expected.tolerance` and `response.model_version == expected.model_version`.",
   "shared": {
-    "user_id": "9vkcnnb23BnjYaVoeqqQU",
-    "feed_id": "igi56EXjCywVqxuYvVxSz",
-    "bizdate": "20260417",
+    "user_id": "533FwKwGjxDptBnakFPjX",
+    "feed_id": "EnTyXTHhurS8XQuWgNdLP",
+    "bizdate": "20260419",
     "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
     "model_version": "v29-dlis-chat",
     "calibration_calls": 32,
-    "captured_at_unix": 1777519010
+    "captured_at_unix": 1777526771
   },
   "cases": [
     {
       "name": "docarankqwen06b_positive_label",
       "description": "Golden test fixture for docarankqwen06b. Send `chat_request` to the Papyrus endpoint (or `request` to DLIS directly) and verify that the parsed P(click) score satisfies `abs(score - expected.score_mean) <= expected.tolerance` (NOT exact equality). The endpoint is load-balanced over many A100 pods; identical prompts can produce slightly different bf16 logprobs across replicas. `expected.score_min` / `score_max` capture the observed envelope across 32 sequential calls at fixture-capture time; tolerance = (max - min) + slack.",
       "expected": {
-        "score_mean": 0.929856,
-        "score_min": 0.924142,
-        "score_max": 0.932453,
-        "tolerance": 0.028311,
+        "score_mean": 0.933852,
+        "score_min": 0.932453,
+        "score_max": 0.939913,
+        "tolerance": 0.02746,
         "observed_unique_scores": [
-          0.924142,
-          0.932453
+          0.932453,
+          0.939913
         ],
         "calibration_calls": 32,
         "model_version": "v29-dlis-chat"
@@ -29,337 +29,320 @@
       "request": {
         "interests": {
           "positive": [
-            "Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\n    keywords: robotics, ros, natural language, llm, ai control\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.",
-            "Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.",
-            "Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.",
-            "GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\n    keywords: github actions, ci/cd, automation, npm token, workflow\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.",
-            "Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\n    keywords: kotlin, android, mobile development, plugins, backend\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development."
+            "Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.",
+            "Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.",
+            "Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.",
+            "Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.",
+            "Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.",
+            "Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.",
+            "Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.",
+            "Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer."
           ],
           "negative": [
-            "AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\n    keywords: aws, mcp, strategy, cloud\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content."
+            "Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\n    keywords: game monetization, creator compensation, ggmods, business model\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.",
+            "Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: albion online, radiant wilds, albion update\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.",
+            "ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.",
+            "Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: destiny 2, guardian games, iron banner, bungie\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.",
+            "Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.",
+            "Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: gears of war, gears 6, xbox showcase\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.",
+            "Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage."
           ],
           "interactions": {
             "clicks": [
-              "New runtimes teach AI agents to self-heal",
-              "Language-driven grasping tackles ambiguous instructions",
-              "Reinforcement learning adapts high-frequency trading strategies",
-              "Neuro-symbolic AI reshapes predictive dreaming models",
-              "Adaptive AI architectures mimic living organisms",
-              "Quantum simulations accelerate new material discovery",
-              "Foundation models transform market microstructure analysis",
-              "Reflex-speed AI loops cut latency to 20ms",
-              "Finance models borrow from ecological systems",
-              "Kotlin coroutines reshape AI app concurrency"
+              "Mapping Halo’s sprawling novel chronology",
+              "Fan-made Forge campaign recreates New Mombasa",
+              "Minecraft Dungeons II officially revealed with trailer",
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Mojang embraces Unreal Engine for new projects",
+              "Teardown Mod Pack 5 arrives May 6"
             ],
             "thumbsUp": [
-              "Robots gain natural language control with ROS"
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Starfield launches Free Lanes update today",
+              "Remake receives Mature rating in Korea",
+              "Halo remake reportedly content complete now"
             ],
             "thumbsDown": [
-              "AWS guidance outlines core MCP strategy pillars"
+              "Roadmap reveals Shatterpoint’s 2026 expansion schedule",
+              "Strategic Positions expansion reshapes Shatterpoint missions",
+              "Xbox showcase to spotlight Gears of War",
+              "Voice actor reveals Gears 6 was considered",
+              "Warhammer Eye of Terror expansion launches",
+              "Apocalypse rules streamline massive Warhammer battles",
+              "Destiny 2 Iron Banner returns mid-April",
+              "Guardian Games community challenge heats up",
+              "ARK roadmap outlines updates through 2027",
+              "Albion Online unveils Radiant Wilds update",
+              "Terran Armada faction debuts in Starfield update",
+              "GGMods launches with creator compensation model"
             ]
           },
           "conversations": [
             {
-              "id": "qrvHkaif6RTTsrQwPidsD",
-              "started_at": "2026-04-17T13:09:58.135Z",
+              "id": "orJM1FdqSR7k379QG7Ran",
+              "started_at": "2026-04-14T14:38:13.262Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target"
+                  "text": "I want to create an image. Ask me questions about the subject, setting, and style I want."
                 }
               ]
             },
             {
-              "id": "J1mFmwUE7DGUAYpJJaTmr",
-              "started_at": "2026-04-16T23:02:38.045Z",
+              "id": "cPrrZ5CHsiezY39FpUNoE",
+              "started_at": "2026-04-07T22:37:41.312Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Build me a quick detailed overview of what we have"
+                  "text": "Keep me updated on Minecraft Dungeons 2"
                 }
               ]
             },
             {
-              "id": "WsTsU55ew6yyfn1nhEFKc",
-              "started_at": "2026-04-16T22:43:24.408Z",
+              "id": "ysuyotZBvRfVYipfQ8Xtc",
+              "started_at": "2026-04-07T13:11:12.507Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                  "text": "Starfield update time esd"
+                },
+                {
+                  "author": "human",
+                  "text": "how to stare the new missions"
                 }
               ]
             },
             {
-              "id": "eoA4fW73btmuyRyTorjuo",
-              "started_at": "2026-04-16T06:20:05.457Z",
+              "id": "dksy3zPnrkiswfU5JRkyj",
+              "started_at": "2026-04-07T01:24:26.411Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how"
+                  "text": "how to remove sharpy from plastic?"
                 }
               ]
             },
             {
-              "id": "Pxpzk5eSgr12MF45vhbmu",
-              "started_at": "2026-04-16T03:27:35.537Z",
+              "id": "esZ7mTvMSdCC4e28UqiiB",
+              "started_at": "2026-04-06T20:16:00.262Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "I need help brainstorming some ideas. Ask me about what I'm working on."
-                },
-                {
-                  "author": "human",
-                  "text": "Artifact packaging ideas"
-                },
-                {
-                  "author": "human",
-                  "text": "Brainstorm architecture-focused artifact packaging"
+                  "text": "Create a practice test on Halo ODST's"
                 }
               ]
             },
             {
-              "id": "mPtjzucTshDqTDFTroDkN",
-              "started_at": "2026-04-15T19:13:45.019Z",
+              "id": "2bJAafwGrsm5phcPzQ1qs",
+              "started_at": "2026-04-06T20:12:59.759Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "pkg install fdroidcl"
-                },
-                {
-                  "author": "human",
-                  "text": "[pii_username-pmkPRQ]"
+                  "text": "Create a practice test on The Halo universe"
                 }
               ]
             },
             {
-              "id": "AxEKMimx7k3WybfArbgyv",
-              "started_at": "2026-04-15T18:05:33.097Z",
+              "id": "DtkoBEpqEbru9cGdEmc2u",
+              "started_at": "2026-04-06T20:06:03.446Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "f-droid.org"
+                  "text": "Create a practice test on minecraft trivia"
                 },
                 {
                   "author": "human",
-                  "text": "https://f-droid.org/en/packages/com.termux/"
+                  "text": "Create a practice test on astroneer trivia"
                 },
                 {
                   "author": "human",
-                  "text": "A"
+                  "text": "Create a practice test on Halo universe trivia"
                 }
               ]
             },
             {
-              "id": "j2vXcWq4hfwVC6pGazF1W",
-              "started_at": "2026-04-15T13:36:18.748Z",
+              "id": "5bwZkTqgUMwN7c99gMsMH",
+              "started_at": "2026-04-06T20:04:00.287Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Build an Multi agent AI to build apps on telegram"
-                },
-                {
-                  "author": "human",
-                  "text": "3"
-                },
-                {
-                  "author": "human",
-                  "text": "Build of android"
+                  "text": "change to pixel art"
                 }
               ]
             },
             {
-              "id": "6XZdYKPguY1bcwBXUuMjW",
-              "started_at": "2026-04-14T17:08:20.596Z",
+              "id": "3h8iCnDLXF7y21t1gqoYN",
+              "started_at": "2026-04-06T19:57:05.675Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true"
+                  "text": "what engin does minecraft dungeons use?"
+                },
+                {
+                  "author": "human",
+                  "text": "How Minecraft Dungeons II might evolve on Unreal"
                 }
               ]
             },
             {
-              "id": "aBCXDoLZTaNftFHsDUUCT",
-              "started_at": "2026-04-14T15:36:44.149Z",
+              "id": "5em3sy1CstB7FZtfDpHpk",
+              "started_at": "2026-04-02T19:45:06.594Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now."
+                  "text": "What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?"
                 },
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                  "text": "you don't think it might become a \"firefly incedent\""
+                },
+                {
+                  "author": "human",
+                  "text": "shure"
                 }
               ]
             },
             {
-              "id": "JVFUZ4aRk3rDfQXpTnLG2",
-              "started_at": "2026-04-14T01:52:10.813Z",
+              "id": "yPotBQsr1PxqC8J1HxbnW",
+              "started_at": "2026-04-02T19:14:29.833Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors"
-                },
-                {
-                  "author": "human",
-                  "text": "Everything modular design"
-                },
-                {
-                  "author": "human",
-                  "text": "I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture"
+                  "text": "what does Belac mean?"
                 }
               ]
             },
             {
-              "id": "bS14vLXiMMGzV74TKMDeG",
-              "started_at": "2026-04-14T01:50:42.526Z",
+              "id": "98Tm2bxTv4uM3mrhKUcGJ",
+              "started_at": "2026-04-01T14:09:44.714Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic"
+                  "text": "is minecraft doing april fool's this year?"
                 },
                 {
                   "author": "human",
-                  "text": "A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →"
+                  "text": "is minecraft doing april fool's this year?"
                 },
                 {
                   "author": "human",
-                  "text": "- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)"
+                  "text": "whats the relese window in est plz"
                 }
               ]
             },
             {
-              "id": "RWTAVXxFZEd7vpDADoKBo",
-              "started_at": "2026-04-13T22:21:49.429Z",
+              "id": "JppY1s8euUE4ZxYjKBxgA",
+              "started_at": "2026-04-01T11:53:30.626Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,"
-                },
-                {
-                  "author": "human",
-                  "text": "I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·"
+                  "text": "Is space engineers 1 adding npc of some sort? (watch the \"Who are They?\" video)"
                 }
               ]
             },
             {
-              "id": "pdxJFH1cGMHguXeyMfrwB",
-              "started_at": "2026-04-13T06:23:22.681Z",
+              "id": "gU9PoFgaTdNBS7UhXFUhe",
+              "started_at": "2026-03-31T14:42:40.977Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
-                },
-                {
-                  "author": "human",
-                  "text": "Resume"
+                  "text": "Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo"
                 }
               ]
             },
             {
-              "id": "jLiwP4er9U6fYzTeXs42q",
-              "started_at": "2026-04-13T06:02:29.544Z",
+              "id": "6ZN7zzBZKwCRgk5tAHA8x",
+              "started_at": "2026-03-29T23:56:36.744Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "{   \"task\": \"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control"
-                },
-                {
-                  "author": "human",
-                  "text": "I can downloadable file"
-                },
-                {
-                  "author": "human",
-                  "text": "Give me a full technical overview of the system"
+                  "text": "why do cats love lasers?"
                 }
               ]
             },
             {
-              "id": "r55QtHnDw4jDvDACqewaE",
-              "started_at": "2026-04-13T06:01:14.997Z",
+              "id": "gn3MTtb6FktQZpvQqSjTE",
+              "started_at": "2026-03-25T20:02:11.094Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "start PDF and zip"
+                  "text": "if I want to get a VR system, what shold I know?"
                 },
                 {
                   "author": "human",
-                  "text": "[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
                 },
                 {
                   "author": "human",
-                  "text": "Make branding kit  images"
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
                 }
               ]
             },
             {
-              "id": "d8t1dqAoWM5WzwBSYyVRg",
-              "started_at": "2026-04-12T10:36:43.889Z",
+              "id": "xq3b6hFDiKLaRNE1agszQ",
+              "started_at": "2026-03-22T22:23:42.196Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS"
-                },
-                {
-                  "author": "human",
-                  "text": "Assemble the full 4-prompt Quantum Leap AI suite"
-                },
-                {
-                  "author": "human",
-                  "text": "Expand the Nervous System Fabric spec"
+                  "text": "Minecraft Dungeons II?"
                 }
               ]
             },
             {
-              "id": "Sg1kmJ85tnnHrSbjWnnHT",
-              "started_at": "2026-04-12T04:05:49.325Z",
+              "id": "MjXidRgf2XP3yCuavsPt2",
+              "started_at": "2026-03-22T15:15:06.742Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System"
+                  "text": "Why can I not install the new Bounty Hunters Creation in starfield?"
                 },
                 {
                   "author": "human",
-                  "text": "Yes"
+                  "text": "xbox"
                 },
                 {
                   "author": "human",
-                  "text": "turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY"
+                  "text": "I tryed to istall a desert camo skin pack but when it got done it said \"not enough space opperation"
                 }
               ]
             },
             {
-              "id": "G36tDjWM2gKKpWBfGUGtS",
-              "started_at": "2026-04-05T18:07:14.194Z",
+              "id": "a51xNEDw3GeTFekG9qz1P",
+              "started_at": "2026-03-20T21:49:21.127Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6"
+                  "text": "In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?"
                 },
                 {
                   "author": "human",
-                  "text": "All"
+                  "text": "cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)"
                 },
                 {
                   "author": "human",
-                  "text": "C"
+                  "text": "Whats a good way to grind xp?"
                 }
               ]
             },
             {
-              "id": "qScL8PR33AH3LoncnoNJJ",
-              "started_at": "2026-04-03T15:16:39.021Z",
+              "id": "MJ5qZbUCZKoajALTF4AMp",
+              "started_at": "2026-03-18T21:58:29.155Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]"
+                  "text": "Which Call of Duty has the best mutiplayer spec-ops?"
                 },
                 {
                   "author": "human",
-                  "text": "Yes"
+                  "text": "out of the remakes of MW1,2,2"
                 },
                 {
                   "author": "human",
-                  "text": "C"
+                  "text": "best survival out of all (not just remakes)"
                 }
               ]
             }
@@ -367,131 +350,131 @@
         },
         "history": [
           {
-            "title": "AriseAlpha debuts AI crypto trading app",
+            "title": "Analysts call Starfield PS5 sales lukewarm",
             "summary": ""
           },
           {
-            "title": "AI trading terminal debuts with forecasting and seasonality tools",
+            "title": "Starfield rated for Nintendo Switch 2",
             "summary": ""
           },
           {
-            "title": "Explainable AI becomes mandatory in finance",
+            "title": "Fans design custom 3D Halo Flashpoint minis",
             "summary": ""
           },
           {
-            "title": "Financial data pipelines face speed-cost tradeoffs",
+            "title": "Flashpoint expansion introduces warring faction choices",
             "summary": ""
           },
           {
-            "title": "Latency tricks unlock hidden arbitrage profits",
+            "title": "Factorio megabase design pushes efficiency limits",
             "summary": ""
           },
           {
-            "title": "Anvil Robotics raises funds for modular robot kits",
+            "title": "Lua scripting unlocks deeper Teardown custom maps",
             "summary": ""
           },
           {
-            "title": "Google unveils embodied reasoning model for robots",
+            "title": "Designers dissect loot rarity and scarcity systems",
             "summary": ""
           },
           {
-            "title": "Robots gain sharper perception through multimodal fusion",
+            "title": "Chaos Cubed snapshot reveals sulfur caves",
             "summary": ""
           },
           {
-            "title": "Flutter and Kotlin Multiplatform diverge in 2026",
+            "title": "Tracing Minecraft’s long prank-filled tradition",
             "summary": ""
           },
           {
-            "title": "Kotlin Multiplatform simplifies cross-platform code sharing",
+            "title": "DESI completes record 3D universe map, hints at new physics",
             "summary": ""
           },
           {
-            "title": "Panpsychism resurfaces in quantum consciousness debates",
+            "title": "Astroneer’s tiered crafting unlocks megastructures",
             "summary": ""
           },
           {
-            "title": "Quantum consciousness theories gain experimental traction",
+            "title": "Mapping Halo’s sprawling novel chronology",
             "summary": ""
           },
           {
-            "title": "Robotic sculptures turn poetry into moving forms",
+            "title": "Former developers allege cronyism at Halo Studios",
             "summary": ""
           },
           {
-            "title": "MoMA showcases evolving AI-generated poetry",
+            "title": "Fan-made Forge campaign recreates New Mombasa",
             "summary": ""
           },
           {
-            "title": "IonQ surges 20% on DARPA deal and quantum networking first",
+            "title": "AK-47 mod dominates Minecraft downloads",
             "summary": ""
           },
           {
-            "title": "Brain-inspired chips promise 2,000x efficiency gains",
+            "title": "Teardown dev explains multiplayer voxel challenges",
             "summary": ""
           },
           {
-            "title": "New runtimes teach AI agents to self-heal",
+            "title": "Starfield modders release immersive survival overhaul",
             "summary": ""
           },
           {
-            "title": "AI models reshape urban futures at CityScope",
+            "title": "Free Lanes update sparks new mod tools",
             "summary": ""
           },
           {
-            "title": "Brian Eno’s generative music still shapes sound",
+            "title": "Community feedback update tweaks ship controls",
             "summary": ""
           },
           {
-            "title": "Live coding reshapes generative soundscapes",
+            "title": "Halo partners with Fanta for armor rewards",
             "summary": ""
           },
           {
-            "title": "Language-driven grasping tackles ambiguous instructions",
+            "title": "Astroneer roadmap teases new missions and systems",
             "summary": ""
           },
           {
-            "title": "Robots stumble at tasks despite LLM planning",
+            "title": "Starseeker beta opens Astroneer’s cooperative frontier",
             "summary": ""
           },
           {
-            "title": "Hedging strategies evolve amid volatile markets",
+            "title": "Starfield PS5 launch plagued by crashes",
             "summary": ""
           },
           {
-            "title": "AI bots harness real-time sentiment data",
+            "title": "Video game franchises expand into board gaming",
             "summary": ""
           },
           {
-            "title": "Ant-inspired algorithms optimize logistics routing",
+            "title": "Halo collectibles surge in secondary markets",
             "summary": ""
           },
           {
-            "title": "IMF chief warns AI cyber risks threaten global finance",
+            "title": "Minecraft Dungeons II officially revealed with trailer",
             "summary": ""
           },
           {
-            "title": "Catastrophe bonds surge with climate risk models",
+            "title": "Mojang embraces Unreal Engine for new projects",
             "summary": ""
           },
           {
-            "title": "Cobot safety hinges on detection and avoidance",
+            "title": "Economy 2 update introduces NPC traders",
             "summary": ""
           },
           {
-            "title": "Reinforcement learning adapts high-frequency trading strategies",
+            "title": "Teardown Mod Pack 5 arrives May 6",
             "summary": ""
           },
           {
-            "title": "Foundation models transform market microstructure analysis",
+            "title": "Xbox Game Pass adds major sci-fi titles",
             "summary": ""
           }
         ],
         "candidates": [
           {
-            "id": "Fp1JBK6HRnAcHnfzmEFMr",
-            "title": "Breakthrough model teaches robots unseen tasks",
-            "summary": "A U.S. startup’s AI enables robots to follow new language commands without prior training."
+            "id": "dL6VLbWe2LfhmRkY89ncH",
+            "title": "Astroneer patch expands cooperative frontier missions",
+            "summary": "The April update introduces new mission objectives and improved multiplayer stability for frontier expeditions."
           }
         ],
         "max_len": 2048
@@ -501,32 +484,32 @@
         "messages": [
           {
             "role": "user",
-            "content": "{\"interests\": {\"positive\": [\"Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\\n    keywords: robotics, ros, natural language, llm, ai control\\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.\", \"Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.\", \"Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.\", \"GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\\n    keywords: github actions, ci/cd, automation, npm token, workflow\\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.\", \"Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\\n    keywords: kotlin, android, mobile development, plugins, backend\\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development.\"], \"negative\": [\"AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\\n    keywords: aws, mcp, strategy, cloud\\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content.\"], \"interactions\": {\"clicks\": [\"New runtimes teach AI agents to self-heal\", \"Language-driven grasping tackles ambiguous instructions\", \"Reinforcement learning adapts high-frequency trading strategies\", \"Neuro-symbolic AI reshapes predictive dreaming models\", \"Adaptive AI architectures mimic living organisms\", \"Quantum simulations accelerate new material discovery\", \"Foundation models transform market microstructure analysis\", \"Reflex-speed AI loops cut latency to 20ms\", \"Finance models borrow from ecological systems\", \"Kotlin coroutines reshape AI app concurrency\"], \"thumbsUp\": [\"Robots gain natural language control with ROS\"], \"thumbsDown\": [\"AWS guidance outlines core MCP strategy pillars\"]}, \"conversations\": [{\"id\": \"qrvHkaif6RTTsrQwPidsD\", \"started_at\": \"2026-04-17T13:09:58.135Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target\"}]}, {\"id\": \"J1mFmwUE7DGUAYpJJaTmr\", \"started_at\": \"2026-04-16T23:02:38.045Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build me a quick detailed overview of what we have\"}]}, {\"id\": \"WsTsU55ew6yyfn1nhEFKc\", \"started_at\": \"2026-04-16T22:43:24.408Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"eoA4fW73btmuyRyTorjuo\", \"started_at\": \"2026-04-16T06:20:05.457Z\", \"messages\": [{\"author\": \"human\", \"text\": \"If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how\"}]}, {\"id\": \"Pxpzk5eSgr12MF45vhbmu\", \"started_at\": \"2026-04-16T03:27:35.537Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I need help brainstorming some ideas. Ask me about what I'm working on.\"}, {\"author\": \"human\", \"text\": \"Artifact packaging ideas\"}, {\"author\": \"human\", \"text\": \"Brainstorm architecture-focused artifact packaging\"}]}, {\"id\": \"mPtjzucTshDqTDFTroDkN\", \"started_at\": \"2026-04-15T19:13:45.019Z\", \"messages\": [{\"author\": \"human\", \"text\": \"pkg install fdroidcl\"}, {\"author\": \"human\", \"text\": \"[pii_username-pmkPRQ]\"}]}, {\"id\": \"AxEKMimx7k3WybfArbgyv\", \"started_at\": \"2026-04-15T18:05:33.097Z\", \"messages\": [{\"author\": \"human\", \"text\": \"f-droid.org\"}, {\"author\": \"human\", \"text\": \"https://f-droid.org/en/packages/com.termux/\"}, {\"author\": \"human\", \"text\": \"A\"}]}, {\"id\": \"j2vXcWq4hfwVC6pGazF1W\", \"started_at\": \"2026-04-15T13:36:18.748Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build an Multi agent AI to build apps on telegram\"}, {\"author\": \"human\", \"text\": \"3\"}, {\"author\": \"human\", \"text\": \"Build of android\"}]}, {\"id\": \"6XZdYKPguY1bcwBXUuMjW\", \"started_at\": \"2026-04-14T17:08:20.596Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true\"}]}, {\"id\": \"aBCXDoLZTaNftFHsDUUCT\", \"started_at\": \"2026-04-14T15:36:44.149Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now.\"}, {\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"JVFUZ4aRk3rDfQXpTnLG2\", \"started_at\": \"2026-04-14T01:52:10.813Z\", \"messages\": [{\"author\": \"human\", \"text\": \"1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors\"}, {\"author\": \"human\", \"text\": \"Everything modular design\"}, {\"author\": \"human\", \"text\": \"I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture\"}]}, {\"id\": \"bS14vLXiMMGzV74TKMDeG\", \"started_at\": \"2026-04-14T01:50:42.526Z\", \"messages\": [{\"author\": \"human\", \"text\": \"It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic\"}, {\"author\": \"human\", \"text\": \"A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →\"}, {\"author\": \"human\", \"text\": \"- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)\"}]}, {\"id\": \"RWTAVXxFZEd7vpDADoKBo\", \"started_at\": \"2026-04-13T22:21:49.429Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,\"}, {\"author\": \"human\", \"text\": \"I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·\"}]}, {\"id\": \"pdxJFH1cGMHguXeyMfrwB\", \"started_at\": \"2026-04-13T06:23:22.681Z\", \"messages\": [{\"author\": \"human\", \"text\": \"[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Resume\"}]}, {\"id\": \"jLiwP4er9U6fYzTeXs42q\", \"started_at\": \"2026-04-13T06:02:29.544Z\", \"messages\": [{\"author\": \"human\", \"text\": \"{   \\\"task\\\": \\\"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control\"}, {\"author\": \"human\", \"text\": \"I can downloadable file\"}, {\"author\": \"human\", \"text\": \"Give me a full technical overview of the system\"}]}, {\"id\": \"r55QtHnDw4jDvDACqewaE\", \"started_at\": \"2026-04-13T06:01:14.997Z\", \"messages\": [{\"author\": \"human\", \"text\": \"start PDF and zip\"}, {\"author\": \"human\", \"text\": \"[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Make branding kit  images\"}]}, {\"id\": \"d8t1dqAoWM5WzwBSYyVRg\", \"started_at\": \"2026-04-12T10:36:43.889Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS\"}, {\"author\": \"human\", \"text\": \"Assemble the full 4-prompt Quantum Leap AI suite\"}, {\"author\": \"human\", \"text\": \"Expand the Nervous System Fabric spec\"}]}, {\"id\": \"Sg1kmJ85tnnHrSbjWnnHT\", \"started_at\": \"2026-04-12T04:05:49.325Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY\"}]}, {\"id\": \"G36tDjWM2gKKpWBfGUGtS\", \"started_at\": \"2026-04-05T18:07:14.194Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6\"}, {\"author\": \"human\", \"text\": \"All\"}, {\"author\": \"human\", \"text\": \"C\"}]}, {\"id\": \"qScL8PR33AH3LoncnoNJJ\", \"started_at\": \"2026-04-03T15:16:39.021Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"C\"}]}]}, \"history\": [{\"title\": \"AriseAlpha debuts AI crypto trading app\", \"summary\": \"\"}, {\"title\": \"AI trading terminal debuts with forecasting and seasonality tools\", \"summary\": \"\"}, {\"title\": \"Explainable AI becomes mandatory in finance\", \"summary\": \"\"}, {\"title\": \"Financial data pipelines face speed-cost tradeoffs\", \"summary\": \"\"}, {\"title\": \"Latency tricks unlock hidden arbitrage profits\", \"summary\": \"\"}, {\"title\": \"Anvil Robotics raises funds for modular robot kits\", \"summary\": \"\"}, {\"title\": \"Google unveils embodied reasoning model for robots\", \"summary\": \"\"}, {\"title\": \"Robots gain sharper perception through multimodal fusion\", \"summary\": \"\"}, {\"title\": \"Flutter and Kotlin Multiplatform diverge in 2026\", \"summary\": \"\"}, {\"title\": \"Kotlin Multiplatform simplifies cross-platform code sharing\", \"summary\": \"\"}, {\"title\": \"Panpsychism resurfaces in quantum consciousness debates\", \"summary\": \"\"}, {\"title\": \"Quantum consciousness theories gain experimental traction\", \"summary\": \"\"}, {\"title\": \"Robotic sculptures turn poetry into moving forms\", \"summary\": \"\"}, {\"title\": \"MoMA showcases evolving AI-generated poetry\", \"summary\": \"\"}, {\"title\": \"IonQ surges 20% on DARPA deal and quantum networking first\", \"summary\": \"\"}, {\"title\": \"Brain-inspired chips promise 2,000x efficiency gains\", \"summary\": \"\"}, {\"title\": \"New runtimes teach AI agents to self-heal\", \"summary\": \"\"}, {\"title\": \"AI models reshape urban futures at CityScope\", \"summary\": \"\"}, {\"title\": \"Brian Eno’s generative music still shapes sound\", \"summary\": \"\"}, {\"title\": \"Live coding reshapes generative soundscapes\", \"summary\": \"\"}, {\"title\": \"Language-driven grasping tackles ambiguous instructions\", \"summary\": \"\"}, {\"title\": \"Robots stumble at tasks despite LLM planning\", \"summary\": \"\"}, {\"title\": \"Hedging strategies evolve amid volatile markets\", \"summary\": \"\"}, {\"title\": \"AI bots harness real-time sentiment data\", \"summary\": \"\"}, {\"title\": \"Ant-inspired algorithms optimize logistics routing\", \"summary\": \"\"}, {\"title\": \"IMF chief warns AI cyber risks threaten global finance\", \"summary\": \"\"}, {\"title\": \"Catastrophe bonds surge with climate risk models\", \"summary\": \"\"}, {\"title\": \"Cobot safety hinges on detection and avoidance\", \"summary\": \"\"}, {\"title\": \"Reinforcement learning adapts high-frequency trading strategies\", \"summary\": \"\"}, {\"title\": \"Foundation models transform market microstructure analysis\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"Fp1JBK6HRnAcHnfzmEFMr\", \"title\": \"Breakthrough model teaches robots unseen tasks\", \"summary\": \"A U.S. startup’s AI enables robots to follow new language commands without prior training.\"}], \"max_len\": 2048}"
+            "content": "{\"interests\": {\"positive\": [\"Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.\", \"Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.\", \"Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.\", \"Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.\", \"Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.\", \"Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.\", \"Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.\", \"Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer.\"], \"negative\": [\"Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\\n    keywords: game monetization, creator compensation, ggmods, business model\\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.\", \"Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: albion online, radiant wilds, albion update\\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.\", \"ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.\", \"Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: destiny 2, guardian games, iron banner, bungie\\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.\", \"Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.\", \"Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: gears of war, gears 6, xbox showcase\\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.\", \"Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage.\"], \"interactions\": {\"clicks\": [\"Mapping Halo’s sprawling novel chronology\", \"Fan-made Forge campaign recreates New Mombasa\", \"Minecraft Dungeons II officially revealed with trailer\", \"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Mojang embraces Unreal Engine for new projects\", \"Teardown Mod Pack 5 arrives May 6\"], \"thumbsUp\": [\"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Starfield launches Free Lanes update today\", \"Remake receives Mature rating in Korea\", \"Halo remake reportedly content complete now\"], \"thumbsDown\": [\"Roadmap reveals Shatterpoint’s 2026 expansion schedule\", \"Strategic Positions expansion reshapes Shatterpoint missions\", \"Xbox showcase to spotlight Gears of War\", \"Voice actor reveals Gears 6 was considered\", \"Warhammer Eye of Terror expansion launches\", \"Apocalypse rules streamline massive Warhammer battles\", \"Destiny 2 Iron Banner returns mid-April\", \"Guardian Games community challenge heats up\", \"ARK roadmap outlines updates through 2027\", \"Albion Online unveils Radiant Wilds update\", \"Terran Armada faction debuts in Starfield update\", \"GGMods launches with creator compensation model\"]}, \"conversations\": [{\"id\": \"orJM1FdqSR7k379QG7Ran\", \"started_at\": \"2026-04-14T14:38:13.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I want to create an image. Ask me questions about the subject, setting, and style I want.\"}]}, {\"id\": \"cPrrZ5CHsiezY39FpUNoE\", \"started_at\": \"2026-04-07T22:37:41.312Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft Dungeons 2\"}]}, {\"id\": \"ysuyotZBvRfVYipfQ8Xtc\", \"started_at\": \"2026-04-07T13:11:12.507Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Starfield update time esd\"}, {\"author\": \"human\", \"text\": \"how to stare the new missions\"}]}, {\"id\": \"dksy3zPnrkiswfU5JRkyj\", \"started_at\": \"2026-04-07T01:24:26.411Z\", \"messages\": [{\"author\": \"human\", \"text\": \"how to remove sharpy from plastic?\"}]}, {\"id\": \"esZ7mTvMSdCC4e28UqiiB\", \"started_at\": \"2026-04-06T20:16:00.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on Halo ODST's\"}]}, {\"id\": \"2bJAafwGrsm5phcPzQ1qs\", \"started_at\": \"2026-04-06T20:12:59.759Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on The Halo universe\"}]}, {\"id\": \"DtkoBEpqEbru9cGdEmc2u\", \"started_at\": \"2026-04-06T20:06:03.446Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on minecraft trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on astroneer trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on Halo universe trivia\"}]}, {\"id\": \"5bwZkTqgUMwN7c99gMsMH\", \"started_at\": \"2026-04-06T20:04:00.287Z\", \"messages\": [{\"author\": \"human\", \"text\": \"change to pixel art\"}]}, {\"id\": \"3h8iCnDLXF7y21t1gqoYN\", \"started_at\": \"2026-04-06T19:57:05.675Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what engin does minecraft dungeons use?\"}, {\"author\": \"human\", \"text\": \"How Minecraft Dungeons II might evolve on Unreal\"}]}, {\"id\": \"5em3sy1CstB7FZtfDpHpk\", \"started_at\": \"2026-04-02T19:45:06.594Z\", \"messages\": [{\"author\": \"human\", \"text\": \"What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?\"}, {\"author\": \"human\", \"text\": \"you don't think it might become a \\\"firefly incedent\\\"\"}, {\"author\": \"human\", \"text\": \"shure\"}]}, {\"id\": \"yPotBQsr1PxqC8J1HxbnW\", \"started_at\": \"2026-04-02T19:14:29.833Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what does Belac mean?\"}]}, {\"id\": \"98Tm2bxTv4uM3mrhKUcGJ\", \"started_at\": \"2026-04-01T14:09:44.714Z\", \"messages\": [{\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"whats the relese window in est plz\"}]}, {\"id\": \"JppY1s8euUE4ZxYjKBxgA\", \"started_at\": \"2026-04-01T11:53:30.626Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Is space engineers 1 adding npc of some sort? (watch the \\\"Who are They?\\\" video)\"}]}, {\"id\": \"gU9PoFgaTdNBS7UhXFUhe\", \"started_at\": \"2026-03-31T14:42:40.977Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo\"}]}, {\"id\": \"6ZN7zzBZKwCRgk5tAHA8x\", \"started_at\": \"2026-03-29T23:56:36.744Z\", \"messages\": [{\"author\": \"human\", \"text\": \"why do cats love lasers?\"}]}, {\"id\": \"gn3MTtb6FktQZpvQqSjTE\", \"started_at\": \"2026-03-25T20:02:11.094Z\", \"messages\": [{\"author\": \"human\", \"text\": \"if I want to get a VR system, what shold I know?\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}]}, {\"id\": \"xq3b6hFDiKLaRNE1agszQ\", \"started_at\": \"2026-03-22T22:23:42.196Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Minecraft Dungeons II?\"}]}, {\"id\": \"MjXidRgf2XP3yCuavsPt2\", \"started_at\": \"2026-03-22T15:15:06.742Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Why can I not install the new Bounty Hunters Creation in starfield?\"}, {\"author\": \"human\", \"text\": \"xbox\"}, {\"author\": \"human\", \"text\": \"I tryed to istall a desert camo skin pack but when it got done it said \\\"not enough space opperation\"}]}, {\"id\": \"a51xNEDw3GeTFekG9qz1P\", \"started_at\": \"2026-03-20T21:49:21.127Z\", \"messages\": [{\"author\": \"human\", \"text\": \"In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?\"}, {\"author\": \"human\", \"text\": \"cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)\"}, {\"author\": \"human\", \"text\": \"Whats a good way to grind xp?\"}]}, {\"id\": \"MJ5qZbUCZKoajALTF4AMp\", \"started_at\": \"2026-03-18T21:58:29.155Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Which Call of Duty has the best mutiplayer spec-ops?\"}, {\"author\": \"human\", \"text\": \"out of the remakes of MW1,2,2\"}, {\"author\": \"human\", \"text\": \"best survival out of all (not just remakes)\"}]}]}, \"history\": [{\"title\": \"Analysts call Starfield PS5 sales lukewarm\", \"summary\": \"\"}, {\"title\": \"Starfield rated for Nintendo Switch 2\", \"summary\": \"\"}, {\"title\": \"Fans design custom 3D Halo Flashpoint minis\", \"summary\": \"\"}, {\"title\": \"Flashpoint expansion introduces warring faction choices\", \"summary\": \"\"}, {\"title\": \"Factorio megabase design pushes efficiency limits\", \"summary\": \"\"}, {\"title\": \"Lua scripting unlocks deeper Teardown custom maps\", \"summary\": \"\"}, {\"title\": \"Designers dissect loot rarity and scarcity systems\", \"summary\": \"\"}, {\"title\": \"Chaos Cubed snapshot reveals sulfur caves\", \"summary\": \"\"}, {\"title\": \"Tracing Minecraft’s long prank-filled tradition\", \"summary\": \"\"}, {\"title\": \"DESI completes record 3D universe map, hints at new physics\", \"summary\": \"\"}, {\"title\": \"Astroneer’s tiered crafting unlocks megastructures\", \"summary\": \"\"}, {\"title\": \"Mapping Halo’s sprawling novel chronology\", \"summary\": \"\"}, {\"title\": \"Former developers allege cronyism at Halo Studios\", \"summary\": \"\"}, {\"title\": \"Fan-made Forge campaign recreates New Mombasa\", \"summary\": \"\"}, {\"title\": \"AK-47 mod dominates Minecraft downloads\", \"summary\": \"\"}, {\"title\": \"Teardown dev explains multiplayer voxel challenges\", \"summary\": \"\"}, {\"title\": \"Starfield modders release immersive survival overhaul\", \"summary\": \"\"}, {\"title\": \"Free Lanes update sparks new mod tools\", \"summary\": \"\"}, {\"title\": \"Community feedback update tweaks ship controls\", \"summary\": \"\"}, {\"title\": \"Halo partners with Fanta for armor rewards\", \"summary\": \"\"}, {\"title\": \"Astroneer roadmap teases new missions and systems\", \"summary\": \"\"}, {\"title\": \"Starseeker beta opens Astroneer’s cooperative frontier\", \"summary\": \"\"}, {\"title\": \"Starfield PS5 launch plagued by crashes\", \"summary\": \"\"}, {\"title\": \"Video game franchises expand into board gaming\", \"summary\": \"\"}, {\"title\": \"Halo collectibles surge in secondary markets\", \"summary\": \"\"}, {\"title\": \"Minecraft Dungeons II officially revealed with trailer\", \"summary\": \"\"}, {\"title\": \"Mojang embraces Unreal Engine for new projects\", \"summary\": \"\"}, {\"title\": \"Economy 2 update introduces NPC traders\", \"summary\": \"\"}, {\"title\": \"Teardown Mod Pack 5 arrives May 6\", \"summary\": \"\"}, {\"title\": \"Xbox Game Pass adds major sci-fi titles\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"dL6VLbWe2LfhmRkY89ncH\", \"title\": \"Astroneer patch expands cooperative frontier missions\", \"summary\": \"The April update introduces new mission objectives and improved multiplayer stability for frontier expeditions.\"}], \"max_len\": 2048}"
           }
         ],
         "max_tokens": 1,
         "temperature": 0.0
       },
       "meta": {
-        "feed_id": "igi56EXjCywVqxuYvVxSz",
-        "user_id": "9vkcnnb23BnjYaVoeqqQU",
-        "bizdate": "20260417",
+        "feed_id": "EnTyXTHhurS8XQuWgNdLP",
+        "user_id": "533FwKwGjxDptBnakFPjX",
+        "bizdate": "20260419",
         "label": 1,
-        "candidate_id": "Fp1JBK6HRnAcHnfzmEFMr",
-        "captured_at_unix": 1777519000,
+        "candidate_id": "dL6VLbWe2LfhmRkY89ncH",
+        "captured_at_unix": 1777526759,
         "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
         "source_jsonl": "../data_v10/eval_ura.jsonl"
       },
       "sample_response": {
         "scores": [
           {
-            "id": "Fp1JBK6HRnAcHnfzmEFMr",
-            "score": 0.924142
+            "id": "dL6VLbWe2LfhmRkY89ncH",
+            "score": 0.932453
           }
         ],
-        "latency_ms": 106.4,
-        "prompt_build_ms": 79.2,
-        "inference_ms": 27.2,
+        "latency_ms": 153.9,
+        "prompt_build_ms": 122.1,
+        "inference_ms": 31.8,
         "model_version": "v29-dlis-chat"
       }
     },
@@ -534,12 +517,13 @@
       "name": "docarankqwen06b_negative_label",
       "description": "Golden test fixture for docarankqwen06b. Send `chat_request` to the Papyrus endpoint (or `request` to DLIS directly) and verify that the parsed P(click) score satisfies `abs(score - expected.score_mean) <= expected.tolerance` (NOT exact equality). The endpoint is load-balanced over many A100 pods; identical prompts can produce slightly different bf16 logprobs across replicas. `expected.score_min` / `score_max` capture the observed envelope across 32 sequential calls at fixture-capture time; tolerance = (max - min) + slack.",
       "expected": {
-        "score_mean": 0.932453,
-        "score_min": 0.932453,
-        "score_max": 0.932453,
-        "tolerance": 0.02,
+        "score_mean": 0.750442,
+        "score_min": 0.731059,
+        "score_max": 0.754915,
+        "tolerance": 0.043856,
         "observed_unique_scores": [
-          0.932453
+          0.731059,
+          0.754915
         ],
         "calibration_calls": 32,
         "model_version": "v29-dlis-chat"
@@ -547,337 +531,320 @@
       "request": {
         "interests": {
           "positive": [
-            "Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\n    keywords: robotics, ros, natural language, llm, ai control\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.",
-            "Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.",
-            "Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.",
-            "GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\n    keywords: github actions, ci/cd, automation, npm token, workflow\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.",
-            "Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\n    keywords: kotlin, android, mobile development, plugins, backend\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development."
+            "Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.",
+            "Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.",
+            "Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.",
+            "Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.",
+            "Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.",
+            "Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.",
+            "Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.",
+            "Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer."
           ],
           "negative": [
-            "AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\n    keywords: aws, mcp, strategy, cloud\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content."
+            "Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\n    keywords: game monetization, creator compensation, ggmods, business model\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.",
+            "Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: albion online, radiant wilds, albion update\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.",
+            "ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.",
+            "Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: destiny 2, guardian games, iron banner, bungie\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.",
+            "Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.",
+            "Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: gears of war, gears 6, xbox showcase\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.",
+            "Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage."
           ],
           "interactions": {
             "clicks": [
-              "New runtimes teach AI agents to self-heal",
-              "Language-driven grasping tackles ambiguous instructions",
-              "Reinforcement learning adapts high-frequency trading strategies",
-              "Neuro-symbolic AI reshapes predictive dreaming models",
-              "Adaptive AI architectures mimic living organisms",
-              "Quantum simulations accelerate new material discovery",
-              "Foundation models transform market microstructure analysis",
-              "Reflex-speed AI loops cut latency to 20ms",
-              "Finance models borrow from ecological systems",
-              "Kotlin coroutines reshape AI app concurrency"
+              "Mapping Halo’s sprawling novel chronology",
+              "Fan-made Forge campaign recreates New Mombasa",
+              "Minecraft Dungeons II officially revealed with trailer",
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Mojang embraces Unreal Engine for new projects",
+              "Teardown Mod Pack 5 arrives May 6"
             ],
             "thumbsUp": [
-              "Robots gain natural language control with ROS"
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Starfield launches Free Lanes update today",
+              "Remake receives Mature rating in Korea",
+              "Halo remake reportedly content complete now"
             ],
             "thumbsDown": [
-              "AWS guidance outlines core MCP strategy pillars"
+              "Roadmap reveals Shatterpoint’s 2026 expansion schedule",
+              "Strategic Positions expansion reshapes Shatterpoint missions",
+              "Xbox showcase to spotlight Gears of War",
+              "Voice actor reveals Gears 6 was considered",
+              "Warhammer Eye of Terror expansion launches",
+              "Apocalypse rules streamline massive Warhammer battles",
+              "Destiny 2 Iron Banner returns mid-April",
+              "Guardian Games community challenge heats up",
+              "ARK roadmap outlines updates through 2027",
+              "Albion Online unveils Radiant Wilds update",
+              "Terran Armada faction debuts in Starfield update",
+              "GGMods launches with creator compensation model"
             ]
           },
           "conversations": [
             {
-              "id": "qrvHkaif6RTTsrQwPidsD",
-              "started_at": "2026-04-17T13:09:58.135Z",
+              "id": "orJM1FdqSR7k379QG7Ran",
+              "started_at": "2026-04-14T14:38:13.262Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target"
+                  "text": "I want to create an image. Ask me questions about the subject, setting, and style I want."
                 }
               ]
             },
             {
-              "id": "J1mFmwUE7DGUAYpJJaTmr",
-              "started_at": "2026-04-16T23:02:38.045Z",
+              "id": "cPrrZ5CHsiezY39FpUNoE",
+              "started_at": "2026-04-07T22:37:41.312Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Build me a quick detailed overview of what we have"
+                  "text": "Keep me updated on Minecraft Dungeons 2"
                 }
               ]
             },
             {
-              "id": "WsTsU55ew6yyfn1nhEFKc",
-              "started_at": "2026-04-16T22:43:24.408Z",
+              "id": "ysuyotZBvRfVYipfQ8Xtc",
+              "started_at": "2026-04-07T13:11:12.507Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                  "text": "Starfield update time esd"
+                },
+                {
+                  "author": "human",
+                  "text": "how to stare the new missions"
                 }
               ]
             },
             {
-              "id": "eoA4fW73btmuyRyTorjuo",
-              "started_at": "2026-04-16T06:20:05.457Z",
+              "id": "dksy3zPnrkiswfU5JRkyj",
+              "started_at": "2026-04-07T01:24:26.411Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how"
+                  "text": "how to remove sharpy from plastic?"
                 }
               ]
             },
             {
-              "id": "Pxpzk5eSgr12MF45vhbmu",
-              "started_at": "2026-04-16T03:27:35.537Z",
+              "id": "esZ7mTvMSdCC4e28UqiiB",
+              "started_at": "2026-04-06T20:16:00.262Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "I need help brainstorming some ideas. Ask me about what I'm working on."
-                },
-                {
-                  "author": "human",
-                  "text": "Artifact packaging ideas"
-                },
-                {
-                  "author": "human",
-                  "text": "Brainstorm architecture-focused artifact packaging"
+                  "text": "Create a practice test on Halo ODST's"
                 }
               ]
             },
             {
-              "id": "mPtjzucTshDqTDFTroDkN",
-              "started_at": "2026-04-15T19:13:45.019Z",
+              "id": "2bJAafwGrsm5phcPzQ1qs",
+              "started_at": "2026-04-06T20:12:59.759Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "pkg install fdroidcl"
-                },
-                {
-                  "author": "human",
-                  "text": "[pii_username-pmkPRQ]"
+                  "text": "Create a practice test on The Halo universe"
                 }
               ]
             },
             {
-              "id": "AxEKMimx7k3WybfArbgyv",
-              "started_at": "2026-04-15T18:05:33.097Z",
+              "id": "DtkoBEpqEbru9cGdEmc2u",
+              "started_at": "2026-04-06T20:06:03.446Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "f-droid.org"
+                  "text": "Create a practice test on minecraft trivia"
                 },
                 {
                   "author": "human",
-                  "text": "https://f-droid.org/en/packages/com.termux/"
+                  "text": "Create a practice test on astroneer trivia"
                 },
                 {
                   "author": "human",
-                  "text": "A"
+                  "text": "Create a practice test on Halo universe trivia"
                 }
               ]
             },
             {
-              "id": "j2vXcWq4hfwVC6pGazF1W",
-              "started_at": "2026-04-15T13:36:18.748Z",
+              "id": "5bwZkTqgUMwN7c99gMsMH",
+              "started_at": "2026-04-06T20:04:00.287Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Build an Multi agent AI to build apps on telegram"
-                },
-                {
-                  "author": "human",
-                  "text": "3"
-                },
-                {
-                  "author": "human",
-                  "text": "Build of android"
+                  "text": "change to pixel art"
                 }
               ]
             },
             {
-              "id": "6XZdYKPguY1bcwBXUuMjW",
-              "started_at": "2026-04-14T17:08:20.596Z",
+              "id": "3h8iCnDLXF7y21t1gqoYN",
+              "started_at": "2026-04-06T19:57:05.675Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true"
+                  "text": "what engin does minecraft dungeons use?"
+                },
+                {
+                  "author": "human",
+                  "text": "How Minecraft Dungeons II might evolve on Unreal"
                 }
               ]
             },
             {
-              "id": "aBCXDoLZTaNftFHsDUUCT",
-              "started_at": "2026-04-14T15:36:44.149Z",
+              "id": "5em3sy1CstB7FZtfDpHpk",
+              "started_at": "2026-04-02T19:45:06.594Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now."
+                  "text": "What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?"
                 },
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true"
+                  "text": "you don't think it might become a \"firefly incedent\""
+                },
+                {
+                  "author": "human",
+                  "text": "shure"
                 }
               ]
             },
             {
-              "id": "JVFUZ4aRk3rDfQXpTnLG2",
-              "started_at": "2026-04-14T01:52:10.813Z",
+              "id": "yPotBQsr1PxqC8J1HxbnW",
+              "started_at": "2026-04-02T19:14:29.833Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors"
-                },
-                {
-                  "author": "human",
-                  "text": "Everything modular design"
-                },
-                {
-                  "author": "human",
-                  "text": "I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture"
+                  "text": "what does Belac mean?"
                 }
               ]
             },
             {
-              "id": "bS14vLXiMMGzV74TKMDeG",
-              "started_at": "2026-04-14T01:50:42.526Z",
+              "id": "98Tm2bxTv4uM3mrhKUcGJ",
+              "started_at": "2026-04-01T14:09:44.714Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic"
+                  "text": "is minecraft doing april fool's this year?"
                 },
                 {
                   "author": "human",
-                  "text": "A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →"
+                  "text": "is minecraft doing april fool's this year?"
                 },
                 {
                   "author": "human",
-                  "text": "- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)"
+                  "text": "whats the relese window in est plz"
                 }
               ]
             },
             {
-              "id": "RWTAVXxFZEd7vpDADoKBo",
-              "started_at": "2026-04-13T22:21:49.429Z",
+              "id": "JppY1s8euUE4ZxYjKBxgA",
+              "started_at": "2026-04-01T11:53:30.626Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,"
-                },
-                {
-                  "author": "human",
-                  "text": "I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·"
+                  "text": "Is space engineers 1 adding npc of some sort? (watch the \"Who are They?\" video)"
                 }
               ]
             },
             {
-              "id": "pdxJFH1cGMHguXeyMfrwB",
-              "started_at": "2026-04-13T06:23:22.681Z",
+              "id": "gU9PoFgaTdNBS7UhXFUhe",
+              "started_at": "2026-03-31T14:42:40.977Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
-                },
-                {
-                  "author": "human",
-                  "text": "Resume"
+                  "text": "Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo"
                 }
               ]
             },
             {
-              "id": "jLiwP4er9U6fYzTeXs42q",
-              "started_at": "2026-04-13T06:02:29.544Z",
+              "id": "6ZN7zzBZKwCRgk5tAHA8x",
+              "started_at": "2026-03-29T23:56:36.744Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "{   \"task\": \"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control"
-                },
-                {
-                  "author": "human",
-                  "text": "I can downloadable file"
-                },
-                {
-                  "author": "human",
-                  "text": "Give me a full technical overview of the system"
+                  "text": "why do cats love lasers?"
                 }
               ]
             },
             {
-              "id": "r55QtHnDw4jDvDACqewaE",
-              "started_at": "2026-04-13T06:01:14.997Z",
+              "id": "gn3MTtb6FktQZpvQqSjTE",
+              "started_at": "2026-03-25T20:02:11.094Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "start PDF and zip"
+                  "text": "if I want to get a VR system, what shold I know?"
                 },
                 {
                   "author": "human",
-                  "text": "[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation."
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
                 },
                 {
                   "author": "human",
-                  "text": "Make branding kit  images"
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
                 }
               ]
             },
             {
-              "id": "d8t1dqAoWM5WzwBSYyVRg",
-              "started_at": "2026-04-12T10:36:43.889Z",
+              "id": "xq3b6hFDiKLaRNE1agszQ",
+              "started_at": "2026-03-22T22:23:42.196Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS"
-                },
-                {
-                  "author": "human",
-                  "text": "Assemble the full 4-prompt Quantum Leap AI suite"
-                },
-                {
-                  "author": "human",
-                  "text": "Expand the Nervous System Fabric spec"
+                  "text": "Minecraft Dungeons II?"
                 }
               ]
             },
             {
-              "id": "Sg1kmJ85tnnHrSbjWnnHT",
-              "started_at": "2026-04-12T04:05:49.325Z",
+              "id": "MjXidRgf2XP3yCuavsPt2",
+              "started_at": "2026-03-22T15:15:06.742Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System"
+                  "text": "Why can I not install the new Bounty Hunters Creation in starfield?"
                 },
                 {
                   "author": "human",
-                  "text": "Yes"
+                  "text": "xbox"
                 },
                 {
                   "author": "human",
-                  "text": "turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY"
+                  "text": "I tryed to istall a desert camo skin pack but when it got done it said \"not enough space opperation"
                 }
               ]
             },
             {
-              "id": "G36tDjWM2gKKpWBfGUGtS",
-              "started_at": "2026-04-05T18:07:14.194Z",
+              "id": "a51xNEDw3GeTFekG9qz1P",
+              "started_at": "2026-03-20T21:49:21.127Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6"
+                  "text": "In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?"
                 },
                 {
                   "author": "human",
-                  "text": "All"
+                  "text": "cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)"
                 },
                 {
                   "author": "human",
-                  "text": "C"
+                  "text": "Whats a good way to grind xp?"
                 }
               ]
             },
             {
-              "id": "qScL8PR33AH3LoncnoNJJ",
-              "started_at": "2026-04-03T15:16:39.021Z",
+              "id": "MJ5qZbUCZKoajALTF4AMp",
+              "started_at": "2026-03-18T21:58:29.155Z",
               "messages": [
                 {
                   "author": "human",
-                  "text": "https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]"
+                  "text": "Which Call of Duty has the best mutiplayer spec-ops?"
                 },
                 {
                   "author": "human",
-                  "text": "Yes"
+                  "text": "out of the remakes of MW1,2,2"
                 },
                 {
                   "author": "human",
-                  "text": "C"
+                  "text": "best survival out of all (not just remakes)"
                 }
               ]
             }
@@ -885,131 +852,131 @@
         },
         "history": [
           {
-            "title": "AriseAlpha debuts AI crypto trading app",
+            "title": "Analysts call Starfield PS5 sales lukewarm",
             "summary": ""
           },
           {
-            "title": "AI trading terminal debuts with forecasting and seasonality tools",
+            "title": "Starfield rated for Nintendo Switch 2",
             "summary": ""
           },
           {
-            "title": "Explainable AI becomes mandatory in finance",
+            "title": "Fans design custom 3D Halo Flashpoint minis",
             "summary": ""
           },
           {
-            "title": "Financial data pipelines face speed-cost tradeoffs",
+            "title": "Flashpoint expansion introduces warring faction choices",
             "summary": ""
           },
           {
-            "title": "Latency tricks unlock hidden arbitrage profits",
+            "title": "Factorio megabase design pushes efficiency limits",
             "summary": ""
           },
           {
-            "title": "Anvil Robotics raises funds for modular robot kits",
+            "title": "Lua scripting unlocks deeper Teardown custom maps",
             "summary": ""
           },
           {
-            "title": "Google unveils embodied reasoning model for robots",
+            "title": "Designers dissect loot rarity and scarcity systems",
             "summary": ""
           },
           {
-            "title": "Robots gain sharper perception through multimodal fusion",
+            "title": "Chaos Cubed snapshot reveals sulfur caves",
             "summary": ""
           },
           {
-            "title": "Flutter and Kotlin Multiplatform diverge in 2026",
+            "title": "Tracing Minecraft’s long prank-filled tradition",
             "summary": ""
           },
           {
-            "title": "Kotlin Multiplatform simplifies cross-platform code sharing",
+            "title": "DESI completes record 3D universe map, hints at new physics",
             "summary": ""
           },
           {
-            "title": "Panpsychism resurfaces in quantum consciousness debates",
+            "title": "Astroneer’s tiered crafting unlocks megastructures",
             "summary": ""
           },
           {
-            "title": "Quantum consciousness theories gain experimental traction",
+            "title": "Mapping Halo’s sprawling novel chronology",
             "summary": ""
           },
           {
-            "title": "Robotic sculptures turn poetry into moving forms",
+            "title": "Former developers allege cronyism at Halo Studios",
             "summary": ""
           },
           {
-            "title": "MoMA showcases evolving AI-generated poetry",
+            "title": "Fan-made Forge campaign recreates New Mombasa",
             "summary": ""
           },
           {
-            "title": "IonQ surges 20% on DARPA deal and quantum networking first",
+            "title": "AK-47 mod dominates Minecraft downloads",
             "summary": ""
           },
           {
-            "title": "Brain-inspired chips promise 2,000x efficiency gains",
+            "title": "Teardown dev explains multiplayer voxel challenges",
             "summary": ""
           },
           {
-            "title": "New runtimes teach AI agents to self-heal",
+            "title": "Starfield modders release immersive survival overhaul",
             "summary": ""
           },
           {
-            "title": "AI models reshape urban futures at CityScope",
+            "title": "Free Lanes update sparks new mod tools",
             "summary": ""
           },
           {
-            "title": "Brian Eno’s generative music still shapes sound",
+            "title": "Community feedback update tweaks ship controls",
             "summary": ""
           },
           {
-            "title": "Live coding reshapes generative soundscapes",
+            "title": "Halo partners with Fanta for armor rewards",
             "summary": ""
           },
           {
-            "title": "Language-driven grasping tackles ambiguous instructions",
+            "title": "Astroneer roadmap teases new missions and systems",
             "summary": ""
           },
           {
-            "title": "Robots stumble at tasks despite LLM planning",
+            "title": "Starseeker beta opens Astroneer’s cooperative frontier",
             "summary": ""
           },
           {
-            "title": "Hedging strategies evolve amid volatile markets",
+            "title": "Starfield PS5 launch plagued by crashes",
             "summary": ""
           },
           {
-            "title": "AI bots harness real-time sentiment data",
+            "title": "Video game franchises expand into board gaming",
             "summary": ""
           },
           {
-            "title": "Ant-inspired algorithms optimize logistics routing",
+            "title": "Halo collectibles surge in secondary markets",
             "summary": ""
           },
           {
-            "title": "IMF chief warns AI cyber risks threaten global finance",
+            "title": "Minecraft Dungeons II officially revealed with trailer",
             "summary": ""
           },
           {
-            "title": "Catastrophe bonds surge with climate risk models",
+            "title": "Mojang embraces Unreal Engine for new projects",
             "summary": ""
           },
           {
-            "title": "Cobot safety hinges on detection and avoidance",
+            "title": "Economy 2 update introduces NPC traders",
             "summary": ""
           },
           {
-            "title": "Reinforcement learning adapts high-frequency trading strategies",
+            "title": "Teardown Mod Pack 5 arrives May 6",
             "summary": ""
           },
           {
-            "title": "Foundation models transform market microstructure analysis",
+            "title": "Xbox Game Pass adds major sci-fi titles",
             "summary": ""
           }
         ],
         "candidates": [
           {
-            "id": "bMwdJQeFag6b4oko4fKdo",
-            "title": "LLM-ROS integration redefines robot task planning",
-            "summary": "Researchers linked large language models with ROS, enabling robots to execute human instructions directly."
+            "id": "cyYTHpJzukjzkdZtVumy3",
+            "title": "Voxel engineering titles highlight April innovations",
+            "summary": "New voxel-based RPGs and sandbox updates showcase creative engineering mechanics this month."
           }
         ],
         "max_len": 2048
@@ -1019,32 +986,32 @@
         "messages": [
           {
             "role": "user",
-            "content": "{\"interests\": {\"positive\": [\"Robotics natural language control  [domain=Robotics; classification=Topic; status=Emerging; intent=Learn; strength=0.90; sources=ChatHistory,UserInteractions]\\n    keywords: robotics, ros, natural language, llm, ai control\\n    why: User explicitly engaged with combining the Robot Operating System (ROS) with LLMs for natural language control in conversations on 2026-04-12 and 2026-04-16, and also gave a thumbs up to an article titled 'Robots gain natural language control with ROS'. This shows strong interest in robotics and AI integration.\", \"Quantum Leap AI development  [domain=Artificial Intelligence; classification=Goal; status=Stable; intent=Unclassified; strength=0.88; sources=ChatHistory]\\n    keywords: quantum leap ai, qlai, architecture, nervous system fabric, cockpit ui\\n    why: User has been consistently building and discussing the Quantum Leap AI system across multiple conversations from 2026-04-12 through 2026-04-17, including modules, architecture diagrams, nervous system fabric, and cockpit UI. This indicates a stable, ongoing project interest.\", \"Cipher AI trading system  [domain=Algorithmic Trading; classification=Topic; status=Stable; intent=Apply; strength=0.87; sources=ChatHistory]\\n    keywords: cipher ai, trading system, algorithmic trading, tradingview, coinbase\\n    why: User has repeatedly worked on Cipher AI trading system setup, installation, and integration with TradingView and Coinbase across many conversations from November 2025 through April 2026. This shows a long-term stable interest in algorithmic trading systems.\", \"GitHub Actions automation  [domain=DevOps; classification=Skill; status=Emerging; intent=Apply; strength=0.78; sources=ChatHistory,InlineCuration]\\n    keywords: github actions, ci/cd, automation, npm token, workflow\\n    why: User has repeatedly worked with GitHub Actions workflows, npm token authentication, and CI pipelines in conversations on 2026-04-03 and 2026-04-16. This shows an ongoing interest in CI/CD automation.\", \"Kotlin Android development  [domain=Mobile Development; classification=Skill; status=Emerging; intent=Learn; strength=0.75; sources=ChatHistory]\\n    keywords: kotlin, android, mobile development, plugins, backend\\n    why: User discussed building backends and interfaces in Kotlin for Android, including plugin development and running code in real time, in conversations on 2026-04-03 and 2026-04-15. This indicates an emerging interest in Kotlin Android development.\"], \"negative\": [\"AWS MCP strategy  [domain=Cloud Computing; strength=0.85; sources=UserInteractions]\\n    keywords: aws, mcp, strategy, cloud\\n    why: User gave a thumbs down to the article 'AWS guidance outlines core MCP strategy pillars', indicating explicit disinterest in AWS MCP strategy content.\"], \"interactions\": {\"clicks\": [\"New runtimes teach AI agents to self-heal\", \"Language-driven grasping tackles ambiguous instructions\", \"Reinforcement learning adapts high-frequency trading strategies\", \"Neuro-symbolic AI reshapes predictive dreaming models\", \"Adaptive AI architectures mimic living organisms\", \"Quantum simulations accelerate new material discovery\", \"Foundation models transform market microstructure analysis\", \"Reflex-speed AI loops cut latency to 20ms\", \"Finance models borrow from ecological systems\", \"Kotlin coroutines reshape AI app concurrency\"], \"thumbsUp\": [\"Robots gain natural language control with ROS\"], \"thumbsDown\": [\"AWS guidance outlines core MCP strategy pillars\"]}, \"conversations\": [{\"id\": \"qrvHkaif6RTTsrQwPidsD\", \"started_at\": \"2026-04-17T13:09:58.135Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Help me come up with a novel product idea. Ask me what problem I'm trying to solve and the target\"}]}, {\"id\": \"J1mFmwUE7DGUAYpJJaTmr\", \"started_at\": \"2026-04-16T23:02:38.045Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build me a quick detailed overview of what we have\"}]}, {\"id\": \"WsTsU55ew6yyfn1nhEFKc\", \"started_at\": \"2026-04-16T22:43:24.408Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=truehttps://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"eoA4fW73btmuyRyTorjuo\", \"started_at\": \"2026-04-16T06:20:05.457Z\", \"messages\": [{\"author\": \"human\", \"text\": \"If  want, I can help you draft a “Quantum Reflex Fabric Roadmap” — a staged outline that shows how\"}]}, {\"id\": \"Pxpzk5eSgr12MF45vhbmu\", \"started_at\": \"2026-04-16T03:27:35.537Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I need help brainstorming some ideas. Ask me about what I'm working on.\"}, {\"author\": \"human\", \"text\": \"Artifact packaging ideas\"}, {\"author\": \"human\", \"text\": \"Brainstorm architecture-focused artifact packaging\"}]}, {\"id\": \"mPtjzucTshDqTDFTroDkN\", \"started_at\": \"2026-04-15T19:13:45.019Z\", \"messages\": [{\"author\": \"human\", \"text\": \"pkg install fdroidcl\"}, {\"author\": \"human\", \"text\": \"[pii_username-pmkPRQ]\"}]}, {\"id\": \"AxEKMimx7k3WybfArbgyv\", \"started_at\": \"2026-04-15T18:05:33.097Z\", \"messages\": [{\"author\": \"human\", \"text\": \"f-droid.org\"}, {\"author\": \"human\", \"text\": \"https://f-droid.org/en/packages/com.termux/\"}, {\"author\": \"human\", \"text\": \"A\"}]}, {\"id\": \"j2vXcWq4hfwVC6pGazF1W\", \"started_at\": \"2026-04-15T13:36:18.748Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Build an Multi agent AI to build apps on telegram\"}, {\"author\": \"human\", \"text\": \"3\"}, {\"author\": \"human\", \"text\": \"Build of android\"}]}, {\"id\": \"6XZdYKPguY1bcwBXUuMjW\", \"started_at\": \"2026-04-14T17:08:20.596Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/cpUgSRCuZiwbtrH4p2Mwq?expand=true\"}]}, {\"id\": \"aBCXDoLZTaNftFHsDUUCT\", \"started_at\": \"2026-04-14T15:36:44.149Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Microsoft Copilot is your companion to inform, entertain and inspire. Get advice, feedback and straightforward answers. Try Copilot now.\"}, {\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/artifacts/NsEWVmmrTMBAU8ytQfes2?expand=true\"}]}, {\"id\": \"JVFUZ4aRk3rDfQXpTnLG2\", \"started_at\": \"2026-04-14T01:52:10.813Z\", \"messages\": [{\"author\": \"human\", \"text\": \"1. A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors\"}, {\"author\": \"human\", \"text\": \"Everything modular design\"}, {\"author\": \"human\", \"text\": \"I want a 10 agent system with a three-brain setup and 4.0 Quantum leap AI architecture\"}]}, {\"id\": \"bS14vLXiMMGzV74TKMDeG\", \"started_at\": \"2026-04-14T01:50:42.526Z\", \"messages\": [{\"author\": \"human\", \"text\": \"It's a multi-agent AI with machine learning large language models deep learning with embedded Quantum algorithms it's for a robotic\"}, {\"author\": \"human\", \"text\": \"A full Python multi‑agent skeleton (LLM + ML + DL + QRF)   2. A robotic nervous‑system loop (sensors →\"}, {\"author\": \"human\", \"text\": \"- Quantum Reflex Fabric   - Deep Learning Agent (Dreamer)   - Event‑Driven Orchestrator (Flash Fiber)\"}]}, {\"id\": \"RWTAVXxFZEd7vpDADoKBo\", \"started_at\": \"2026-04-13T22:21:49.429Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I'm starting a first draft. Ask me what I'm writing and about any special formatting to keep in mind. Then,\"}, {\"author\": \"human\", \"text\": \"I've reviewed the full 13-slide deck. Here's the complete breakdown, [pii_person_name-AZxgaA]:  ---  ✦ Market Sentiment Intelligence — Full Technical Analysis  13 Slides ·\"}]}, {\"id\": \"pdxJFH1cGMHguXeyMfrwB\", \"started_at\": \"2026-04-13T06:23:22.681Z\", \"messages\": [{\"author\": \"human\", \"text\": \"[pii_person_name-CVuegS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Resume\"}]}, {\"id\": \"jLiwP4er9U6fYzTeXs42q\", \"started_at\": \"2026-04-13T06:02:29.544Z\", \"messages\": [{\"author\": \"human\", \"text\": \"{   \\\"task\\\": \\\"Assemble a complete PDF and package it together with the full repository skeleton, bootstrap layout, admin control\"}, {\"author\": \"human\", \"text\": \"I can downloadable file\"}, {\"author\": \"human\", \"text\": \"Give me a full technical overview of the system\"}]}, {\"id\": \"r55QtHnDw4jDvDACqewaE\", \"started_at\": \"2026-04-13T06:01:14.997Z\", \"messages\": [{\"author\": \"human\", \"text\": \"start PDF and zip\"}, {\"author\": \"human\", \"text\": \"[pii_person_name-CakHBS] — I’ve got you.   But before I move: “Start” in chat does not actually trigger file generation.\"}, {\"author\": \"human\", \"text\": \"Make branding kit  images\"}]}, {\"id\": \"d8t1dqAoWM5WzwBSYyVRg\", \"started_at\": \"2026-04-12T10:36:43.889Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://copilot.microsoft.com/shares/Peg2q3GLMdsShEhuLwkXS\"}, {\"author\": \"human\", \"text\": \"Assemble the full 4-prompt Quantum Leap AI suite\"}, {\"author\": \"human\", \"text\": \"Expand the Nervous System Fabric spec\"}]}, {\"id\": \"Sg1kmJ85tnnHrSbjWnnHT\", \"started_at\": \"2026-04-12T04:05:49.325Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Generate the full Reflex Fabric replay engine, Cockpit v3 navigation flow, Intelligence Chamber data pipeline, and a polished Cipher System\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"turn this into a concrete UE5 task list (step‑by‑step build order), or   - define the exact USTRUCTs and UPROPERTY\"}]}, {\"id\": \"G36tDjWM2gKKpWBfGUGtS\", \"started_at\": \"2026-04-05T18:07:14.194Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://manus.im/share/file/d48ae901-b80a-44cb-8924-60f8f6ab5de6\"}, {\"author\": \"human\", \"text\": \"All\"}, {\"author\": \"human\", \"text\": \"C\"}]}, {\"id\": \"qScL8PR33AH3LoncnoNJJ\", \"started_at\": \"2026-04-03T15:16:39.021Z\", \"messages\": [{\"author\": \"human\", \"text\": \"https://github.com/[pii_username-FivIUX]/QuantumLeap-AI/commits?author=[pii_username-FivIUX]\"}, {\"author\": \"human\", \"text\": \"Yes\"}, {\"author\": \"human\", \"text\": \"C\"}]}]}, \"history\": [{\"title\": \"AriseAlpha debuts AI crypto trading app\", \"summary\": \"\"}, {\"title\": \"AI trading terminal debuts with forecasting and seasonality tools\", \"summary\": \"\"}, {\"title\": \"Explainable AI becomes mandatory in finance\", \"summary\": \"\"}, {\"title\": \"Financial data pipelines face speed-cost tradeoffs\", \"summary\": \"\"}, {\"title\": \"Latency tricks unlock hidden arbitrage profits\", \"summary\": \"\"}, {\"title\": \"Anvil Robotics raises funds for modular robot kits\", \"summary\": \"\"}, {\"title\": \"Google unveils embodied reasoning model for robots\", \"summary\": \"\"}, {\"title\": \"Robots gain sharper perception through multimodal fusion\", \"summary\": \"\"}, {\"title\": \"Flutter and Kotlin Multiplatform diverge in 2026\", \"summary\": \"\"}, {\"title\": \"Kotlin Multiplatform simplifies cross-platform code sharing\", \"summary\": \"\"}, {\"title\": \"Panpsychism resurfaces in quantum consciousness debates\", \"summary\": \"\"}, {\"title\": \"Quantum consciousness theories gain experimental traction\", \"summary\": \"\"}, {\"title\": \"Robotic sculptures turn poetry into moving forms\", \"summary\": \"\"}, {\"title\": \"MoMA showcases evolving AI-generated poetry\", \"summary\": \"\"}, {\"title\": \"IonQ surges 20% on DARPA deal and quantum networking first\", \"summary\": \"\"}, {\"title\": \"Brain-inspired chips promise 2,000x efficiency gains\", \"summary\": \"\"}, {\"title\": \"New runtimes teach AI agents to self-heal\", \"summary\": \"\"}, {\"title\": \"AI models reshape urban futures at CityScope\", \"summary\": \"\"}, {\"title\": \"Brian Eno’s generative music still shapes sound\", \"summary\": \"\"}, {\"title\": \"Live coding reshapes generative soundscapes\", \"summary\": \"\"}, {\"title\": \"Language-driven grasping tackles ambiguous instructions\", \"summary\": \"\"}, {\"title\": \"Robots stumble at tasks despite LLM planning\", \"summary\": \"\"}, {\"title\": \"Hedging strategies evolve amid volatile markets\", \"summary\": \"\"}, {\"title\": \"AI bots harness real-time sentiment data\", \"summary\": \"\"}, {\"title\": \"Ant-inspired algorithms optimize logistics routing\", \"summary\": \"\"}, {\"title\": \"IMF chief warns AI cyber risks threaten global finance\", \"summary\": \"\"}, {\"title\": \"Catastrophe bonds surge with climate risk models\", \"summary\": \"\"}, {\"title\": \"Cobot safety hinges on detection and avoidance\", \"summary\": \"\"}, {\"title\": \"Reinforcement learning adapts high-frequency trading strategies\", \"summary\": \"\"}, {\"title\": \"Foundation models transform market microstructure analysis\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"bMwdJQeFag6b4oko4fKdo\", \"title\": \"LLM-ROS integration redefines robot task planning\", \"summary\": \"Researchers linked large language models with ROS, enabling robots to execute human instructions directly.\"}], \"max_len\": 2048}"
+            "content": "{\"interests\": {\"positive\": [\"Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.\", \"Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.\", \"Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.\", \"Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.\", \"Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.\", \"Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.\", \"Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.\", \"Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer.\"], \"negative\": [\"Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\\n    keywords: game monetization, creator compensation, ggmods, business model\\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.\", \"Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: albion online, radiant wilds, albion update\\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.\", \"ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.\", \"Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: destiny 2, guardian games, iron banner, bungie\\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.\", \"Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.\", \"Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: gears of war, gears 6, xbox showcase\\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.\", \"Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage.\"], \"interactions\": {\"clicks\": [\"Mapping Halo’s sprawling novel chronology\", \"Fan-made Forge campaign recreates New Mombasa\", \"Minecraft Dungeons II officially revealed with trailer\", \"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Mojang embraces Unreal Engine for new projects\", \"Teardown Mod Pack 5 arrives May 6\"], \"thumbsUp\": [\"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Starfield launches Free Lanes update today\", \"Remake receives Mature rating in Korea\", \"Halo remake reportedly content complete now\"], \"thumbsDown\": [\"Roadmap reveals Shatterpoint’s 2026 expansion schedule\", \"Strategic Positions expansion reshapes Shatterpoint missions\", \"Xbox showcase to spotlight Gears of War\", \"Voice actor reveals Gears 6 was considered\", \"Warhammer Eye of Terror expansion launches\", \"Apocalypse rules streamline massive Warhammer battles\", \"Destiny 2 Iron Banner returns mid-April\", \"Guardian Games community challenge heats up\", \"ARK roadmap outlines updates through 2027\", \"Albion Online unveils Radiant Wilds update\", \"Terran Armada faction debuts in Starfield update\", \"GGMods launches with creator compensation model\"]}, \"conversations\": [{\"id\": \"orJM1FdqSR7k379QG7Ran\", \"started_at\": \"2026-04-14T14:38:13.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I want to create an image. Ask me questions about the subject, setting, and style I want.\"}]}, {\"id\": \"cPrrZ5CHsiezY39FpUNoE\", \"started_at\": \"2026-04-07T22:37:41.312Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft Dungeons 2\"}]}, {\"id\": \"ysuyotZBvRfVYipfQ8Xtc\", \"started_at\": \"2026-04-07T13:11:12.507Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Starfield update time esd\"}, {\"author\": \"human\", \"text\": \"how to stare the new missions\"}]}, {\"id\": \"dksy3zPnrkiswfU5JRkyj\", \"started_at\": \"2026-04-07T01:24:26.411Z\", \"messages\": [{\"author\": \"human\", \"text\": \"how to remove sharpy from plastic?\"}]}, {\"id\": \"esZ7mTvMSdCC4e28UqiiB\", \"started_at\": \"2026-04-06T20:16:00.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on Halo ODST's\"}]}, {\"id\": \"2bJAafwGrsm5phcPzQ1qs\", \"started_at\": \"2026-04-06T20:12:59.759Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on The Halo universe\"}]}, {\"id\": \"DtkoBEpqEbru9cGdEmc2u\", \"started_at\": \"2026-04-06T20:06:03.446Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on minecraft trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on astroneer trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on Halo universe trivia\"}]}, {\"id\": \"5bwZkTqgUMwN7c99gMsMH\", \"started_at\": \"2026-04-06T20:04:00.287Z\", \"messages\": [{\"author\": \"human\", \"text\": \"change to pixel art\"}]}, {\"id\": \"3h8iCnDLXF7y21t1gqoYN\", \"started_at\": \"2026-04-06T19:57:05.675Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what engin does minecraft dungeons use?\"}, {\"author\": \"human\", \"text\": \"How Minecraft Dungeons II might evolve on Unreal\"}]}, {\"id\": \"5em3sy1CstB7FZtfDpHpk\", \"started_at\": \"2026-04-02T19:45:06.594Z\", \"messages\": [{\"author\": \"human\", \"text\": \"What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?\"}, {\"author\": \"human\", \"text\": \"you don't think it might become a \\\"firefly incedent\\\"\"}, {\"author\": \"human\", \"text\": \"shure\"}]}, {\"id\": \"yPotBQsr1PxqC8J1HxbnW\", \"started_at\": \"2026-04-02T19:14:29.833Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what does Belac mean?\"}]}, {\"id\": \"98Tm2bxTv4uM3mrhKUcGJ\", \"started_at\": \"2026-04-01T14:09:44.714Z\", \"messages\": [{\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"whats the relese window in est plz\"}]}, {\"id\": \"JppY1s8euUE4ZxYjKBxgA\", \"started_at\": \"2026-04-01T11:53:30.626Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Is space engineers 1 adding npc of some sort? (watch the \\\"Who are They?\\\" video)\"}]}, {\"id\": \"gU9PoFgaTdNBS7UhXFUhe\", \"started_at\": \"2026-03-31T14:42:40.977Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo\"}]}, {\"id\": \"6ZN7zzBZKwCRgk5tAHA8x\", \"started_at\": \"2026-03-29T23:56:36.744Z\", \"messages\": [{\"author\": \"human\", \"text\": \"why do cats love lasers?\"}]}, {\"id\": \"gn3MTtb6FktQZpvQqSjTE\", \"started_at\": \"2026-03-25T20:02:11.094Z\", \"messages\": [{\"author\": \"human\", \"text\": \"if I want to get a VR system, what shold I know?\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}]}, {\"id\": \"xq3b6hFDiKLaRNE1agszQ\", \"started_at\": \"2026-03-22T22:23:42.196Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Minecraft Dungeons II?\"}]}, {\"id\": \"MjXidRgf2XP3yCuavsPt2\", \"started_at\": \"2026-03-22T15:15:06.742Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Why can I not install the new Bounty Hunters Creation in starfield?\"}, {\"author\": \"human\", \"text\": \"xbox\"}, {\"author\": \"human\", \"text\": \"I tryed to istall a desert camo skin pack but when it got done it said \\\"not enough space opperation\"}]}, {\"id\": \"a51xNEDw3GeTFekG9qz1P\", \"started_at\": \"2026-03-20T21:49:21.127Z\", \"messages\": [{\"author\": \"human\", \"text\": \"In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?\"}, {\"author\": \"human\", \"text\": \"cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)\"}, {\"author\": \"human\", \"text\": \"Whats a good way to grind xp?\"}]}, {\"id\": \"MJ5qZbUCZKoajALTF4AMp\", \"started_at\": \"2026-03-18T21:58:29.155Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Which Call of Duty has the best mutiplayer spec-ops?\"}, {\"author\": \"human\", \"text\": \"out of the remakes of MW1,2,2\"}, {\"author\": \"human\", \"text\": \"best survival out of all (not just remakes)\"}]}]}, \"history\": [{\"title\": \"Analysts call Starfield PS5 sales lukewarm\", \"summary\": \"\"}, {\"title\": \"Starfield rated for Nintendo Switch 2\", \"summary\": \"\"}, {\"title\": \"Fans design custom 3D Halo Flashpoint minis\", \"summary\": \"\"}, {\"title\": \"Flashpoint expansion introduces warring faction choices\", \"summary\": \"\"}, {\"title\": \"Factorio megabase design pushes efficiency limits\", \"summary\": \"\"}, {\"title\": \"Lua scripting unlocks deeper Teardown custom maps\", \"summary\": \"\"}, {\"title\": \"Designers dissect loot rarity and scarcity systems\", \"summary\": \"\"}, {\"title\": \"Chaos Cubed snapshot reveals sulfur caves\", \"summary\": \"\"}, {\"title\": \"Tracing Minecraft’s long prank-filled tradition\", \"summary\": \"\"}, {\"title\": \"DESI completes record 3D universe map, hints at new physics\", \"summary\": \"\"}, {\"title\": \"Astroneer’s tiered crafting unlocks megastructures\", \"summary\": \"\"}, {\"title\": \"Mapping Halo’s sprawling novel chronology\", \"summary\": \"\"}, {\"title\": \"Former developers allege cronyism at Halo Studios\", \"summary\": \"\"}, {\"title\": \"Fan-made Forge campaign recreates New Mombasa\", \"summary\": \"\"}, {\"title\": \"AK-47 mod dominates Minecraft downloads\", \"summary\": \"\"}, {\"title\": \"Teardown dev explains multiplayer voxel challenges\", \"summary\": \"\"}, {\"title\": \"Starfield modders release immersive survival overhaul\", \"summary\": \"\"}, {\"title\": \"Free Lanes update sparks new mod tools\", \"summary\": \"\"}, {\"title\": \"Community feedback update tweaks ship controls\", \"summary\": \"\"}, {\"title\": \"Halo partners with Fanta for armor rewards\", \"summary\": \"\"}, {\"title\": \"Astroneer roadmap teases new missions and systems\", \"summary\": \"\"}, {\"title\": \"Starseeker beta opens Astroneer’s cooperative frontier\", \"summary\": \"\"}, {\"title\": \"Starfield PS5 launch plagued by crashes\", \"summary\": \"\"}, {\"title\": \"Video game franchises expand into board gaming\", \"summary\": \"\"}, {\"title\": \"Halo collectibles surge in secondary markets\", \"summary\": \"\"}, {\"title\": \"Minecraft Dungeons II officially revealed with trailer\", \"summary\": \"\"}, {\"title\": \"Mojang embraces Unreal Engine for new projects\", \"summary\": \"\"}, {\"title\": \"Economy 2 update introduces NPC traders\", \"summary\": \"\"}, {\"title\": \"Teardown Mod Pack 5 arrives May 6\", \"summary\": \"\"}, {\"title\": \"Xbox Game Pass adds major sci-fi titles\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"cyYTHpJzukjzkdZtVumy3\", \"title\": \"Voxel engineering titles highlight April innovations\", \"summary\": \"New voxel-based RPGs and sandbox updates showcase creative engineering mechanics this month.\"}], \"max_len\": 2048}"
           }
         ],
         "max_tokens": 1,
         "temperature": 0.0
       },
       "meta": {
-        "feed_id": "igi56EXjCywVqxuYvVxSz",
-        "user_id": "9vkcnnb23BnjYaVoeqqQU",
-        "bizdate": "20260417",
+        "feed_id": "EnTyXTHhurS8XQuWgNdLP",
+        "user_id": "533FwKwGjxDptBnakFPjX",
+        "bizdate": "20260419",
         "label": 0,
-        "candidate_id": "bMwdJQeFag6b4oko4fKdo",
-        "captured_at_unix": 1777519010,
+        "candidate_id": "cyYTHpJzukjzkdZtVumy3",
+        "captured_at_unix": 1777526771,
         "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
         "source_jsonl": "../data_v10/eval_ura.jsonl"
       },
       "sample_response": {
         "scores": [
           {
-            "id": "bMwdJQeFag6b4oko4fKdo",
-            "score": 0.932453
+            "id": "cyYTHpJzukjzkdZtVumy3",
+            "score": 0.754915
           }
         ],
-        "latency_ms": 109.1,
-        "prompt_build_ms": 79.1,
-        "inference_ms": 30.0,
+        "latency_ms": 151.6,
+        "prompt_build_ms": 121.5,
+        "inference_ms": 30.1,
         "model_version": "v29-dlis-chat"
       }
     }

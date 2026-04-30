@@ -44,6 +44,19 @@ CALIBRATION_CALLS = 32
 MIN_TOLERANCE = 5e-3
 SLACK = 2e-2
 
+# Pin the fixture pair to a known-good (user_id, pos_candidate, neg_candidate)
+# triple identified by scanning the scored URA eval set
+# (eval_results/ura_auc_chat_v29.jsonl) for the largest pos-vs-neg score gap
+# under the full-feature constraint (positive + negative interests, clicks +
+# thumbsUp + thumbsDown, conversations, history). This gives callers a fixture
+# pair that is *visibly* discriminative (model scores positive ~0.94 vs
+# negative ~0.73, gap ~0.21) so the test catches both prompt-construction bugs
+# AND ranking-direction bugs. Set PIN_USER_ID='' to fall back to the auto-pick
+# logic in select_samples().
+PIN_USER_ID = "533FwKwGjxDptBnakFPjX"
+PIN_POS_ITEMID = "dL6VLbWe2LfhmRkY89ncH"
+PIN_NEG_ITEMID = "cyYTHpJzukjzkdZtVumy3"
+
 
 def build_raw_payload(sample: dict) -> dict:
     interests_blob = sample.get("interests") or {}
@@ -85,8 +98,23 @@ def call(payload: dict) -> dict:
     req = urllib.request.Request(
         URL, data=body, headers={"Content-Type": "application/json"}, method="POST",
     )
-    with urllib.request.urlopen(req, timeout=180.0) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    # Retry transient 5xx / network errors a few times so a single bad LB hop
+    # doesn't kill a 32-call calibration run.
+    last_err = None
+    for attempt in range(5):
+        try:
+            with urllib.request.urlopen(req, timeout=180.0) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code < 500 or attempt == 4:
+                raise
+            last_err = e
+        except Exception as e:
+            if attempt == 4:
+                raise
+            last_err = e
+        time.sleep(0.5 * (attempt + 1))
+    raise RuntimeError(f"call failed after retries: {last_err}")
 
 
 def call_with_pinned_version(payload: dict) -> dict:
@@ -140,6 +168,23 @@ def select_samples(path: Path) -> tuple[dict, dict]:
             s = json.loads(line)
             if _is_rich(s):
                 by_user[s.get("user_id", "")].append(s)
+
+    # Pinned-pick path: look up the exact (user, pos_candidate, neg_candidate)
+    # triple identified offline. Falls back to auto-pick if the pin is empty
+    # or any of the rows are missing from the current eval JSONL.
+    if PIN_USER_ID and PIN_USER_ID in by_user:
+        rows = by_user[PIN_USER_ID]
+        pos = next((r for r in rows
+                    if (r.get("candidate") or {}).get("itemid") == PIN_POS_ITEMID
+                    and int(r.get("label", 0)) == 1), None)
+        neg = next((r for r in rows
+                    if (r.get("candidate") or {}).get("itemid") == PIN_NEG_ITEMID
+                    and int(r.get("label", 0)) == 0), None)
+        if pos is not None and neg is not None:
+            print(f"selected user_id={PIN_USER_ID!r} (pinned pair; "
+                  f"pos itemid={PIN_POS_ITEMID!r}, neg itemid={PIN_NEG_ITEMID!r})")
+            return pos, neg
+        print(f"[warn] pinned pair not found in {path}, falling back to auto-pick")
 
     candidates = [(u, rows) for u, rows in by_user.items() if len(rows) >= 2]
     if not candidates:
