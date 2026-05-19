@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TRELLIS.2 · doubao 图生 3D Demo</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#141823; --panel2:#1b2030; --border:#252b3d;
+    --text:#e7ebf3; --muted:#8b94a8; --accent:#7c9cff; --accent2:#39d29a;
+    --warn:#ffc857;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:#0e1320;border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:.88em;color:#cdd6f4}
+  pre{background:#0e1320;border:1px solid var(--border);border-radius:8px;
+    padding:14px 16px;overflow:auto;font-size:12.5px;line-height:1.5;color:#cdd6f4;margin:8px 0 14px}
+
+  header{padding:28px 32px 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#10141f, #0b0d12)}
+  header h1{margin:0 0 4px;font-size:22px;letter-spacing:.2px}
+  header .sub{color:var(--muted);font-size:13px}
+  header .badges{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+  .badge{background:#1a2236;border:1px solid var(--border);color:#cdd6f4;
+    padding:3px 9px;border-radius:999px;font-size:11.5px}
+  .badge.ok{color:var(--accent2);border-color:#1e4a3b}
+  .badge.warn{color:var(--warn);border-color:#5a4622}
+
+  main{max-width:1400px;margin:0 auto;padding:24px 24px 64px}
+  .grid{display:grid;grid-template-columns: minmax(380px, 1fr) minmax(520px, 1.4fr);gap:20px}
+  @media (max-width: 980px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.02), 0 12px 24px -16px rgba(0,0,0,.6)}
+  .card .head{display:flex;justify-content:space-between;align-items:center;
+    padding:12px 16px;background:var(--panel2);border-bottom:1px solid var(--border);font-weight:600;font-size:13px;color:#dde3f1}
+  .card .head .meta{color:var(--muted);font-weight:400;font-size:12px}
+  .card .body{padding:14px 16px}
+
+  /* Image stack */
+  .imgrow{display:grid;grid-template-rows:auto auto;gap:14px}
+  .imgwrap{position:relative;background:#000;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+  .imgwrap img{display:block;width:100%;height:auto}
+  .imgwrap .tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);
+    backdrop-filter:blur(6px);font-size:11px;padding:3px 8px;border-radius:6px;color:#fff}
+
+  /* model-viewer */
+  model-viewer{
+    width:100%; height:560px;
+    --poster-color: transparent;
+    background:
+      radial-gradient(80% 60% at 50% 30%, #1a2236 0%, #0b0d12 70%),
+      #0b0d12;
+    border-radius:8px;
+  }
+  .viewer-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .btn{background:#1a2236;color:#dde3f1;border:1px solid var(--border);
+    border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+  .btn:hover{border-color:#3a4566}
+  .btn.primary{background:#243358;border-color:#3a4d83;color:#e7ebf3}
+  select{background:#1a2236;color:#dde3f1;border:1px solid var(--border);
+    border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit}
+
+  /* Pipeline */
+  section.pipeline{margin-top:28px}
+  section.pipeline h2{font-size:16px;margin:0 0 14px;color:#e7ebf3;letter-spacing:.2px}
+  .steps{display:grid;grid-template-columns:repeat(5, 1fr);gap:10px}
+  @media(max-width:980px){.steps{grid-template-columns:1fr 1fr}}
+  .step{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:14px;position:relative}
+  .step .num{display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;background:#243358;color:#cdd6f4;
+    font-size:11px;font-weight:700;margin-right:8px}
+  .step h3{margin:0 0 6px;font-size:13.5px;color:#e7ebf3;display:flex;align-items:center}
+  .step p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .step .model{display:inline-block;margin-top:8px;font-size:11px;
+    color:#cdd6f4;background:#0e1320;border:1px solid var(--border);
+    padding:2px 7px;border-radius:6px;font-family:ui-monospace,monospace}
+
+  details{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:8px 14px;margin-top:14px}
+  details summary{cursor:pointer;color:#cdd6f4;font-weight:600;font-size:13.5px;list-style:none;outline:none}
+  details summary::before{content:"▶ ";color:var(--muted);font-size:10px;margin-right:4px}
+  details[open] summary::before{content:"▼ "}
+  details .inner{padding:8px 0 4px;color:#cdd6f4;font-size:13px}
+  details ul{margin:6px 0 6px 18px}
+  details li{margin:3px 0}
+
+  footer{margin-top:32px;color:var(--muted);font-size:12px;text-align:center}
+  .kpi{display:inline-flex;gap:8px;align-items:center;margin-right:14px}
+  .kpi b{color:#e7ebf3;font-weight:600}
+
+  hr.sep{border:0;border-top:1px dashed var(--border);margin:18px 0}
+
+  .arrow{font-size:18px;color:var(--muted);text-align:center;align-self:center}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TRELLIS.2 · Image-to-3D Demo</h1>
+  <div class="sub">单张图片 → 高保真带 PBR 材质的 3D 资产 · microsoft/TRELLIS.2-4B</div>
+  <div class="badges">
+    <span class="badge ok">A100 80GB ×1</span>
+    <span class="badge">PyTorch 2.6 / CUDA 12.4</span>
+    <span class="badge">flash-attn · flex_gemm</span>
+    <span class="badge">o-voxel · CuMesh · nvdiffrast</span>
+    <span class="badge warn">DINOv3 / RMBG-2.0 已替换为非 gated 镜像</span>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+
+    <!-- LEFT: original + preprocessed -->
+    <div class="card">
+      <div class="head">
+        输入图片
+        <span class="meta">原图 · BG-removed 预览</span>
+      </div>
+      <div class="body imgrow">
+        <div class="imgwrap">
+          <img src="assets/example_image/doubao.jpg" alt="原始输入图" />
+          <div class="tag">① 原图 (RGB 1280×1280)</div>
+        </div>
+        <div class="imgwrap" style="background:
+          repeating-conic-gradient(#1b2030 0 25%, #14182300 0 50%) 50%/22px 22px;">
+          <img src="doubao_rgba.png" alt="抠图后的 RGBA" />
+          <div class="tag">② rembg/u2net 抠图 → RGBA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 3D viewer -->
+    <div class="card">
+      <div class="head">
+        3D 渲染结果
+        <span class="meta">鼠标拖拽旋转 · 滚轮缩放 · 右键平移</span>
+      </div>
+      <div class="body">
+        <model-viewer
+          id="mv"
+          src="doubao_v2.glb"
+          alt="TRELLIS.2 generated 3D model"
+          camera-controls
+          auto-rotate
+          auto-rotate-delay="2500"
+          rotation-per-second="20deg"
+          shadow-intensity="0.8"
+          exposure="1.05"
+          tone-mapping="aces"
+          interaction-prompt="auto"
+          environment-image="neutral"
+          camera-orbit="-25deg 80deg auto"
+          min-camera-orbit="auto auto 0.4m"
+          max-camera-orbit="auto auto 5m">
+        </model-viewer>
+
+        <div class="viewer-controls">
+          <label style="color:var(--muted);font-size:12px;align-self:center">模型：</label>
+          <select id="modelSel">
+            <option value="doubao_v2.glb" selected>doubao_v2.glb (47 MB) — rembg 预抠图</option>
+            <option value="doubao.glb">doubao.glb (41 MB) — BiRefNet 抠图</option>
+            <option value="sample.glb">sample.glb (41 MB) — 官方 T.png 示例</option>
+          </select>
+          <button class="btn" id="btnAR">▶ 切换自动旋转</button>
+          <button class="btn" id="btnReset">⟲ 重置视角</button>
+          <button class="btn primary" id="btnDl">⬇ 下载当前 GLB</button>
+        </div>
+
+        <hr class="sep" />
+        <div style="color:var(--muted);font-size:12.5px">
+          <span class="kpi"><b>顶点</b> ~460k</span>
+          <span class="kpi"><b>面</b> ~990k</span>
+          <span class="kpi"><b>贴图</b> 4096²</span>
+          <span class="kpi"><b>材质</b> baseColor / roughness / metallic / opacity</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PIPELINE -->
+  <section class="pipeline">
+    <h2>🔗 推理链路概览</h2>
+    <div class="steps">
+      <div class="step">
+        <h3><span class="num">1</span>背景去除</h3>
+        <p>把 RGB 图抠成 RGBA，pipeline 看到 alpha 通道就跳过内置 BiRefNet，避免抠图边界引入噪声。</p>
+        <span class="model">rembg / u2net</span>
+      </div>
+      <div class="step">
+        <h3><span class="num">2</span>图像编码</h3>
+        <p>DINOv3 ViT-L/16 提取语义特征作为条件，512×512 输入 → 1024 patch tokens。</p>
+        <span class="model">camenduru/dinov3-vitl16-pretrain-lvd1689m</span>
+      </div>
+      <div class="step">
+        <h3><span class="num">3</span>稀疏结构生成</h3>
+        <p>第一阶段 Flow DiT 生成 64³ 稀疏体素占据，定位 3D 资产的粗略形状。</p>
+        <span class="model">SS Flow · 1.3B · 12 steps</span>
+      </div>
+      <div class="step">
+        <h3><span class="num">4</span>形状细化 + 纹理</h3>
+        <p>两个 SLat Flow DiT：第一个把稀疏结构升采样到 512³ 形状 latent；第二个生成 PBR 贴图 latent。</p>
+        <span class="model">Shape SLat + Texture SLat · 1.3B 各一</span>
+      </div>
+      <div class="step">
+        <h3><span class="num">5</span>SC-VAE 解码 + Mesh 化</h3>
+        <p>Sparse Conv VAE 解码到 O-Voxel，Dual Contouring 提网格，再 remesh / decimate / xatlas UV / 烘焙贴图 → GLB。</p>
+        <span class="model">o-voxel · CuMesh · nvdiffrast</span>
+      </div>
+    </div>
+
+    <details open>
+      <summary>📦 复现命令 & 环境要点</summary>
+      <div class="inner">
+        <p>关键依赖：<code>python 3.10</code> · <code>torch 2.6.0+cu124</code> · <code>flash-attn 2.7.3</code> ·
+           <code>nvdiffrast 0.4.0</code> · <code>nvdiffrec_render</code> · <code>flex_gemm</code> ·
+           <code>cumesh</code> · <code>o_voxel</code>。CuMesh 编译要求 <b>CUDA Toolkit ≥ 12.4</b>（系统自带的 12.1 会因 CUB <code>tuple</code> 类型不完整报错）。</p>
+        <p>从这张图生成 3D 的完整脚本：<a href="run_doubao_rgba.py">run_doubao_rgba.py</a>，时间消耗（A100×1）：</p>
+        <pre>1. rembg/u2net 抠图           ~3s
+2. DINOv3 + SS Flow            ~5s
+3. Shape SLat (512³)           ~20s
+4. Texture SLat                ~10s
+5. 视频渲染 (120 帧)            ~38s
+6. Mesh 后处理 (remesh+UV+烘焙) ~80s
+─────────────────────────────────
+   总计                         ~5–8 min</pre>
+        <p>因为 <code>facebook/dinov3-vitl16-pretrain-lvd1689m</code> 和 <code>briaai/RMBG-2.0</code> 是 gated repo，
+        当前 demo 用了两处镜像替换：</p>
+        <ul>
+          <li><code>facebook/dinov3-vitl16-pretrain-lvd1689m</code> → <code>camenduru/dinov3-vitl16-pretrain-lvd1689m</code></li>
+          <li><code>briaai/RMBG-2.0</code> → <code>ZhengPeng7/BiRefNet</code>（pipeline 内置使用）；本页 demo 又额外用 <code>rembg/u2net</code> 预抠图以提升一致性。</li>
+        </ul>
+        <p>另外因为新版 <code>transformers</code> 把 DINOv3 的 layers 挪到了 <code>.model.model.layer</code>，
+        在 <a href="trellis2/modules/image_feature_extractor.py">image_feature_extractor.py</a> 里加了一个 fallback 探测。</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>🧩 模型架构简述（点开展开）</summary>
+      <div class="inner">
+        <p>TRELLIS.2 的核心是把 3D 表征统一成 <b>O-Voxel</b>（field-free sparse voxel）：</p>
+        <ul>
+          <li><b>SC-VAE</b>：用 16× 空间下采样的 sparse 3D VAE 把网格压成紧凑的稀疏 latent（shape + texture 两路）。</li>
+          <li><b>三阶段 Flow Matching</b>：先生成 64³ 稀疏占据，再升采样到 512³ 的 shape latent，最后条件生成 texture latent。</li>
+          <li><b>O-Voxel 解码</b>：CUDA 后处理把 latent 直接转成带 baseColor / roughness / metallic / opacity 的 PBR 网格，
+              整个 mesh ↔ voxel 转换是 rendering-free / optimization-free 的：单 CPU 网格 → O-Voxel &lt; 10s，CUDA 反向 &lt; 100ms。</li>
+        </ul>
+        <p>这个 demo 跑的是 <code>microsoft/TRELLIS.2-4B</code>，输出分辨率 512³（约 3s 形状 + 1s 材质 on H100；A100 略慢）。</p>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    Powered by <a href="https://github.com/microsoft/TRELLIS.2" target="_blank">microsoft/TRELLIS.2</a>
+    · viewer by <a href="https://modelviewer.dev/" target="_blank">&lt;model-viewer&gt;</a>
+  </footer>
+</main>
+
+<script>
+  const mv = document.getElementById('mv');
+  const sel = document.getElementById('modelSel');
+  const btnAR = document.getElementById('btnAR');
+  const btnReset = document.getElementById('btnReset');
+  const btnDl = document.getElementById('btnDl');
+
+  sel.addEventListener('change', () => {
+    mv.src = sel.value;
+  });
+  btnAR.addEventListener('click', () => {
+    if (mv.hasAttribute('auto-rotate')) mv.removeAttribute('auto-rotate');
+    else mv.setAttribute('auto-rotate', '');
+  });
+  btnReset.addEventListener('click', () => {
+    mv.cameraOrbit = '-25deg 80deg auto';
+    mv.fieldOfView = 'auto';
+    mv.resetTurntableRotation();
+    mv.jumpCameraToGoal();
+  });
+  btnDl.addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = mv.src; a.download = mv.src.split('/').pop();
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+</script>
+</body>
+</html>
