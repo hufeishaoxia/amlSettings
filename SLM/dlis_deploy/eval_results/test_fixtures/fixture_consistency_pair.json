@@ -1,0 +1,1019 @@
+{
+  "name": "docarankqwen06b_consistency_pair",
+  "description": "Two candidates scored for the SAME user (identical interests / interactions / conversations / history; only `candidates[0]` differs). Use as a golden test: for each entry in `cases`, POST `chat_request` to the Papyrus endpoint (or `request` to DLIS direct) and assert `abs(parsed_score - expected.score_mean) <= expected.tolerance` and `response.model_version == expected.model_version`.",
+  "shared": {
+    "user_id": "533FwKwGjxDptBnakFPjX",
+    "feed_id": "EnTyXTHhurS8XQuWgNdLP",
+    "bizdate": "20260419",
+    "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
+    "model_version": "v29-dlis-chat",
+    "calibration_calls": 32,
+    "captured_at_unix": 1777526771
+  },
+  "cases": [
+    {
+      "name": "docarankqwen06b_positive_label",
+      "description": "Golden test fixture for docarankqwen06b. Send `chat_request` to the Papyrus endpoint (or `request` to DLIS directly) and verify that the parsed P(click) score satisfies `abs(score - expected.score_mean) <= expected.tolerance` (NOT exact equality). The endpoint is load-balanced over many A100 pods; identical prompts can produce slightly different bf16 logprobs across replicas. `expected.score_min` / `score_max` capture the observed envelope across 32 sequential calls at fixture-capture time; tolerance = (max - min) + slack.",
+      "expected": {
+        "score_mean": 0.933852,
+        "score_min": 0.932453,
+        "score_max": 0.939913,
+        "tolerance": 0.02746,
+        "observed_unique_scores": [
+          0.932453,
+          0.939913
+        ],
+        "calibration_calls": 32,
+        "model_version": "v29-dlis-chat"
+      },
+      "request": {
+        "interests": {
+          "positive": [
+            "Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.",
+            "Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.",
+            "Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.",
+            "Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.",
+            "Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.",
+            "Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.",
+            "Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.",
+            "Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer."
+          ],
+          "negative": [
+            "Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\n    keywords: game monetization, creator compensation, ggmods, business model\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.",
+            "Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: albion online, radiant wilds, albion update\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.",
+            "ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.",
+            "Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: destiny 2, guardian games, iron banner, bungie\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.",
+            "Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.",
+            "Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: gears of war, gears 6, xbox showcase\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.",
+            "Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage."
+          ],
+          "interactions": {
+            "clicks": [
+              "Mapping Halo’s sprawling novel chronology",
+              "Fan-made Forge campaign recreates New Mombasa",
+              "Minecraft Dungeons II officially revealed with trailer",
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Mojang embraces Unreal Engine for new projects",
+              "Teardown Mod Pack 5 arrives May 6"
+            ],
+            "thumbsUp": [
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Starfield launches Free Lanes update today",
+              "Remake receives Mature rating in Korea",
+              "Halo remake reportedly content complete now"
+            ],
+            "thumbsDown": [
+              "Roadmap reveals Shatterpoint’s 2026 expansion schedule",
+              "Strategic Positions expansion reshapes Shatterpoint missions",
+              "Xbox showcase to spotlight Gears of War",
+              "Voice actor reveals Gears 6 was considered",
+              "Warhammer Eye of Terror expansion launches",
+              "Apocalypse rules streamline massive Warhammer battles",
+              "Destiny 2 Iron Banner returns mid-April",
+              "Guardian Games community challenge heats up",
+              "ARK roadmap outlines updates through 2027",
+              "Albion Online unveils Radiant Wilds update",
+              "Terran Armada faction debuts in Starfield update",
+              "GGMods launches with creator compensation model"
+            ]
+          },
+          "conversations": [
+            {
+              "id": "orJM1FdqSR7k379QG7Ran",
+              "started_at": "2026-04-14T14:38:13.262Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "I want to create an image. Ask me questions about the subject, setting, and style I want."
+                }
+              ]
+            },
+            {
+              "id": "cPrrZ5CHsiezY39FpUNoE",
+              "started_at": "2026-04-07T22:37:41.312Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Keep me updated on Minecraft Dungeons 2"
+                }
+              ]
+            },
+            {
+              "id": "ysuyotZBvRfVYipfQ8Xtc",
+              "started_at": "2026-04-07T13:11:12.507Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Starfield update time esd"
+                },
+                {
+                  "author": "human",
+                  "text": "how to stare the new missions"
+                }
+              ]
+            },
+            {
+              "id": "dksy3zPnrkiswfU5JRkyj",
+              "started_at": "2026-04-07T01:24:26.411Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "how to remove sharpy from plastic?"
+                }
+              ]
+            },
+            {
+              "id": "esZ7mTvMSdCC4e28UqiiB",
+              "started_at": "2026-04-06T20:16:00.262Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Create a practice test on Halo ODST's"
+                }
+              ]
+            },
+            {
+              "id": "2bJAafwGrsm5phcPzQ1qs",
+              "started_at": "2026-04-06T20:12:59.759Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Create a practice test on The Halo universe"
+                }
+              ]
+            },
+            {
+              "id": "DtkoBEpqEbru9cGdEmc2u",
+              "started_at": "2026-04-06T20:06:03.446Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Create a practice test on minecraft trivia"
+                },
+                {
+                  "author": "human",
+                  "text": "Create a practice test on astroneer trivia"
+                },
+                {
+                  "author": "human",
+                  "text": "Create a practice test on Halo universe trivia"
+                }
+              ]
+            },
+            {
+              "id": "5bwZkTqgUMwN7c99gMsMH",
+              "started_at": "2026-04-06T20:04:00.287Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "change to pixel art"
+                }
+              ]
+            },
+            {
+              "id": "3h8iCnDLXF7y21t1gqoYN",
+              "started_at": "2026-04-06T19:57:05.675Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "what engin does minecraft dungeons use?"
+                },
+                {
+                  "author": "human",
+                  "text": "How Minecraft Dungeons II might evolve on Unreal"
+                }
+              ]
+            },
+            {
+              "id": "5em3sy1CstB7FZtfDpHpk",
+              "started_at": "2026-04-02T19:45:06.594Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?"
+                },
+                {
+                  "author": "human",
+                  "text": "you don't think it might become a \"firefly incedent\""
+                },
+                {
+                  "author": "human",
+                  "text": "shure"
+                }
+              ]
+            },
+            {
+              "id": "yPotBQsr1PxqC8J1HxbnW",
+              "started_at": "2026-04-02T19:14:29.833Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "what does Belac mean?"
+                }
+              ]
+            },
+            {
+              "id": "98Tm2bxTv4uM3mrhKUcGJ",
+              "started_at": "2026-04-01T14:09:44.714Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "is minecraft doing april fool's this year?"
+                },
+                {
+                  "author": "human",
+                  "text": "is minecraft doing april fool's this year?"
+                },
+                {
+                  "author": "human",
+                  "text": "whats the relese window in est plz"
+                }
+              ]
+            },
+            {
+              "id": "JppY1s8euUE4ZxYjKBxgA",
+              "started_at": "2026-04-01T11:53:30.626Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Is space engineers 1 adding npc of some sort? (watch the \"Who are They?\" video)"
+                }
+              ]
+            },
+            {
+              "id": "gU9PoFgaTdNBS7UhXFUhe",
+              "started_at": "2026-03-31T14:42:40.977Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo"
+                }
+              ]
+            },
+            {
+              "id": "6ZN7zzBZKwCRgk5tAHA8x",
+              "started_at": "2026-03-29T23:56:36.744Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "why do cats love lasers?"
+                }
+              ]
+            },
+            {
+              "id": "gn3MTtb6FktQZpvQqSjTE",
+              "started_at": "2026-03-25T20:02:11.094Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "if I want to get a VR system, what shold I know?"
+                },
+                {
+                  "author": "human",
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
+                },
+                {
+                  "author": "human",
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
+                }
+              ]
+            },
+            {
+              "id": "xq3b6hFDiKLaRNE1agszQ",
+              "started_at": "2026-03-22T22:23:42.196Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Minecraft Dungeons II?"
+                }
+              ]
+            },
+            {
+              "id": "MjXidRgf2XP3yCuavsPt2",
+              "started_at": "2026-03-22T15:15:06.742Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Why can I not install the new Bounty Hunters Creation in starfield?"
+                },
+                {
+                  "author": "human",
+                  "text": "xbox"
+                },
+                {
+                  "author": "human",
+                  "text": "I tryed to istall a desert camo skin pack but when it got done it said \"not enough space opperation"
+                }
+              ]
+            },
+            {
+              "id": "a51xNEDw3GeTFekG9qz1P",
+              "started_at": "2026-03-20T21:49:21.127Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?"
+                },
+                {
+                  "author": "human",
+                  "text": "cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)"
+                },
+                {
+                  "author": "human",
+                  "text": "Whats a good way to grind xp?"
+                }
+              ]
+            },
+            {
+              "id": "MJ5qZbUCZKoajALTF4AMp",
+              "started_at": "2026-03-18T21:58:29.155Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Which Call of Duty has the best mutiplayer spec-ops?"
+                },
+                {
+                  "author": "human",
+                  "text": "out of the remakes of MW1,2,2"
+                },
+                {
+                  "author": "human",
+                  "text": "best survival out of all (not just remakes)"
+                }
+              ]
+            }
+          ]
+        },
+        "history": [
+          {
+            "title": "Analysts call Starfield PS5 sales lukewarm",
+            "summary": ""
+          },
+          {
+            "title": "Starfield rated for Nintendo Switch 2",
+            "summary": ""
+          },
+          {
+            "title": "Fans design custom 3D Halo Flashpoint minis",
+            "summary": ""
+          },
+          {
+            "title": "Flashpoint expansion introduces warring faction choices",
+            "summary": ""
+          },
+          {
+            "title": "Factorio megabase design pushes efficiency limits",
+            "summary": ""
+          },
+          {
+            "title": "Lua scripting unlocks deeper Teardown custom maps",
+            "summary": ""
+          },
+          {
+            "title": "Designers dissect loot rarity and scarcity systems",
+            "summary": ""
+          },
+          {
+            "title": "Chaos Cubed snapshot reveals sulfur caves",
+            "summary": ""
+          },
+          {
+            "title": "Tracing Minecraft’s long prank-filled tradition",
+            "summary": ""
+          },
+          {
+            "title": "DESI completes record 3D universe map, hints at new physics",
+            "summary": ""
+          },
+          {
+            "title": "Astroneer’s tiered crafting unlocks megastructures",
+            "summary": ""
+          },
+          {
+            "title": "Mapping Halo’s sprawling novel chronology",
+            "summary": ""
+          },
+          {
+            "title": "Former developers allege cronyism at Halo Studios",
+            "summary": ""
+          },
+          {
+            "title": "Fan-made Forge campaign recreates New Mombasa",
+            "summary": ""
+          },
+          {
+            "title": "AK-47 mod dominates Minecraft downloads",
+            "summary": ""
+          },
+          {
+            "title": "Teardown dev explains multiplayer voxel challenges",
+            "summary": ""
+          },
+          {
+            "title": "Starfield modders release immersive survival overhaul",
+            "summary": ""
+          },
+          {
+            "title": "Free Lanes update sparks new mod tools",
+            "summary": ""
+          },
+          {
+            "title": "Community feedback update tweaks ship controls",
+            "summary": ""
+          },
+          {
+            "title": "Halo partners with Fanta for armor rewards",
+            "summary": ""
+          },
+          {
+            "title": "Astroneer roadmap teases new missions and systems",
+            "summary": ""
+          },
+          {
+            "title": "Starseeker beta opens Astroneer’s cooperative frontier",
+            "summary": ""
+          },
+          {
+            "title": "Starfield PS5 launch plagued by crashes",
+            "summary": ""
+          },
+          {
+            "title": "Video game franchises expand into board gaming",
+            "summary": ""
+          },
+          {
+            "title": "Halo collectibles surge in secondary markets",
+            "summary": ""
+          },
+          {
+            "title": "Minecraft Dungeons II officially revealed with trailer",
+            "summary": ""
+          },
+          {
+            "title": "Mojang embraces Unreal Engine for new projects",
+            "summary": ""
+          },
+          {
+            "title": "Economy 2 update introduces NPC traders",
+            "summary": ""
+          },
+          {
+            "title": "Teardown Mod Pack 5 arrives May 6",
+            "summary": ""
+          },
+          {
+            "title": "Xbox Game Pass adds major sci-fi titles",
+            "summary": ""
+          }
+        ],
+        "candidates": [
+          {
+            "id": "dL6VLbWe2LfhmRkY89ncH",
+            "title": "Astroneer patch expands cooperative frontier missions",
+            "summary": "The April update introduces new mission objectives and improved multiplayer stability for frontier expeditions."
+          }
+        ],
+        "max_len": 2048
+      },
+      "chat_request": {
+        "model": "docarankqwen06b",
+        "messages": [
+          {
+            "role": "user",
+            "content": "{\"interests\": {\"positive\": [\"Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.\", \"Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.\", \"Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.\", \"Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.\", \"Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.\", \"Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.\", \"Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.\", \"Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer.\"], \"negative\": [\"Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\\n    keywords: game monetization, creator compensation, ggmods, business model\\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.\", \"Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: albion online, radiant wilds, albion update\\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.\", \"ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.\", \"Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: destiny 2, guardian games, iron banner, bungie\\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.\", \"Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.\", \"Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: gears of war, gears 6, xbox showcase\\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.\", \"Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage.\"], \"interactions\": {\"clicks\": [\"Mapping Halo’s sprawling novel chronology\", \"Fan-made Forge campaign recreates New Mombasa\", \"Minecraft Dungeons II officially revealed with trailer\", \"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Mojang embraces Unreal Engine for new projects\", \"Teardown Mod Pack 5 arrives May 6\"], \"thumbsUp\": [\"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Starfield launches Free Lanes update today\", \"Remake receives Mature rating in Korea\", \"Halo remake reportedly content complete now\"], \"thumbsDown\": [\"Roadmap reveals Shatterpoint’s 2026 expansion schedule\", \"Strategic Positions expansion reshapes Shatterpoint missions\", \"Xbox showcase to spotlight Gears of War\", \"Voice actor reveals Gears 6 was considered\", \"Warhammer Eye of Terror expansion launches\", \"Apocalypse rules streamline massive Warhammer battles\", \"Destiny 2 Iron Banner returns mid-April\", \"Guardian Games community challenge heats up\", \"ARK roadmap outlines updates through 2027\", \"Albion Online unveils Radiant Wilds update\", \"Terran Armada faction debuts in Starfield update\", \"GGMods launches with creator compensation model\"]}, \"conversations\": [{\"id\": \"orJM1FdqSR7k379QG7Ran\", \"started_at\": \"2026-04-14T14:38:13.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I want to create an image. Ask me questions about the subject, setting, and style I want.\"}]}, {\"id\": \"cPrrZ5CHsiezY39FpUNoE\", \"started_at\": \"2026-04-07T22:37:41.312Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft Dungeons 2\"}]}, {\"id\": \"ysuyotZBvRfVYipfQ8Xtc\", \"started_at\": \"2026-04-07T13:11:12.507Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Starfield update time esd\"}, {\"author\": \"human\", \"text\": \"how to stare the new missions\"}]}, {\"id\": \"dksy3zPnrkiswfU5JRkyj\", \"started_at\": \"2026-04-07T01:24:26.411Z\", \"messages\": [{\"author\": \"human\", \"text\": \"how to remove sharpy from plastic?\"}]}, {\"id\": \"esZ7mTvMSdCC4e28UqiiB\", \"started_at\": \"2026-04-06T20:16:00.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on Halo ODST's\"}]}, {\"id\": \"2bJAafwGrsm5phcPzQ1qs\", \"started_at\": \"2026-04-06T20:12:59.759Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on The Halo universe\"}]}, {\"id\": \"DtkoBEpqEbru9cGdEmc2u\", \"started_at\": \"2026-04-06T20:06:03.446Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on minecraft trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on astroneer trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on Halo universe trivia\"}]}, {\"id\": \"5bwZkTqgUMwN7c99gMsMH\", \"started_at\": \"2026-04-06T20:04:00.287Z\", \"messages\": [{\"author\": \"human\", \"text\": \"change to pixel art\"}]}, {\"id\": \"3h8iCnDLXF7y21t1gqoYN\", \"started_at\": \"2026-04-06T19:57:05.675Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what engin does minecraft dungeons use?\"}, {\"author\": \"human\", \"text\": \"How Minecraft Dungeons II might evolve on Unreal\"}]}, {\"id\": \"5em3sy1CstB7FZtfDpHpk\", \"started_at\": \"2026-04-02T19:45:06.594Z\", \"messages\": [{\"author\": \"human\", \"text\": \"What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?\"}, {\"author\": \"human\", \"text\": \"you don't think it might become a \\\"firefly incedent\\\"\"}, {\"author\": \"human\", \"text\": \"shure\"}]}, {\"id\": \"yPotBQsr1PxqC8J1HxbnW\", \"started_at\": \"2026-04-02T19:14:29.833Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what does Belac mean?\"}]}, {\"id\": \"98Tm2bxTv4uM3mrhKUcGJ\", \"started_at\": \"2026-04-01T14:09:44.714Z\", \"messages\": [{\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"whats the relese window in est plz\"}]}, {\"id\": \"JppY1s8euUE4ZxYjKBxgA\", \"started_at\": \"2026-04-01T11:53:30.626Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Is space engineers 1 adding npc of some sort? (watch the \\\"Who are They?\\\" video)\"}]}, {\"id\": \"gU9PoFgaTdNBS7UhXFUhe\", \"started_at\": \"2026-03-31T14:42:40.977Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo\"}]}, {\"id\": \"6ZN7zzBZKwCRgk5tAHA8x\", \"started_at\": \"2026-03-29T23:56:36.744Z\", \"messages\": [{\"author\": \"human\", \"text\": \"why do cats love lasers?\"}]}, {\"id\": \"gn3MTtb6FktQZpvQqSjTE\", \"started_at\": \"2026-03-25T20:02:11.094Z\", \"messages\": [{\"author\": \"human\", \"text\": \"if I want to get a VR system, what shold I know?\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}]}, {\"id\": \"xq3b6hFDiKLaRNE1agszQ\", \"started_at\": \"2026-03-22T22:23:42.196Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Minecraft Dungeons II?\"}]}, {\"id\": \"MjXidRgf2XP3yCuavsPt2\", \"started_at\": \"2026-03-22T15:15:06.742Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Why can I not install the new Bounty Hunters Creation in starfield?\"}, {\"author\": \"human\", \"text\": \"xbox\"}, {\"author\": \"human\", \"text\": \"I tryed to istall a desert camo skin pack but when it got done it said \\\"not enough space opperation\"}]}, {\"id\": \"a51xNEDw3GeTFekG9qz1P\", \"started_at\": \"2026-03-20T21:49:21.127Z\", \"messages\": [{\"author\": \"human\", \"text\": \"In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?\"}, {\"author\": \"human\", \"text\": \"cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)\"}, {\"author\": \"human\", \"text\": \"Whats a good way to grind xp?\"}]}, {\"id\": \"MJ5qZbUCZKoajALTF4AMp\", \"started_at\": \"2026-03-18T21:58:29.155Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Which Call of Duty has the best mutiplayer spec-ops?\"}, {\"author\": \"human\", \"text\": \"out of the remakes of MW1,2,2\"}, {\"author\": \"human\", \"text\": \"best survival out of all (not just remakes)\"}]}]}, \"history\": [{\"title\": \"Analysts call Starfield PS5 sales lukewarm\", \"summary\": \"\"}, {\"title\": \"Starfield rated for Nintendo Switch 2\", \"summary\": \"\"}, {\"title\": \"Fans design custom 3D Halo Flashpoint minis\", \"summary\": \"\"}, {\"title\": \"Flashpoint expansion introduces warring faction choices\", \"summary\": \"\"}, {\"title\": \"Factorio megabase design pushes efficiency limits\", \"summary\": \"\"}, {\"title\": \"Lua scripting unlocks deeper Teardown custom maps\", \"summary\": \"\"}, {\"title\": \"Designers dissect loot rarity and scarcity systems\", \"summary\": \"\"}, {\"title\": \"Chaos Cubed snapshot reveals sulfur caves\", \"summary\": \"\"}, {\"title\": \"Tracing Minecraft’s long prank-filled tradition\", \"summary\": \"\"}, {\"title\": \"DESI completes record 3D universe map, hints at new physics\", \"summary\": \"\"}, {\"title\": \"Astroneer’s tiered crafting unlocks megastructures\", \"summary\": \"\"}, {\"title\": \"Mapping Halo’s sprawling novel chronology\", \"summary\": \"\"}, {\"title\": \"Former developers allege cronyism at Halo Studios\", \"summary\": \"\"}, {\"title\": \"Fan-made Forge campaign recreates New Mombasa\", \"summary\": \"\"}, {\"title\": \"AK-47 mod dominates Minecraft downloads\", \"summary\": \"\"}, {\"title\": \"Teardown dev explains multiplayer voxel challenges\", \"summary\": \"\"}, {\"title\": \"Starfield modders release immersive survival overhaul\", \"summary\": \"\"}, {\"title\": \"Free Lanes update sparks new mod tools\", \"summary\": \"\"}, {\"title\": \"Community feedback update tweaks ship controls\", \"summary\": \"\"}, {\"title\": \"Halo partners with Fanta for armor rewards\", \"summary\": \"\"}, {\"title\": \"Astroneer roadmap teases new missions and systems\", \"summary\": \"\"}, {\"title\": \"Starseeker beta opens Astroneer’s cooperative frontier\", \"summary\": \"\"}, {\"title\": \"Starfield PS5 launch plagued by crashes\", \"summary\": \"\"}, {\"title\": \"Video game franchises expand into board gaming\", \"summary\": \"\"}, {\"title\": \"Halo collectibles surge in secondary markets\", \"summary\": \"\"}, {\"title\": \"Minecraft Dungeons II officially revealed with trailer\", \"summary\": \"\"}, {\"title\": \"Mojang embraces Unreal Engine for new projects\", \"summary\": \"\"}, {\"title\": \"Economy 2 update introduces NPC traders\", \"summary\": \"\"}, {\"title\": \"Teardown Mod Pack 5 arrives May 6\", \"summary\": \"\"}, {\"title\": \"Xbox Game Pass adds major sci-fi titles\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"dL6VLbWe2LfhmRkY89ncH\", \"title\": \"Astroneer patch expands cooperative frontier missions\", \"summary\": \"The April update introduces new mission objectives and improved multiplayer stability for frontier expeditions.\"}], \"max_len\": 2048}"
+          }
+        ],
+        "max_tokens": 1,
+        "temperature": 0.0
+      },
+      "meta": {
+        "feed_id": "EnTyXTHhurS8XQuWgNdLP",
+        "user_id": "533FwKwGjxDptBnakFPjX",
+        "bizdate": "20260419",
+        "label": 1,
+        "candidate_id": "dL6VLbWe2LfhmRkY89ncH",
+        "captured_at_unix": 1777526759,
+        "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
+        "source_jsonl": "../data_v10/eval_ura.jsonl"
+      },
+      "sample_response": {
+        "scores": [
+          {
+            "id": "dL6VLbWe2LfhmRkY89ncH",
+            "score": 0.932453
+          }
+        ],
+        "latency_ms": 153.9,
+        "prompt_build_ms": 122.1,
+        "inference_ms": 31.8,
+        "model_version": "v29-dlis-chat"
+      }
+    },
+    {
+      "name": "docarankqwen06b_negative_label",
+      "description": "Golden test fixture for docarankqwen06b. Send `chat_request` to the Papyrus endpoint (or `request` to DLIS directly) and verify that the parsed P(click) score satisfies `abs(score - expected.score_mean) <= expected.tolerance` (NOT exact equality). The endpoint is load-balanced over many A100 pods; identical prompts can produce slightly different bf16 logprobs across replicas. `expected.score_min` / `score_max` capture the observed envelope across 32 sequential calls at fixture-capture time; tolerance = (max - min) + slack.",
+      "expected": {
+        "score_mean": 0.750442,
+        "score_min": 0.731059,
+        "score_max": 0.754915,
+        "tolerance": 0.043856,
+        "observed_unique_scores": [
+          0.731059,
+          0.754915
+        ],
+        "calibration_calls": 32,
+        "model_version": "v29-dlis-chat"
+      },
+      "request": {
+        "interests": {
+          "positive": [
+            "Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.",
+            "Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.",
+            "Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.",
+            "Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.",
+            "Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.",
+            "Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.",
+            "Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.",
+            "Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer."
+          ],
+          "negative": [
+            "Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\n    keywords: game monetization, creator compensation, ggmods, business model\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.",
+            "Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: albion online, radiant wilds, albion update\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.",
+            "ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.",
+            "Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: destiny 2, guardian games, iron banner, bungie\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.",
+            "Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.",
+            "Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\n    keywords: gears of war, gears 6, xbox showcase\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.",
+            "Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage."
+          ],
+          "interactions": {
+            "clicks": [
+              "Mapping Halo’s sprawling novel chronology",
+              "Fan-made Forge campaign recreates New Mombasa",
+              "Minecraft Dungeons II officially revealed with trailer",
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Mojang embraces Unreal Engine for new projects",
+              "Teardown Mod Pack 5 arrives May 6"
+            ],
+            "thumbsUp": [
+              "Astroneer roadmap teases new missions and systems",
+              "Starseeker beta opens Astroneer’s cooperative frontier",
+              "Starfield PS5 launch plagued by crashes",
+              "Starfield launches Free Lanes update today",
+              "Remake receives Mature rating in Korea",
+              "Halo remake reportedly content complete now"
+            ],
+            "thumbsDown": [
+              "Roadmap reveals Shatterpoint’s 2026 expansion schedule",
+              "Strategic Positions expansion reshapes Shatterpoint missions",
+              "Xbox showcase to spotlight Gears of War",
+              "Voice actor reveals Gears 6 was considered",
+              "Warhammer Eye of Terror expansion launches",
+              "Apocalypse rules streamline massive Warhammer battles",
+              "Destiny 2 Iron Banner returns mid-April",
+              "Guardian Games community challenge heats up",
+              "ARK roadmap outlines updates through 2027",
+              "Albion Online unveils Radiant Wilds update",
+              "Terran Armada faction debuts in Starfield update",
+              "GGMods launches with creator compensation model"
+            ]
+          },
+          "conversations": [
+            {
+              "id": "orJM1FdqSR7k379QG7Ran",
+              "started_at": "2026-04-14T14:38:13.262Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "I want to create an image. Ask me questions about the subject, setting, and style I want."
+                }
+              ]
+            },
+            {
+              "id": "cPrrZ5CHsiezY39FpUNoE",
+              "started_at": "2026-04-07T22:37:41.312Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Keep me updated on Minecraft Dungeons 2"
+                }
+              ]
+            },
+            {
+              "id": "ysuyotZBvRfVYipfQ8Xtc",
+              "started_at": "2026-04-07T13:11:12.507Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Starfield update time esd"
+                },
+                {
+                  "author": "human",
+                  "text": "how to stare the new missions"
+                }
+              ]
+            },
+            {
+              "id": "dksy3zPnrkiswfU5JRkyj",
+              "started_at": "2026-04-07T01:24:26.411Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "how to remove sharpy from plastic?"
+                }
+              ]
+            },
+            {
+              "id": "esZ7mTvMSdCC4e28UqiiB",
+              "started_at": "2026-04-06T20:16:00.262Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Create a practice test on Halo ODST's"
+                }
+              ]
+            },
+            {
+              "id": "2bJAafwGrsm5phcPzQ1qs",
+              "started_at": "2026-04-06T20:12:59.759Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Create a practice test on The Halo universe"
+                }
+              ]
+            },
+            {
+              "id": "DtkoBEpqEbru9cGdEmc2u",
+              "started_at": "2026-04-06T20:06:03.446Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Create a practice test on minecraft trivia"
+                },
+                {
+                  "author": "human",
+                  "text": "Create a practice test on astroneer trivia"
+                },
+                {
+                  "author": "human",
+                  "text": "Create a practice test on Halo universe trivia"
+                }
+              ]
+            },
+            {
+              "id": "5bwZkTqgUMwN7c99gMsMH",
+              "started_at": "2026-04-06T20:04:00.287Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "change to pixel art"
+                }
+              ]
+            },
+            {
+              "id": "3h8iCnDLXF7y21t1gqoYN",
+              "started_at": "2026-04-06T19:57:05.675Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "what engin does minecraft dungeons use?"
+                },
+                {
+                  "author": "human",
+                  "text": "How Minecraft Dungeons II might evolve on Unreal"
+                }
+              ]
+            },
+            {
+              "id": "5em3sy1CstB7FZtfDpHpk",
+              "started_at": "2026-04-02T19:45:06.594Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?"
+                },
+                {
+                  "author": "human",
+                  "text": "you don't think it might become a \"firefly incedent\""
+                },
+                {
+                  "author": "human",
+                  "text": "shure"
+                }
+              ]
+            },
+            {
+              "id": "yPotBQsr1PxqC8J1HxbnW",
+              "started_at": "2026-04-02T19:14:29.833Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "what does Belac mean?"
+                }
+              ]
+            },
+            {
+              "id": "98Tm2bxTv4uM3mrhKUcGJ",
+              "started_at": "2026-04-01T14:09:44.714Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "is minecraft doing april fool's this year?"
+                },
+                {
+                  "author": "human",
+                  "text": "is minecraft doing april fool's this year?"
+                },
+                {
+                  "author": "human",
+                  "text": "whats the relese window in est plz"
+                }
+              ]
+            },
+            {
+              "id": "JppY1s8euUE4ZxYjKBxgA",
+              "started_at": "2026-04-01T11:53:30.626Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Is space engineers 1 adding npc of some sort? (watch the \"Who are They?\" video)"
+                }
+              ]
+            },
+            {
+              "id": "gU9PoFgaTdNBS7UhXFUhe",
+              "started_at": "2026-03-31T14:42:40.977Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo"
+                }
+              ]
+            },
+            {
+              "id": "6ZN7zzBZKwCRgk5tAHA8x",
+              "started_at": "2026-03-29T23:56:36.744Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "why do cats love lasers?"
+                }
+              ]
+            },
+            {
+              "id": "gn3MTtb6FktQZpvQqSjTE",
+              "started_at": "2026-03-25T20:02:11.094Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "if I want to get a VR system, what shold I know?"
+                },
+                {
+                  "author": "human",
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
+                },
+                {
+                  "author": "human",
+                  "text": "I also am only goint to play Clone drone in the hyperdome"
+                }
+              ]
+            },
+            {
+              "id": "xq3b6hFDiKLaRNE1agszQ",
+              "started_at": "2026-03-22T22:23:42.196Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Minecraft Dungeons II?"
+                }
+              ]
+            },
+            {
+              "id": "MjXidRgf2XP3yCuavsPt2",
+              "started_at": "2026-03-22T15:15:06.742Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Why can I not install the new Bounty Hunters Creation in starfield?"
+                },
+                {
+                  "author": "human",
+                  "text": "xbox"
+                },
+                {
+                  "author": "human",
+                  "text": "I tryed to istall a desert camo skin pack but when it got done it said \"not enough space opperation"
+                }
+              ]
+            },
+            {
+              "id": "a51xNEDw3GeTFekG9qz1P",
+              "started_at": "2026-03-20T21:49:21.127Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?"
+                },
+                {
+                  "author": "human",
+                  "text": "cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)"
+                },
+                {
+                  "author": "human",
+                  "text": "Whats a good way to grind xp?"
+                }
+              ]
+            },
+            {
+              "id": "MJ5qZbUCZKoajALTF4AMp",
+              "started_at": "2026-03-18T21:58:29.155Z",
+              "messages": [
+                {
+                  "author": "human",
+                  "text": "Which Call of Duty has the best mutiplayer spec-ops?"
+                },
+                {
+                  "author": "human",
+                  "text": "out of the remakes of MW1,2,2"
+                },
+                {
+                  "author": "human",
+                  "text": "best survival out of all (not just remakes)"
+                }
+              ]
+            }
+          ]
+        },
+        "history": [
+          {
+            "title": "Analysts call Starfield PS5 sales lukewarm",
+            "summary": ""
+          },
+          {
+            "title": "Starfield rated for Nintendo Switch 2",
+            "summary": ""
+          },
+          {
+            "title": "Fans design custom 3D Halo Flashpoint minis",
+            "summary": ""
+          },
+          {
+            "title": "Flashpoint expansion introduces warring faction choices",
+            "summary": ""
+          },
+          {
+            "title": "Factorio megabase design pushes efficiency limits",
+            "summary": ""
+          },
+          {
+            "title": "Lua scripting unlocks deeper Teardown custom maps",
+            "summary": ""
+          },
+          {
+            "title": "Designers dissect loot rarity and scarcity systems",
+            "summary": ""
+          },
+          {
+            "title": "Chaos Cubed snapshot reveals sulfur caves",
+            "summary": ""
+          },
+          {
+            "title": "Tracing Minecraft’s long prank-filled tradition",
+            "summary": ""
+          },
+          {
+            "title": "DESI completes record 3D universe map, hints at new physics",
+            "summary": ""
+          },
+          {
+            "title": "Astroneer’s tiered crafting unlocks megastructures",
+            "summary": ""
+          },
+          {
+            "title": "Mapping Halo’s sprawling novel chronology",
+            "summary": ""
+          },
+          {
+            "title": "Former developers allege cronyism at Halo Studios",
+            "summary": ""
+          },
+          {
+            "title": "Fan-made Forge campaign recreates New Mombasa",
+            "summary": ""
+          },
+          {
+            "title": "AK-47 mod dominates Minecraft downloads",
+            "summary": ""
+          },
+          {
+            "title": "Teardown dev explains multiplayer voxel challenges",
+            "summary": ""
+          },
+          {
+            "title": "Starfield modders release immersive survival overhaul",
+            "summary": ""
+          },
+          {
+            "title": "Free Lanes update sparks new mod tools",
+            "summary": ""
+          },
+          {
+            "title": "Community feedback update tweaks ship controls",
+            "summary": ""
+          },
+          {
+            "title": "Halo partners with Fanta for armor rewards",
+            "summary": ""
+          },
+          {
+            "title": "Astroneer roadmap teases new missions and systems",
+            "summary": ""
+          },
+          {
+            "title": "Starseeker beta opens Astroneer’s cooperative frontier",
+            "summary": ""
+          },
+          {
+            "title": "Starfield PS5 launch plagued by crashes",
+            "summary": ""
+          },
+          {
+            "title": "Video game franchises expand into board gaming",
+            "summary": ""
+          },
+          {
+            "title": "Halo collectibles surge in secondary markets",
+            "summary": ""
+          },
+          {
+            "title": "Minecraft Dungeons II officially revealed with trailer",
+            "summary": ""
+          },
+          {
+            "title": "Mojang embraces Unreal Engine for new projects",
+            "summary": ""
+          },
+          {
+            "title": "Economy 2 update introduces NPC traders",
+            "summary": ""
+          },
+          {
+            "title": "Teardown Mod Pack 5 arrives May 6",
+            "summary": ""
+          },
+          {
+            "title": "Xbox Game Pass adds major sci-fi titles",
+            "summary": ""
+          }
+        ],
+        "candidates": [
+          {
+            "id": "cyYTHpJzukjzkdZtVumy3",
+            "title": "Voxel engineering titles highlight April innovations",
+            "summary": "New voxel-based RPGs and sandbox updates showcase creative engineering mechanics this month."
+          }
+        ],
+        "max_len": 2048
+      },
+      "chat_request": {
+        "model": "docarankqwen06b",
+        "messages": [
+          {
+            "role": "user",
+            "content": "{\"interests\": {\"positive\": [\"Halo franchise  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.95; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: halo, halo infinite, halo wars, halo flashpoint, master chief, odst\\n    why: User has extensive engagement with Halo across many conversations from 2025 through April 2026, including lore, trivia, practice tests, Halo Wars 2 strategies, Halo Infinite Forge, and Halo Flashpoint board game. Inline curation on March 31, 2026 explicitly requested updates on Halo. User also gave thumbs up to Halo remake news.\", \"Starfield updates and expansions  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.93; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: starfield, bethesda, starfield updates, starfield dlc, starfield expansions\\n    why: User frequently asked about Starfield updates, DLC, expansions, and missions from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Starfield. User gave thumbs up to multiple Starfield articles.\", \"Minecraft updates and features  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft, mojang, minecraft updates, minecraft features, minecraft mods\\n    why: User consistently asked about Minecraft updates, features, mods, and trivia across multiple conversations from November 2025 through April 2026, including April Fool's events, Trails and Tails update, Mojang design choices, and technical details. Inline curation on March 31, 2026 explicitly requested updates on Minecraft.\", \"Astroneer gameplay and roadmap  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.92; sources=ChatHistory,InlineCuration,UserInteractions]\\n    keywords: astroneer, astroneer roadmap, astroneer missions, astroneer resources\\n    why: User asked about Astroneer roadmap, resources, lore, and missions from July 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Astroneer. User gave thumbs up to Astroneer roadmap and cooperative frontier articles.\", \"Halo Flashpoint board game  [domain=Tabletop Gaming; classification=Topic; status=Stable; intent=Explore; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: halo flashpoint, board game, miniatures, halo tabletop\\n    why: User repeatedly asked about Halo Flashpoint sets, expansions, rules, and custom content from late 2025 through March 2026. Inline curation on March 31, 2026 explicitly requested updates on Halo Flashpoint.\", \"Space Engineers gameplay  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.90; sources=ChatHistory,InlineCuration]\\n    keywords: space engineers, keen software, space engineers xbox, space engineers mods\\n    why: User asked about Space Engineers encounters, mods, challenges, and Xbox features from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Space Engineers.\", \"Minecraft Dungeons II  [domain=Gaming; classification=Topic; status=Emerging; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: minecraft dungeons, minecraft dungeons 2, unreal engine, mojang\\n    why: User asked about Minecraft Dungeons II in March 2026 and discussed its engine and evolution on April 2026. Inline curation on April 7, 2026 explicitly requested updates on Minecraft Dungeons 2.\", \"Teardown multiplayer and mods  [domain=Gaming; classification=Topic; status=Stable; intent=StayUpdated; strength=0.88; sources=ChatHistory,InlineCuration]\\n    keywords: teardown, teardown mods, teardown multiplayer, teardown updates\\n    why: User asked about Teardown multiplayer updates and mod packs from September 2025 through April 2026. Inline curation on March 31, 2026 explicitly requested updates on Teardown multiplayer.\"], \"negative\": [\"Game monetization models  [domain=Gaming Industry; strength=0.85; sources=UserInteractions]\\n    keywords: game monetization, creator compensation, ggmods, business model\\n    why: User gave thumbs down to an article about GGMods creator compensation model, indicating disinterest in monetization or compensation model news.\", \"Albion Online updates  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: albion online, radiant wilds, albion update\\n    why: User gave thumbs down to an article about Albion Online Radiant Wilds update, indicating disinterest in Albion Online coverage.\", \"ARK roadmap coverage  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: ark, ark roadmap, ark survival evolved, ark updates\\n    why: User gave thumbs down to an article about ARK roadmap through 2027, indicating disinterest in ARK content.\", \"Destiny 2 events  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: destiny 2, guardian games, iron banner, bungie\\n    why: User gave thumbs down to articles about Destiny 2 Guardian Games and Iron Banner, indicating disinterest in Destiny 2 coverage.\", \"Warhammer expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: warhammer, eye of terror, warhammer expansion, warhammer battles\\n    why: User gave thumbs down to articles about Warhammer expansions and rules, indicating disinterest in Warhammer content.\", \"Gears of War franchise  [domain=Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: gears of war, gears 6, xbox showcase\\n    why: User gave thumbs down to articles about Gears of War showcase and Gears 6, indicating disinterest in Gears of War coverage.\", \"Shatterpoint expansions  [domain=Tabletop Gaming; strength=0.85; sources=UserInteractions]\\n    keywords: shatterpoint, shatterpoint expansion, shatterpoint missions\\n    why: User gave thumbs down to articles about Shatterpoint expansion schedule and missions, indicating disinterest in Shatterpoint coverage.\"], \"interactions\": {\"clicks\": [\"Mapping Halo’s sprawling novel chronology\", \"Fan-made Forge campaign recreates New Mombasa\", \"Minecraft Dungeons II officially revealed with trailer\", \"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Mojang embraces Unreal Engine for new projects\", \"Teardown Mod Pack 5 arrives May 6\"], \"thumbsUp\": [\"Astroneer roadmap teases new missions and systems\", \"Starseeker beta opens Astroneer’s cooperative frontier\", \"Starfield PS5 launch plagued by crashes\", \"Starfield launches Free Lanes update today\", \"Remake receives Mature rating in Korea\", \"Halo remake reportedly content complete now\"], \"thumbsDown\": [\"Roadmap reveals Shatterpoint’s 2026 expansion schedule\", \"Strategic Positions expansion reshapes Shatterpoint missions\", \"Xbox showcase to spotlight Gears of War\", \"Voice actor reveals Gears 6 was considered\", \"Warhammer Eye of Terror expansion launches\", \"Apocalypse rules streamline massive Warhammer battles\", \"Destiny 2 Iron Banner returns mid-April\", \"Guardian Games community challenge heats up\", \"ARK roadmap outlines updates through 2027\", \"Albion Online unveils Radiant Wilds update\", \"Terran Armada faction debuts in Starfield update\", \"GGMods launches with creator compensation model\"]}, \"conversations\": [{\"id\": \"orJM1FdqSR7k379QG7Ran\", \"started_at\": \"2026-04-14T14:38:13.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"I want to create an image. Ask me questions about the subject, setting, and style I want.\"}]}, {\"id\": \"cPrrZ5CHsiezY39FpUNoE\", \"started_at\": \"2026-04-07T22:37:41.312Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft Dungeons 2\"}]}, {\"id\": \"ysuyotZBvRfVYipfQ8Xtc\", \"started_at\": \"2026-04-07T13:11:12.507Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Starfield update time esd\"}, {\"author\": \"human\", \"text\": \"how to stare the new missions\"}]}, {\"id\": \"dksy3zPnrkiswfU5JRkyj\", \"started_at\": \"2026-04-07T01:24:26.411Z\", \"messages\": [{\"author\": \"human\", \"text\": \"how to remove sharpy from plastic?\"}]}, {\"id\": \"esZ7mTvMSdCC4e28UqiiB\", \"started_at\": \"2026-04-06T20:16:00.262Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on Halo ODST's\"}]}, {\"id\": \"2bJAafwGrsm5phcPzQ1qs\", \"started_at\": \"2026-04-06T20:12:59.759Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on The Halo universe\"}]}, {\"id\": \"DtkoBEpqEbru9cGdEmc2u\", \"started_at\": \"2026-04-06T20:06:03.446Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Create a practice test on minecraft trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on astroneer trivia\"}, {\"author\": \"human\", \"text\": \"Create a practice test on Halo universe trivia\"}]}, {\"id\": \"5bwZkTqgUMwN7c99gMsMH\", \"started_at\": \"2026-04-06T20:04:00.287Z\", \"messages\": [{\"author\": \"human\", \"text\": \"change to pixel art\"}]}, {\"id\": \"3h8iCnDLXF7y21t1gqoYN\", \"started_at\": \"2026-04-06T19:57:05.675Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what engin does minecraft dungeons use?\"}, {\"author\": \"human\", \"text\": \"How Minecraft Dungeons II might evolve on Unreal\"}]}, {\"id\": \"5em3sy1CstB7FZtfDpHpk\", \"started_at\": \"2026-04-02T19:45:06.594Z\", \"messages\": [{\"author\": \"human\", \"text\": \"What will minecraft do about it's new sulfur pool not being dangerous in game but are in real life?\"}, {\"author\": \"human\", \"text\": \"you don't think it might become a \\\"firefly incedent\\\"\"}, {\"author\": \"human\", \"text\": \"shure\"}]}, {\"id\": \"yPotBQsr1PxqC8J1HxbnW\", \"started_at\": \"2026-04-02T19:14:29.833Z\", \"messages\": [{\"author\": \"human\", \"text\": \"what does Belac mean?\"}]}, {\"id\": \"98Tm2bxTv4uM3mrhKUcGJ\", \"started_at\": \"2026-04-01T14:09:44.714Z\", \"messages\": [{\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"is minecraft doing april fool's this year?\"}, {\"author\": \"human\", \"text\": \"whats the relese window in est plz\"}]}, {\"id\": \"JppY1s8euUE4ZxYjKBxgA\", \"started_at\": \"2026-04-01T11:53:30.626Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Is space engineers 1 adding npc of some sort? (watch the \\\"Who are They?\\\" video)\"}]}, {\"id\": \"gU9PoFgaTdNBS7UhXFUhe\", \"started_at\": \"2026-03-31T14:42:40.977Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Keep me updated on Minecraft, space, Space engineers, Starfield, astroneer, Teardown mp, Halo flashpoint, and Halo\"}]}, {\"id\": \"6ZN7zzBZKwCRgk5tAHA8x\", \"started_at\": \"2026-03-29T23:56:36.744Z\", \"messages\": [{\"author\": \"human\", \"text\": \"why do cats love lasers?\"}]}, {\"id\": \"gn3MTtb6FktQZpvQqSjTE\", \"started_at\": \"2026-03-25T20:02:11.094Z\", \"messages\": [{\"author\": \"human\", \"text\": \"if I want to get a VR system, what shold I know?\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}, {\"author\": \"human\", \"text\": \"I also am only goint to play Clone drone in the hyperdome\"}]}, {\"id\": \"xq3b6hFDiKLaRNE1agszQ\", \"started_at\": \"2026-03-22T22:23:42.196Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Minecraft Dungeons II?\"}]}, {\"id\": \"MjXidRgf2XP3yCuavsPt2\", \"started_at\": \"2026-03-22T15:15:06.742Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Why can I not install the new Bounty Hunters Creation in starfield?\"}, {\"author\": \"human\", \"text\": \"xbox\"}, {\"author\": \"human\", \"text\": \"I tryed to istall a desert camo skin pack but when it got done it said \\\"not enough space opperation\"}]}, {\"id\": \"a51xNEDw3GeTFekG9qz1P\", \"started_at\": \"2026-03-20T21:49:21.127Z\", \"messages\": [{\"author\": \"human\", \"text\": \"In starfield the Ecliptic have there own base (the Vulture's Roost) but do the Spacers have somthing like that?\"}, {\"author\": \"human\", \"text\": \"cool well can you find some allways generated custom structurs like the Vultur's Roost or Safe House somthing (I forgot)\"}, {\"author\": \"human\", \"text\": \"Whats a good way to grind xp?\"}]}, {\"id\": \"MJ5qZbUCZKoajALTF4AMp\", \"started_at\": \"2026-03-18T21:58:29.155Z\", \"messages\": [{\"author\": \"human\", \"text\": \"Which Call of Duty has the best mutiplayer spec-ops?\"}, {\"author\": \"human\", \"text\": \"out of the remakes of MW1,2,2\"}, {\"author\": \"human\", \"text\": \"best survival out of all (not just remakes)\"}]}]}, \"history\": [{\"title\": \"Analysts call Starfield PS5 sales lukewarm\", \"summary\": \"\"}, {\"title\": \"Starfield rated for Nintendo Switch 2\", \"summary\": \"\"}, {\"title\": \"Fans design custom 3D Halo Flashpoint minis\", \"summary\": \"\"}, {\"title\": \"Flashpoint expansion introduces warring faction choices\", \"summary\": \"\"}, {\"title\": \"Factorio megabase design pushes efficiency limits\", \"summary\": \"\"}, {\"title\": \"Lua scripting unlocks deeper Teardown custom maps\", \"summary\": \"\"}, {\"title\": \"Designers dissect loot rarity and scarcity systems\", \"summary\": \"\"}, {\"title\": \"Chaos Cubed snapshot reveals sulfur caves\", \"summary\": \"\"}, {\"title\": \"Tracing Minecraft’s long prank-filled tradition\", \"summary\": \"\"}, {\"title\": \"DESI completes record 3D universe map, hints at new physics\", \"summary\": \"\"}, {\"title\": \"Astroneer’s tiered crafting unlocks megastructures\", \"summary\": \"\"}, {\"title\": \"Mapping Halo’s sprawling novel chronology\", \"summary\": \"\"}, {\"title\": \"Former developers allege cronyism at Halo Studios\", \"summary\": \"\"}, {\"title\": \"Fan-made Forge campaign recreates New Mombasa\", \"summary\": \"\"}, {\"title\": \"AK-47 mod dominates Minecraft downloads\", \"summary\": \"\"}, {\"title\": \"Teardown dev explains multiplayer voxel challenges\", \"summary\": \"\"}, {\"title\": \"Starfield modders release immersive survival overhaul\", \"summary\": \"\"}, {\"title\": \"Free Lanes update sparks new mod tools\", \"summary\": \"\"}, {\"title\": \"Community feedback update tweaks ship controls\", \"summary\": \"\"}, {\"title\": \"Halo partners with Fanta for armor rewards\", \"summary\": \"\"}, {\"title\": \"Astroneer roadmap teases new missions and systems\", \"summary\": \"\"}, {\"title\": \"Starseeker beta opens Astroneer’s cooperative frontier\", \"summary\": \"\"}, {\"title\": \"Starfield PS5 launch plagued by crashes\", \"summary\": \"\"}, {\"title\": \"Video game franchises expand into board gaming\", \"summary\": \"\"}, {\"title\": \"Halo collectibles surge in secondary markets\", \"summary\": \"\"}, {\"title\": \"Minecraft Dungeons II officially revealed with trailer\", \"summary\": \"\"}, {\"title\": \"Mojang embraces Unreal Engine for new projects\", \"summary\": \"\"}, {\"title\": \"Economy 2 update introduces NPC traders\", \"summary\": \"\"}, {\"title\": \"Teardown Mod Pack 5 arrives May 6\", \"summary\": \"\"}, {\"title\": \"Xbox Game Pass adds major sci-fi titles\", \"summary\": \"\"}], \"candidates\": [{\"id\": \"cyYTHpJzukjzkdZtVumy3\", \"title\": \"Voxel engineering titles highlight April innovations\", \"summary\": \"New voxel-based RPGs and sandbox updates showcase creative engineering mechanics this month.\"}], \"max_len\": 2048}"
+          }
+        ],
+        "max_tokens": 1,
+        "temperature": 0.0
+      },
+      "meta": {
+        "feed_id": "EnTyXTHhurS8XQuWgNdLP",
+        "user_id": "533FwKwGjxDptBnakFPjX",
+        "bizdate": "20260419",
+        "label": 0,
+        "candidate_id": "cyYTHpJzukjzkdZtVumy3",
+        "captured_at_unix": 1777526771,
+        "endpoint": "https://fabricrouter-azureglobalprivate.ingress-dlis.ingress.cus.microsoft-falcon.net/dlis-coreranker.docarankqwen06b/",
+        "source_jsonl": "../data_v10/eval_ura.jsonl"
+      },
+      "sample_response": {
+        "scores": [
+          {
+            "id": "cyYTHpJzukjzkdZtVumy3",
+            "score": 0.754915
+          }
+        ],
+        "latency_ms": 151.6,
+        "prompt_build_ms": 121.5,
+        "inference_ms": 30.1,
+        "model_version": "v29-dlis-chat"
+      }
+    }
+  ]
+}
