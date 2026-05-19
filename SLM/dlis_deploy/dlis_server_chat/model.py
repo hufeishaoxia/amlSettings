@@ -353,17 +353,16 @@ class ModelImp:
 
     # --------------------------- DLIS Eval entrypoint -----------------------
 
-    # Cap how many chars of response body we dump to log per request so we
-    # don't blow up DLIS log ingestion on huge candidate batches. Override via
-    # env if needed.
-    _RESP_LOG_MAX_CHARS = int(os.getenv("RESP_LOG_MAX_CHARS", "4000"))
+    @staticmethod
+    def _error_response(code: str, message: str, err_type: str = "invalid_request_error") -> str:
+        """Build an OpenAI-spec error envelope.
 
-    def _log_response(self, response_str: str, status: str = "ok") -> None:
-        body = response_str
-        n = len(body)
-        if n > self._RESP_LOG_MAX_CHARS:
-            body = body[: self._RESP_LOG_MAX_CHARS] + f"...<truncated, total_len={n}>"
-        logger.info("[resp] status=%s len=%d body=%s", status, n, body)
+        Picasso's ChatCompletions deserializer expects `error` to be an OBJECT
+        with `code`/`message`/`type` fields. Returning `{"error": "<string>"}`
+        breaks JSON deserialization on the client side (System.Text.Json
+        throws at $.error). Always use this helper for error responses.
+        """
+        return json.dumps({"error": {"code": code, "message": message, "type": err_type}})
 
     def Eval(self, data):
         """DLIS string eval interface. JSON in, JSON out.
@@ -377,9 +376,7 @@ class ModelImp:
             req = json.loads(data)
         except Exception as e:
             logger.error(f"Invalid JSON: {e}")
-            resp = json.dumps({"error": f"Invalid JSON: {e}"})
-            self._log_response(resp, status="invalid_json")
-            return resp
+            return self._error_response("invalid_json", f"Invalid JSON: {e}")
 
         try:
             if self._is_chat_request(req):
@@ -387,25 +384,17 @@ class ModelImp:
                 raw_payload = self._extract_raw_payload_from_chat(req)
                 raw_response = self._rank(raw_payload)
                 chat_response = self._wrap_chat_response(raw_response, req.get("model", ""))
-                resp = json.dumps(chat_response, ensure_ascii=False)
-                self._log_response(resp, status="ok_chat")
-                return resp
+                return json.dumps(chat_response, ensure_ascii=False)
             else:
                 # ----- raw mode (legacy) -----
                 raw_response = self._rank(req)
-                resp = json.dumps(raw_response, ensure_ascii=False)
-                self._log_response(resp, status="ok_raw")
-                return resp
+                return json.dumps(raw_response, ensure_ascii=False)
         except ValueError as e:
             logger.error(f"Bad chat request: {e}")
-            resp = json.dumps({"error": str(e)})
-            self._log_response(resp, status="bad_request")
-            return resp
+            return self._error_response("bad_request", str(e))
         except Exception as e:
             logger.exception(f"Eval error: {e}")
-            resp = json.dumps({"error": str(e)})
-            self._log_response(resp, status="internal_error")
-            return resp
+            return self._error_response("internal_error", str(e), err_type="server_error")
 
     def EvalBatch(self, data_list):
         return [self.Eval(d) for d in data_list]
