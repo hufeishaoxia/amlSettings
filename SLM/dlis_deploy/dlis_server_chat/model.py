@@ -17,6 +17,7 @@ DLIS framework only exposes a single POST `/`; Papyrus strips the `/chat/complet
 path before forwarding the body, so this single endpoint covers both clients.
 """
 import os
+import copy
 import json
 import math
 import time
@@ -34,7 +35,7 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v30-dlis-chat"
+MODEL_VERSION = "v31-dlis-chat"
 MODEL_NAME_PUBLIC = "docarankqwen06b"
 
 logging.basicConfig(level=logging.INFO)
@@ -67,6 +68,13 @@ class ModelImp:
         dtype = os.getenv("VLLM_DTYPE", "bfloat16")
         self.eval_max_len = int(os.getenv("EVAL_MAX_LEN", "4096"))
         self.body_budget = max(256, self.eval_max_len - 120)
+
+        # Engine-side hard cap on prompt tokens. vLLM rejects any prompt that,
+        # together with `max_tokens=1`, exceeds `max_model_len`. We reserve 1
+        # token for the answer + a small safety margin to absorb tokenizer
+        # quirks (e.g. apply_chat_template wrapper drift).
+        self.engine_max_tokens = max_model_len
+        self.prompt_token_limit = max(256, max_model_len - 1 - 16)
 
         print(f"=== Qwen3-0.6B Ranker {MODEL_VERSION} ===")
         print(f"Loading vLLM engine from {ckpt_path} (tp={tp}, max_len={max_model_len}, dtype={dtype}, eager=True)")
@@ -117,6 +125,96 @@ class ModelImp:
 
     # --------------------------- core ranking -------------------------------
 
+    def _render_full_prompt(self, body: str) -> str:
+        msgs = [
+            {"role": "system", "content": SYSTEM_MSG},
+            {"role": "user", "content": body},
+        ]
+        return self.tokenizer.apply_chat_template(
+            msgs, tokenize=False, add_generation_prompt=True,
+        )
+
+    def _ntok(self, text: str) -> int:
+        return len(self.tokenizer.encode(text, add_special_tokens=False))
+
+    def _build_and_fit_prompt(self, history, interests, candidate, body_budget):
+        """Build a chat-templated prompt that fits ``self.prompt_token_limit``.
+
+        Pipeline:
+          1. ``build_prompt_budgeted`` (halves SHOWN_CARDS, then drops oldest
+             conversations from the tail) to fit ``body_budget`` tokens.
+          2. Render through ``apply_chat_template`` and count *real* tokens.
+          3. If still over the engine cap (wrapper overhead bigger than the
+             body_budget reservation), iteratively shrink **interests**:
+               a. Drop newest -> oldest CONVERSATIONS until empty.
+               b. Then drop trailing entries from USER_INTERACTIONS lists
+                  (clicks / thumbsUp / thumbsDown, round-robin).
+          4. Last-resort tail-truncate at the token level (keeps the
+             question + CANDIDATE_ITEM at the end of the prompt).
+
+        USER_INTERESTS positive/negative lists and CANDIDATE_ITEM are never
+        dropped here -- those are the highest-signal sections.
+        """
+        body, _trunc, _dh, _dc = build_prompt_budgeted(
+            history, interests, candidate, self.tokenizer, body_budget,
+        )
+        text = self._render_full_prompt(body)
+        n_tok = self._ntok(text)
+        if n_tok <= self.prompt_token_limit:
+            return text, n_tok, {}
+
+        # Need to shrink past what build_prompt_budgeted already did.
+        drops = {"conversations": 0, "clicks": 0, "thumbsUp": 0, "thumbsDown": 0,
+                 "hard_truncated_tokens": 0}
+        interests = copy.deepcopy(interests) if isinstance(interests, dict) else interests
+
+        # 1) conversations: pop from tail (matches build_prompt_budgeted order)
+        if isinstance(interests, dict):
+            convs = list(interests.get("conversations") or [])
+            while convs and n_tok > self.prompt_token_limit:
+                convs.pop()
+                drops["conversations"] += 1
+                interests["conversations"] = convs
+                body, *_ = build_prompt_budgeted(
+                    history, interests, candidate, self.tokenizer, body_budget,
+                )
+                text = self._render_full_prompt(body)
+                n_tok = self._ntok(text)
+
+        # 2) interaction titles (impressions): round-robin pop from tail
+        if isinstance(interests, dict) and n_tok > self.prompt_token_limit:
+            inter = dict(interests.get("interactions") or {})
+            for k in ("clicks", "thumbsUp", "thumbsDown"):
+                inter[k] = list(inter.get(k) or [])
+            interests["interactions"] = inter
+            keys = ("clicks", "thumbsDown", "thumbsUp")  # drop clicks first, keep thumbsUp longest
+            i = 0
+            while n_tok > self.prompt_token_limit and any(inter[k] for k in keys):
+                k = keys[i % len(keys)]
+                i += 1
+                if not inter[k]:
+                    continue
+                inter[k].pop()
+                drops[k] += 1
+                body, *_ = build_prompt_budgeted(
+                    history, interests, candidate, self.tokenizer, body_budget,
+                )
+                text = self._render_full_prompt(body)
+                n_tok = self._ntok(text)
+
+        # 3) hard fallback: tail-truncate ids. Keep the tail because the
+        #    question + CANDIDATE_ITEM sit at the end of the prompt and matter
+        #    most for scoring. (vLLM will be re-fed text -- decode round trip.)
+        if n_tok > self.prompt_token_limit:
+            ids = self.tokenizer.encode(text, add_special_tokens=False)
+            removed = len(ids) - self.prompt_token_limit
+            ids = ids[removed:]
+            text = self.tokenizer.decode(ids)
+            n_tok = len(ids)
+            drops["hard_truncated_tokens"] = removed
+
+        return text, n_tok, drops
+
     def _rank(self, req: dict) -> dict:
         """Run the ranker on a parsed raw-schema request dict.
         Returns the same dict that legacy `Eval()` returned (pre-json.dumps).
@@ -127,22 +225,24 @@ class ModelImp:
         body_budget = max(256, req_max_len - 120)
 
         prompts = []
+        shrink_events = []
         for card in candidates:
             cand = {
                 "title": card.get("title", ""),
                 "summary": card.get("summary", ""),
             }
-            body, _truncated, _dh, _dc = build_prompt_budgeted(
-                history, interests, cand, self.tokenizer, body_budget,
+            text, n_tok, drops = self._build_and_fit_prompt(
+                history, interests, cand, body_budget,
             )
-            msgs = [
-                {"role": "system", "content": SYSTEM_MSG},
-                {"role": "user", "content": body},
-            ]
-            text = self.tokenizer.apply_chat_template(
-                msgs, tokenize=False, add_generation_prompt=True,
-            )
+            if any(v for v in drops.values()):
+                shrink_events.append({"id": card.get("id", ""), "n_tok": n_tok, **drops})
             prompts.append(text)
+
+        if shrink_events:
+            logger.warning(
+                "[rank] shrink_applied n=%d limit=%d events=%s",
+                len(shrink_events), self.prompt_token_limit, shrink_events,
+            )
 
         t1 = time.time()
         all_scores = self._score_prompts(prompts)
@@ -253,6 +353,18 @@ class ModelImp:
 
     # --------------------------- DLIS Eval entrypoint -----------------------
 
+    # Cap how many chars of response body we dump to log per request so we
+    # don't blow up DLIS log ingestion on huge candidate batches. Override via
+    # env if needed.
+    _RESP_LOG_MAX_CHARS = int(os.getenv("RESP_LOG_MAX_CHARS", "4000"))
+
+    def _log_response(self, response_str: str, status: str = "ok") -> None:
+        body = response_str
+        n = len(body)
+        if n > self._RESP_LOG_MAX_CHARS:
+            body = body[: self._RESP_LOG_MAX_CHARS] + f"...<truncated, total_len={n}>"
+        logger.info("[resp] status=%s len=%d body=%s", status, n, body)
+
     def Eval(self, data):
         """DLIS string eval interface. JSON in, JSON out.
 
@@ -265,7 +377,9 @@ class ModelImp:
             req = json.loads(data)
         except Exception as e:
             logger.error(f"Invalid JSON: {e}")
-            return json.dumps({"error": f"Invalid JSON: {e}"})
+            resp = json.dumps({"error": f"Invalid JSON: {e}"})
+            self._log_response(resp, status="invalid_json")
+            return resp
 
         try:
             if self._is_chat_request(req):
@@ -273,17 +387,25 @@ class ModelImp:
                 raw_payload = self._extract_raw_payload_from_chat(req)
                 raw_response = self._rank(raw_payload)
                 chat_response = self._wrap_chat_response(raw_response, req.get("model", ""))
-                return json.dumps(chat_response, ensure_ascii=False)
+                resp = json.dumps(chat_response, ensure_ascii=False)
+                self._log_response(resp, status="ok_chat")
+                return resp
             else:
                 # ----- raw mode (legacy) -----
                 raw_response = self._rank(req)
-                return json.dumps(raw_response, ensure_ascii=False)
+                resp = json.dumps(raw_response, ensure_ascii=False)
+                self._log_response(resp, status="ok_raw")
+                return resp
         except ValueError as e:
             logger.error(f"Bad chat request: {e}")
-            return json.dumps({"error": str(e)})
+            resp = json.dumps({"error": str(e)})
+            self._log_response(resp, status="bad_request")
+            return resp
         except Exception as e:
             logger.exception(f"Eval error: {e}")
-            return json.dumps({"error": str(e)})
+            resp = json.dumps({"error": str(e)})
+            self._log_response(resp, status="internal_error")
+            return resp
 
     def EvalBatch(self, data_list):
         return [self.Eval(d) for d in data_list]
