@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 CKPT='../output/v10_Qwen3-0.6B_all_ep2/inference_model'
 ACR='f9309c3acdd842848c88032e1ec736d2'
 IMAGE='qwen3-06b-ranker'
-TAG='v29-dlis-chat'
+TAG='v30-dlis-chat'
 
 # Optional: SKIP_SMOKE=1 to bypass the local vLLM smoke test (e.g. low-VRAM dev box)
 SKIP_SMOKE="${SKIP_SMOKE:-0}"

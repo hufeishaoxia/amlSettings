@@ -34,11 +34,14 @@ from prompt import (
     normalize_request,
 )
 
-MODEL_VERSION = "v29-dlis-chat"
+MODEL_VERSION = "v30-dlis-chat"
 MODEL_NAME_PUBLIC = "docarankqwen06b"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Silence Tornado access-log warnings for unrelated probes (e.g. /metrics 404).
+logging.getLogger("tornado.access").setLevel(logging.ERROR)
 
 
 class ModelImp:
@@ -102,7 +105,7 @@ class ModelImp:
     # --------------------------- vLLM scoring helpers -----------------------
 
     def _score_prompts(self, prompts):
-        outputs = self.llm.generate(prompts, self.sampling_params)
+        outputs = self.llm.generate(prompts, self.sampling_params, use_tqdm=False)
         return [self._extract_yes_prob(o) for o in outputs]
 
     def _extract_yes_prob(self, out) -> float:
@@ -150,13 +153,29 @@ class ModelImp:
             for card, score in zip(candidates, all_scores)
         ]
 
-        return {
+        response = {
             "scores": results,
             "latency_ms": round((t2 - t0) * 1000, 1),
             "prompt_build_ms": round((t1 - t0) * 1000, 1),
             "inference_ms": round((t2 - t1) * 1000, 1),
             "model_version": MODEL_VERSION,
         }
+
+        try:
+            score_detail = ", ".join(f"{r['id']}={r['score']:.4f}" for r in results)
+        except Exception:
+            score_detail = str(results)
+        logger.info(
+            "[rank] model=%s n=%d total_ms=%.1f build_ms=%.1f infer_ms=%.1f scores=[%s]",
+            MODEL_VERSION,
+            len(results),
+            response["latency_ms"],
+            response["prompt_build_ms"],
+            response["inference_ms"],
+            score_detail,
+        )
+
+        return response
 
     # --------------------------- chat-completions wrap ----------------------
 
