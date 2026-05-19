@@ -1,0 +1,16 @@
+--- a/trellis2/pipelines/rembg/BiRefNet.py	2026-05-19 17:01:52.127223777 +0000
++++ b/trellis2/pipelines/rembg/BiRefNet.py	2026-05-19 16:13:47.180374411 +0000
+@@ -30,10 +30,11 @@
+         
+     def __call__(self, image: Image.Image) -> Image.Image:
+         image_size = image.size
+-        input_images = self.transform_image(image).unsqueeze(0).to("cuda")
++        model_dtype = next(self.model.parameters()).dtype
++        input_images = self.transform_image(image).unsqueeze(0).to("cuda", dtype=model_dtype)
+         # Prediction
+         with torch.no_grad():
+-            preds = self.model(input_images)[-1].sigmoid().cpu()
++            preds = self.model(input_images)[-1].sigmoid().float().cpu()
+         pred = preds[0].squeeze()
+         pred_pil = transforms.ToPILImage()(pred)
+         mask = pred_pil.resize(image_size)

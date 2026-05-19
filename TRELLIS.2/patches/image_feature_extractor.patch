@@ -1,0 +1,16 @@
+--- a/trellis2/modules/image_feature_extractor.py	2026-05-19 17:01:52.125223777 +0000
++++ b/trellis2/modules/image_feature_extractor.py	2026-05-19 09:23:26.601011819 +0000
+@@ -83,7 +83,12 @@
+         hidden_states = self.model.embeddings(image, bool_masked_pos=None)
+         position_embeddings = self.model.rope_embeddings(image)
+ 
+-        for i, layer_module in enumerate(self.model.layer):
++        # The layer ModuleList may live at `self.model.layer` (some transformers versions)
++        # or at `self.model.model.layer` (newer transformers wraps the layers under `.model`).
++        layers = getattr(self.model, 'layer', None)
++        if layers is None:
++            layers = self.model.model.layer
++        for i, layer_module in enumerate(layers):
+             hidden_states = layer_module(
+                 hidden_states,
+                 position_embeddings=position_embeddings,
